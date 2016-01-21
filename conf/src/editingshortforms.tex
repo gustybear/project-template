@@ -1,0 +1,33 @@
+% The following command is a better version of \phantom and requires the "calc" package
+% Credits: Jean-Côme Charpentier & Scott Pakin
+% Source: comp.text.tex, "Phantom-ish command"
+% usage: \phantomas[l]{phantom words which will be overwritten}{with these words}
+% the optional parameter [l] says that the words "with these words" will appear aligned left to the reserved space
+% another optional parameter is [r] for aligning the words right
+% if no optional parameter is given, the words will be centred in the reserved space
+\newcommand*\phantomas[3][c]{% 
+\ifmmode 
+\makebox[\widthof{$#2$}][#1]{$#3$}% 
+\else 
+\makebox[\widthof{#2}][#1]{#3}% 
+\fi 
+}
+
+\newif\ifblinded
+% set default to false
+\blindedfalse
+
+\newcommand*\condphantom[2][]{%
+\ifblinded
+\phantomas{#2}{#1}
+\else
+#2
+\fi
+}
+
+\newcommand{\cf}{{\it cf.}}
+\newcommand{\eg}{{\it e.g.}}
+\newcommand{\ie}{{\it i.e.}}
+\newcommand{\etc}{{\it etc.}}
+\newcommand{\etal}{{\it et al.}}
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
