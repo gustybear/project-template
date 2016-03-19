@@ -1,0 +1,1 @@
+This directory keeps the editable image file format, such as psd, svg, ai, etc.

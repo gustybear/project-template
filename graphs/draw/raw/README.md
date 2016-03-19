@@ -1,0 +1,1 @@
+This directory keeps the raw drawing materials.

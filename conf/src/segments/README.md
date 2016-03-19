@@ -1,0 +1,1 @@
+This directory keeps the components of the paper (slides)
