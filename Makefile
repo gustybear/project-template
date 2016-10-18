@@ -1,4 +1,4 @@
-PROJ_NAME = $(sehll sed 's/^.*_\([^_]*\)$/\1/' $(notdir $(shell pwd)))
+PROJ_NAME = $(shell sed 's/^.*_\([^_]*\)$/\1/' $(notdir $(shell pwd)))
 
 COF_READY = no
 JNL_READY = no
