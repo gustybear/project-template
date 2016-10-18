@@ -1,4 +1,4 @@
-PROJ_NAME = $(shell awk awk -F "_" '{print $NF}' <<< $(notdir $(shell pwd)))
+PROJ_NAME = $(lastword $(subst _, ,$(notdir $(shell pwd))))
 
 COF_READY = no
 JNL_READY = no
