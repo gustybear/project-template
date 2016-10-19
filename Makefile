@@ -1,7 +1,7 @@
 PROJ_NAME = $(lastword $(subst _, ,$(notdir $(shell pwd))))
 INIT_FILE = .init
 
-REPORT_READY = yes
+REPORT_READY = no
 COF_READY = no
 JNL_READY = no
 SLD_READY = no
@@ -64,7 +64,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 
 	rm -rf .git
 	git init
-	$(shell echo yes >> $(INIT_FILE))
+	$(shell echo yes >>> $(INIT_FILE))
 endif
 
 .PHONY : submit
