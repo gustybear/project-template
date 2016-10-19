@@ -7,10 +7,10 @@ JNL_READY = no
 SLD_READY = no
 
 DOC_DIR =../__webpages/src/_asset/doc
-REPORT_DIR =./papers/report
-COF_DIR =./papers/conf
-JNL_DIR =./papers/jnl
-SLD_DIR =./papers/slides
+REPORT_DIR =./docs/report
+COF_DIR =./docs/conf
+JNL_DIR =./docs/jnl
+SLD_DIR =./docs/slides
 
 define generate_submit_package
 	# create directory
@@ -20,6 +20,7 @@ define generate_submit_package
 	find ref -name '*.bib' -exec rsync -R {} $(notdir $(1))_submit \;
 	find figures -name '*.eps' -exec rsync -R {} $(notdir $(1))_submit \;
 	find figures -name '*.tikz' -exec rsync -R {} $(notdir $(1))_submit \;
+	find figures -name '*.pdf' -exec rsync -R {} $(notdir $(1))_submit \;
 
 	cd $(1) && find . -name '*.cls' -exec rsync -R {} ../../$(notdir $(1))_submit \;
 	cd $(1) && find . -name '*.bst' -exec rsync -R {} ../../$(notdir $(1))_submit \;
