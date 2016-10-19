@@ -1,0 +1,62 @@
+\documentclass[10pt, aspectratio=169]{beamer}
+
+\input{src/headers/_slides_headers_general.tex}
+\input{src/mathshortforms/_slides_mathshortforms_general.tex}
+\input{src/editshortforms/_slides_editshortforms_general.tex}
+
+% These slides also contain speaker notes. You can print just the slides,
+% just the notes, or both, depending on the setting below. Comment out the want
+% you want.
+
+% To give a presentation with the Skim reader (http://skim-app.sourceforge.net) on OSX so
+% that you see the notes on your laptop and the slides on the projector, do the following:
+% 
+% 1. Generate just the presentation (hide notes) and save to slides.pdf
+% 2. Generate onlt the notes (show only nodes) and save to notes.pdf
+% 3. With Skim open both slides.pdf and notes.pdf
+% 4. Click on slides.pdf to bring it to front.
+% 5. In Skim, under "View -> Presentation Option -> Synhcronized Noted Document"
+%    select notes.pdf.
+% 6. Now as you move around in slides.pdf the notes.pdf file will follow you.
+% 7. Arrange windows so that notes.pdf is in full screen mode on your laptop
+%    and slides.pdf is in presentation mode on the projector.
+
+% \setbeameroption{hide notes} % Only slides
+% \setbeameroption{show only notes} % Only notes
+\setbeameroption{show notes on second screen=right} % Both
+
+\addbibresource{../ref/_ref.bib}
+
+\title{Slide Template}
+\date{\today}
+\author{Yao Zheng}
+\institute{Virginia Tech}
+
+\begin{document}
+
+\begin{frame}
+   \titlepage
+   \begin{textblock}{200}(90,45)
+    \includegraphics[width=160pt]{../figures/eps/_fig.eps}
+   \end{textblock}
+\end{frame}
+
+\begin{acronym}
+\input{src/acronyms/_slides_acronyms_general.tex}
+\end{acronym}
+
+
+\begin{frame}{Table of contents}
+  \setbeamertemplate{section in toc}[sections numbered]
+  \tableofcontents[hideallsubsections]
+\end{frame}
+
+\begin{frame}[allowframebreaks]{References}
+\nocite{*}
+\printbibliography[heading=none]
+\end{frame}
+
+\begin{frame}[standout]
+\Huge{Questions?}
+\end{frame}
+\end{document}

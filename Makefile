@@ -1,4 +1,5 @@
 PROJ_NAME = $(lastword $(subst _, ,$(notdir $(shell pwd))))
+INIT_FILE = .init
 
 COF_READY = yes
 JNL_READY = no
@@ -11,37 +12,53 @@ SLD_DIR =./slides
 
 define generate_submit_package
 	# create directory
-	mkdir -p $(1)_submit/ref
-	mkdir -p $(1)_submit/figures
+	mkdir -p $(notdir $(1))_submit/ref
+	mkdir -p $(notdir $(1))_submit/figures
 	# sync files
-	find ref -name '*.bib' -exec rsync -R {} $(1)_submit \;
-	find figures -name '*.eps' -exec rsync -R {} $(1)_submit \;
-	find figures -name '*.tikz' -exec rsync -R {} $(1)_submit \;
+	find ref -name '*.bib' -exec rsync -R {} $(notdir $(1))_submit \;
+	find figures -name '*.eps' -exec rsync -R {} $(notdir $(1))_submit \;
+	find figures -name '*.tikz' -exec rsync -R {} $(notdir $(1))_submit \;
 
-	find $(1) -name '*.cls' -exec rsync -R {} $(1)_submit \;
-	find $(1) -name '*.bst' -exec rsync -R {} $(1)_submit \;
-	find $(1) -name '*.sty' -exec rsync -R {} $(1)_submit \;
-	find $(1) -name '*.tex' -exec rsync -R {} $(1)_submit \;
+	cd $(notdir $(1)) && find . -name '*.cls' -exec rsync -R {} ../$(notdir $(1))_submit \;
+	cd $(notdir $(1)) && find . -name '*.bst' -exec rsync -R {} ../$(notdir $(1))_submit \;
+	cd $(notdir $(1)) && find . -name '*.sty' -exec rsync -R {} ../$(notdir $(1))_submit \;
+	cd $(notdir $(1)) && find . -name '*.tex' -exec rsync -R {} ../$(notdir $(1))_submit \;
 	
 	## correct the path to include figures and bib
-	find $(1)_submit -name '*.tex' -exec \
+	find $(notdir $(1))_submit -name '*.tex' -exec \
 		sed -i '' 's/\.\.\/figures/\.\/figures/g' {} +
 
-	find $(1)_submit -name '*.tex' -exec \
+	find $(notdir $(1))_submit -name '*.tex' -exec \
 		sed -i '' 's/\.\.\/ref/\.\/ref/g' {} +
 
-	tar -zcvf $(1)_submit.tar.gz $(1)_submit
-	rm -rf $(1)_submit
+	tar -zcvf $(notdir $(1))_submit.tar.gz $(notdir $(1))_submit
+	rm -rf $(notdir $(1))_submit
 endef
 
 .PHONY : init
 init:
-	#set -x
-	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)_`basename {}`' \;
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)_`basename {}`' \;
-	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)_`basename {}`' \;
+ifeq ($(shell cat $(INIT_FILE)),no)
+	#add project title
+	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+
+	find . -name '*.tex' -exec \
+		sed -i '' 's/\/_ref/\/$(PROJ_NAME)_ref/g' {} +
+	find . -name '*.tex' -exec \
+		sed -i '' 's/\/_slides/\/$(PROJ_NAME)_slides/g' {} +
+	find . -name '*.tex' -exec \
+		sed -i '' 's/\/_conf/\/$(PROJ_NAME)_conf/g' {} +
+	find . -name '*.tex' -exec \
+		sed -i '' 's/\/_jnl/\/$(PROJ_NAME)_jnl/g' {} +
+	find . -name '*.tex' -exec \
+		sed -i '' 's/\/_fig/\/$(PROJ_NAME)_fig/g' {} +
+
 	rm -rf .git
 	git init
+	$(shell echo yes >> $(INIT_FILE))
+endif
 
 
 .PHONY : submit
