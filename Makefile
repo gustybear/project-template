@@ -64,7 +64,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 
 	rm -rf .git
 	git init
-	$(shell echo yes >>> $(INIT_FILE))
+	$(shell echo yes > $(INIT_FILE))
 endif
 
 .PHONY : submit
