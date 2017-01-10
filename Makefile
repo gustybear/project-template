@@ -1,14 +1,19 @@
+COURSE_NAME = $(subst course_,,$(notdir $(shell dirname $(shell pwd))))
+WEEK_NAME = $(notdir $(shell pwd))
+
 SLIDES_READY = no
 NOTES_READY = no
-CODES_READY = no
-PROBLEMS_READY = no
-SOLUTION_READY = no
+QUIZ_READY = no
+QUIZ_SOL_READY = no
+ASSG_READY = no
+ASSG_SOL_READY = no
 
-SLIDES_DIR = ./slides
-NOTES_DIR = ./notes
-CODES_DIR = ./codes
-PROBLEMS_DIR = ./problems
-SOLUTIONS_DIR = ./solutions
+SLIDES_DIR = ./docs/slides
+NOTES_DIR = ./docs/notes
+QUIZ_DIR = ./docs/quiz
+QUIZ_SOL_DIR = ./docs/quiz_sol
+ASSG_DIR = ./docs/assg
+ASSG_SOL_DIR = ./docs/assg_sol
 
 DOC_DIR =../__webpages/src/_asset/doc
 PIC_DIR =../__webpages/src/_asset/pic
@@ -21,23 +26,16 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
-	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_$(WEEK_NAME)_`basename {}`' \;
+	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_$(WEEK_NAME)_`basename {}`' \;
+	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_$(WEEK_NAME)_`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_ref/\/$(PROJ_NAME)_ref/g' {} +
+		sed -i '' 's/\([^/]\+\.tex\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_slides/\/$(PROJ_NAME)_slides/g' {} +
+		sed -i '' 's/\([^/]\+\.eps\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_report/\/$(PROJ_NAME)_conf/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_conf/\/$(PROJ_NAME)_conf/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_jnl/\/$(PROJ_NAME)_jnl/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_fig/\/$(PROJ_NAME)_fig/g' {} +
+		sed -i '' 's/\([^/]\+\.tikz\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 
 	rm -rf .git
 	git init
@@ -54,14 +52,21 @@ ifeq ($(NOTES_READY),yes)
 	rsync -P -urvz $(NOTES_DIR)/*.pdf $(DOC_DIR)/
 endif
 
-ifeq ($(CODES_READY),yes)
-	rsync -P -urvz $(CODES_DIR)/*.pdf $(DOC_DIR)/
+ifeq ($(QUIZ_READY),yes)
+	rsync -P -urvz $(QUIZ_DIR)/*.pdf $(DOC_DIR)/
 endif
 
-ifeq ($(PROBLEMS_READY),yes)
-	rsync -P -urvz $(PROBLEMS_DIR)/*.pdf $(DOC_DIR)/
+ifeq ($(QUIZ_SOL_READY),yes)
+	rsync -P -urvz $(QUIZ_SOL_DIR)/*.pdf $(DOC_DIR)/
 endif
 
-ifeq ($(SOLUTIONS_DIR),yes)
-	rsync -P -urvz $(SOLUTIONS_DIR)/*.pdf $(DOC_DIR)/
+ifeq ($(ASSG_READY),yes)
+	rsync -P -urvz $(ASSG_DIR)/*.pdf $(DOC_DIR)/
 endif
+
+ifeq ($(ASSG_SOL_READY),yes)
+	rsync -P -urvz $(ASSG_SOL_DIR)/*.pdf $(DOC_DIR)/
+endif
+
+print-%:
+	@echo '$*=$($*)'
