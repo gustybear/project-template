@@ -39,7 +39,6 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 		sed -i '' 's/\([^/]*\.tikz\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 
 	rm -rf .git
-	git init
 	$(shell echo yes > $(INIT_FILE))
 endif
 
