@@ -1,4 +1,4 @@
-PROJ_NAME = $(subst project_,,$(notdir $(shell pwd)))
+PROJ_NAME = $(shell echo $(notdir $(shell pwd)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 INIT_FILE = .init
 
 REPORT_READY = no
