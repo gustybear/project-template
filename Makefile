@@ -19,12 +19,14 @@ none: ;
 .PHONY : init
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
-	find . -name '*.ref' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_`basename {}`' \;
-	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_`basename {}`' \;
-	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_`basename {}`' \;
+	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]\+\.jeminc\)/$(COURSE_NAME)_\1/g' {} +
+		sed -i '' 's/\([^/]*\.jeminc\)/$(COURSE_NAME)\1/g' {} +
+	find . -name '*.jemdoc' -exec \
+		sed -i '' 's/\([^/]*\.bib\)/$(COURSE_NAME)\1/g' {} +
 
 	rm -rf .git
 	git init
@@ -33,12 +35,12 @@ endif
 
 .PHONY : add_syllabus
 add_syllabus: 
-	git clone -b git clone $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
+	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
 	$(MAKE) -C $(SYLLABUS_DIR) init
 
 .PHONY : add_a_week
 add_a_week:
-	git clone -b git clone $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
+	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
 	$(MAKE) -C $(NEXT_WEEKS_DIR) init
 
 .PHONY : publish
