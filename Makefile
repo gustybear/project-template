@@ -1,8 +1,10 @@
 COURSE_NAME = $(subst course_,,$(notdir $(shell dirname $(shell pwd))))
-SYLLABUS_READY = yes
+INIT_FILE := .init
 
 DOC_DIR = ../__webpages/src/_asset/doc
 SYLLABUS_DIR = ./docs/syllabus
+
+SYLLABUS_READY = no
 
 .PHONY : init
 init:
