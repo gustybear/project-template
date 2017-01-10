@@ -1,4 +1,4 @@
-PROJ_NAME = $(lastword $(subst _, ,$(notdir $(shell pwd))))
+PROJ_NAME = $(subst project_,,$(notdir $(shell pwd)))
 INIT_FILE = .init
 
 REPORT_READY = no
@@ -45,23 +45,19 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
+	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/_$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_ref/\/$(PROJ_NAME)_ref/g' {} +
+		sed -i '' 's/\([^/]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_slides/\/$(PROJ_NAME)_slides/g' {} +
+		sed -i '' 's/\([^/]*\.tex\)/$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_report/\/$(PROJ_NAME)_conf/g' {} +
+		sed -i '' 's/\([^/]*\.eps\)/$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_conf/\/$(PROJ_NAME)_conf/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_jnl/\/$(PROJ_NAME)_jnl/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\/_fig/\/$(PROJ_NAME)_fig/g' {} +
+		sed -i '' 's/\([^/]*\.tikz\)/$(PROJ_NAME)\1/g' {} +
 
 	rm -rf .git
 	git init
