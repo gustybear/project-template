@@ -1,13 +1,17 @@
 COURSE_NAME := $(subst course_,,$(notdir $(shell pwd)))
+MATERIALS_PREFIX := materials
 MATERIALS := $(shell find . -type d -name 'materials_*')
 INIT_FILE := .init
 
 GIT_REPO := git@github.com:gustybear/project-template.git
 
 GIT_BRANCH_SYLLABUS := syllabus
-SYLLABUS_DIR := materials_syllabus
+SYLLABUS_DIR := $(MATERIALS_PREFIX)_syllabus
 
 GIT_BRANCH_COURSE_WEEKLY := course_weekly
+NUM_OF_WEEKS := $(words $(shell find . -type d -name '*week*'))
+NUM_OF_NEXT_WEEKS := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
+NEXT_WEEKS_DIR = $(MATERIALS_PREFIX)_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
 .PHONY : none
 none: ;
@@ -33,7 +37,9 @@ add_syllabus:
 	$(MAKE) -C $(SYLLABUS_DIR) init
 
 .PHONY : add_a_week
-add_a_week: ;
+add_a_week:
+	git clone -b git clone $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init
 
 .PHONY : publish
 publish:
