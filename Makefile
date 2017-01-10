@@ -1,6 +1,6 @@
-INIT_FILE = .init
 COURSE_NAME = $(subst course_,,$(notdir $(shell dirname $(shell pwd))))
 WEEK_NAME = $(notdir $(shell pwd))
+INIT_FILE = .init
 
 SLIDES_READY = no
 NOTES_READY = no
