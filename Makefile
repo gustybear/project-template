@@ -5,7 +5,7 @@ INIT_FILE := .init
 
 GIT_REPO := git@github.com:gustybear/project-template.git
 
-GIT_BRANCH_SYLLABUS := syllabus
+GIT_BRANCH_SYLLABUS := course_syllabus
 SYLLABUS_DIR := $(MATERIALS_PREFIX)_syllabus
 
 GIT_BRANCH_COURSE_WEEKLY := course_weekly
@@ -19,14 +19,14 @@ none: ;
 .PHONY : init
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/_$(COURSE_NAME)`basename {}`' \;
 	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.jeminc\)/$(COURSE_NAME)\1/g' {} +
+		sed -i '' 's/\([^/]*\.jeminc\)/_$(COURSE_NAME)\1/g' {} +
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.bib\)/$(COURSE_NAME)\1/g' {} +
+		sed -i '' 's/\([^/]*\.bib\)/_$(COURSE_NAME)\1/g' {} +
 
 	rm -rf .git
 	git init
