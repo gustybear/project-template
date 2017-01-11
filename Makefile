@@ -46,7 +46,7 @@ add_a_week:
 .PHONY : publish
 publish:
 ifneq ($(MATERIALS),)
-	$(foreach dir,$(MATERIALS),$($(MAKE) -C $(dir) publish))
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir publish); done
 endif
 
 print-%:
