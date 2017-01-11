@@ -45,7 +45,9 @@ add_a_week:
 
 .PHONY : publish
 publish:
+ifneq ($(MATERIALS),)
 	$(MAKE) -C $(MATERIALS) publish
+endif
 
 print-%:
 	@echo '$*=$($*)'
