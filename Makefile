@@ -51,13 +51,13 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tex\)/$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.tex\)/$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.eps\)/$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.eps\)/$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tikz\)/$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.tikz\)/$(PROJ_NAME)\1/g' {} +
 
 	rm -rf .git
 	git init
