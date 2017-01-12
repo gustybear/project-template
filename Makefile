@@ -32,11 +32,11 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)_$(WEEK_NAME)`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tex\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.tex\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.eps\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.eps\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tikz\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
+		sed -i '' 's/\([^/\s]*\.tikz\)/$(COURSE_NAME)_$(WEEK_NAME)_\1/g' {} +
 
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))
