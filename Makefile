@@ -25,9 +25,9 @@ PIC_DIR = $(COURSE_DIR)/__webpages/src/_asset/pic
 CODES_DIR = $(COURSE_DIR)/__webpages/src/_asset/codes
 
 tmp_dir = $(addprefix $(TMP_DIR)_,$(notdir $(1)))
-pub_pack_name = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
+pack_name = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
 
-define gen_pub_pack
+define gen_pack
 	# create directory
 	mkdir -p $(call tmp_dir, $(1))
 	# sync files
@@ -45,7 +45,7 @@ define gen_pub_pack
 		sed -i '' 's/\(\.\.\/\)\{1,\}/\.\//g' {} +
 
 	cd $(call tmp_dir,$(1)); \
-		tar -zcvf $(addprefix $(1)/,$(call pub_pack_name,$(1))) *
+		tar -zcvf $(addprefix $(1)/,$(call pack_name,$(1))) *
 	rm -rf $(call tmp_dir, $(1))
 endef
 
@@ -74,7 +74,7 @@ endif
 .PHONY : pack
 pack:
 ifeq ($(ASSG_READY),yes)
-	$(call gen_pub_pack, $(ASSG_DIR))
+	$(call gen_pack, $(ASSG_DIR))
 endif
 
 .PHONY : publish
