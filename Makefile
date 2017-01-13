@@ -1,5 +1,5 @@
 MATERIAL_DIR = $(shell pwd)
-TMP_DIR = $(MATERIAL_DIR)/tmp
+TMP_DIR_PREFIX = $(MATERIAL_DIR)/tmp
 WEEK_NAME = $(notdir $(MATERIAL_DIR))
 COURSE_DIR = $(shell dirname $(MATERIAL_DIR))
 COURSE_NAME = $(subst course_,,$(notdir $(COURSE_DIR)))
@@ -24,7 +24,7 @@ DOC_DIR = $(COURSE_DIR)/__webpages/src/_asset/doc
 PIC_DIR = $(COURSE_DIR)/__webpages/src/_asset/pic
 CODES_DIR = $(COURSE_DIR)/__webpages/src/_asset/codes
 
-tmp_dir = $(addprefix $(TMP_DIR)_,$(notdir $(1)))
+tmp_dir = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
 pack_name = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_pack
