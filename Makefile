@@ -43,6 +43,12 @@ add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
 	$(MAKE) -C $(NEXT_WEEKS_DIR) init
 
+.PHONY : pack
+pack:
+ifneq ($(MATERIALS),)
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack); done
+endif
+
 .PHONY : publish
 publish:
 ifneq ($(MATERIALS),)
