@@ -6,8 +6,8 @@
 
 \documentclass{article}
 \setlength{\oddsidemargin}{0.25 in}
-\setlength{\evensidemargin}{-0.25 in}
-\setlength{\topmargin}{-0.6 in}
+\setlength{\evensidemargin}{ 0.25 in}
+\setlength{\topmargin}{ 0.6 in}
 \setlength{\textwidth}{6.5 in}
 \setlength{\textheight}{8.5 in}
 \setlength{\headsep}{0.75 in}
@@ -28,7 +28,7 @@
 % to the assignment number.
 %
 \newcounter{assgnum}
-\renewcommand{\thepage}{\theassgnum-\arabic{page}}
+\renewcommand{\thepage}{\theassgnum \arabic{page}}
 \renewcommand{\thesection}{\theassgnum.\arabic{section}}
 \renewcommand{\theequation}{\theassgnum.\arabic{equation}}
 \renewcommand{\thefigure}{\theassgnum.\arabic{figure}}
@@ -36,7 +36,7 @@
 
 %
 % Use this macro to generate the header.
-% usage: \assignment{**COURSE-NUMBER**}{**COURSE-NAME**}{**SEMESTER**}{**ASSIGNMENTS-NUMBER**}{**DUE-DATE**}{**TOTAL-SCORE**}{**STUDENT-NAME-AND-EMAIL**}{**LAST-MODIFIED-DATE**}
+% usage: \assignment{COURSE NUMBER}{COURSE NAME}{SEMESTER}{ASSIGNMENTS NUMBER}{DUE DATE}{TOTAL SCORE}{STUDENT NAME}{LAST MODIFIED DATE}
 \newcommand{\assignments}[8]{
    \pagestyle{myheadings}
    \thispagestyle{plain}
@@ -49,18 +49,20 @@
       \vbox{\vspace{2mm}
       \hbox to 6.28in { {\bf #1: #2 \hfill #3} }
       \vspace{4mm}
-      \hbox to 6.28in { {\Large \hfill Assignment #4 (Due: #5)  \hfill} }
+      \hbox to 6.28in { {\Large \hfill Assignments #4 (Due: #5)  \hfill} }
+      \vspace{4mm}
+      \hbox to 6.28in { {\Large \hfill Score: $\rule{1cm}{0.1mm}$/#6  \hfill}}
       \vspace{2mm}
       \hbox to 6.28in { {\it Student: #7 \hfill Date: #8} }
       \vspace{2mm}}
    }
    \end{center}
-   \markboth{Assignment #4 (Due: #5)}{Assignment #4 (Due: #5)}
+   \markboth{Assignments #4 (Due: #5)}{Assignments #4 (Due: #5)}
 
 }
 
 %Use this command for a figure; it puts a figure in wherever you want it.
-%usage: \fig{NUMBER}{SPACE-IN-INCHES}{CAPTION}
+%usage: \fig{NUMBER}{SPACE IN INCHES}{CAPTION}
 \newcommand{\fig}[3]{
          \vspace{#2}
          \begin{center}
@@ -75,33 +77,45 @@
 \newcounter{solnum}
 
 % Use this command for problem
-% usage: %\problem{**SCORE**}{**TOTAL-SCORE**}
+% usage: %\problem{SCORE}{TOTAL SCORE}
 \newcommand{\problem}[2]{%
   \stepcounter{probnum}%
-  \textbf{\theassgnum-\theprobnum~(#1/#2).}~%
+  \textbf{\theassgnum \theprobnum~(#1/#2).}~%
   \setcounter{solnum}{0}%
 }
 
 % Use this command for solutions
-% usage: %\solution
+% usage: %\solution{SUB PROBLEM NUM}
 \newcommand{\solution}{%
   \stepcounter{solnum}%
-  \textbf{Solution~\theassgnum-\theprobnum-\thesolnum:}\\%
+  \textbf{Solution~\theassgnum \theprobnum \thesolnum:}\\%
 }
 
-% **** IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
+%  IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
 
 \begin{document}
 %FILL IN THE RIGHT INFO.
-% \newcommand{\totalscore}{100}
-%\assignment{**COURSE-NUMBER**}{**COURSE-NAME**}{**SEMESTER**}{**ASSIGNMENTS-NUMBER**}{**DUE-DATE**}{**STUDENT-NAME-AND-EMAIL**}{**LAST-MODIFIED-DATE**}
+\newcommand{\totalscore}{100}
+\assignment{course number}{course name}{semester}{0}{due date}{\totalscore}{student name}{\today{last modified date}}
 
-% **** ASSIGNMENT AND SOLUTIONS GO HERE:
+\problem{20}{\totalscore} .
+
+\solution Your solution ...
+
+\problem{40}{\totalscore} .
+
+\solution Your solution ...
+
+\problem{40}{\totalscore} .
+
+\solution Your solution...
+
+%  ASSIGNMENT AND SOLUTIONS GO HERE:
 
 \section*{References}
 \printbibliography[heading=none]
 
-% **** THIS ENDS THE EXAMPLES. DON'T DELETE THE FOLLOWING LINE:
+%  THIS ENDS THE EXAMPLES. DON'T DELETE THE FOLLOWING LINE:
 
 \end{document}
 
