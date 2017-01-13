@@ -1,7 +1,7 @@
-WEEK_DIR = $(shell pwd)
-TMP_DIR = $(WEEK_DIR)/tmp
-WEEK_NAME = $(notdir $(WEEK_DIR))
-COURSE_DIR = $(shell dirname $(WEEK_DIR))
+MATERIAL_DIR = $(shell pwd)
+TMP_DIR = $(MATERIAL_DIR)/tmp
+WEEK_NAME = $(notdir $(MATERIAL_DIR))
+COURSE_DIR = $(shell dirname $(MATERIAL_DIR))
 COURSE_NAME = $(subst course_,,$(notdir $(COURSE_DIR)))
 MATERIAL_NAME_PREFIX = $(COURSE_NAME)_$(WEEK_NAME)
 INIT_FILE = .init
@@ -13,12 +13,12 @@ QUIZ_SOL_READY = no
 ASSG_READY = yes
 ASSG_SOL_READY = no
 
-SLIDES_DIR = $(WEEK_DIR)/docs/slides
-NOTES_DIR = $(WEEK_DIR)/docs/notes
-QUIZ_DIR = $(WEEK_DIR)/docs/quiz
-QUIZ_SOL_DIR = $(WEEK_DIR)/docs/quiz_sol
-ASSG_DIR = $(WEEK_DIR)/docs/assg
-ASSG_SOL_DIR = $(WEEK_DIR)/docs/assg_sol
+SLIDES_DIR = $(MATERIAL_DIR)/docs/slides
+NOTES_DIR = $(MATERIAL_DIR)/docs/notes
+QUIZ_DIR = $(MATERIAL_DIR)/docs/quiz
+QUIZ_SOL_DIR = $(MATERIAL_DIR)/docs/quiz_sol
+ASSG_DIR = $(MATERIAL_DIR)/docs/assg
+ASSG_SOL_DIR = $(MATERIAL_DIR)/docs/assg_sol
 
 DOC_DIR = $(COURSE_DIR)/__webpages/src/_asset/doc
 PIC_DIR = $(COURSE_DIR)/__webpages/src/_asset/pic
@@ -56,11 +56,11 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
-	find $(WEEK_DIR) -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
-	find $(WEEK_DIR) -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
-	find $(WEEK_DIR) -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
+	find $(MATERIAL_DIR) -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
+	find $(MATERIAL_DIR) -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
+	find $(MATERIAL_DIR) -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
-	find $(WEEK_DIR) -name '*.tex' -exec \
+	find $(MATERIAL_DIR) -name '*.tex' -exec \
 		sed -i '' 's/\([^/\s]*\.tex\)/$(MATERIAL_NAME_PREFIX)\1/g' {} +
 	find . -name '*.tex' -exec \
 		sed -i '' 's/\([^/\s]*\.eps\)/$(MATERIAL_NAME_PREFIX)\1/g' {} +
