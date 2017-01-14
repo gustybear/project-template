@@ -68,7 +68,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	find . -name '*.tex' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2}/g' {} +
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))
