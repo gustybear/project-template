@@ -50,8 +50,8 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
-	find . -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' -o \
-	       -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \
+	find . \( -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' -o \
+	       -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
 	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
