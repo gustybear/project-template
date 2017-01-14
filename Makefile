@@ -57,7 +57,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	find . -name '*.jemdoc' -exec \
 		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(PROJ_NAME)\2.jeminc}/g' {} +
 	find . -name 'MENU' -exec \
-		sed -i '' 's/[\(.*\)\/\([^/]\{1,\}\).html]/[\1\/$(PROJ_NAME)\2.html]/g' {} +
+		sed -i '' 's/[\(.*\).html/[\1$(PROJ_NAME)\2.html/g' {} +
 	find . -name '*.tex' -exec \
 		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
 
