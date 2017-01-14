@@ -9,7 +9,8 @@ COF_READY = no
 JNL_READY = yes
 SLD_READY = no
 
-DOC_DIR =$(PARENT_DIR)/__webpages/src/_asset/doc
+DOC_DIR =$(PROJ_DIR)/__webpages/src/_asset/doc
+PAR_DOC_DIR = $(PARENT_DIR)/__webpages/src/_asset/doc
 REPORT_DIR =$(PROJ_DIR)/docs/report
 COF_DIR =$(PROJ_DIR)/docs/conf
 JNL_DIR =$(PROJ_DIR)/docs/jnl
@@ -98,18 +99,22 @@ endif
 publish:
 ifeq ($(REPORT_READY),yes)
 	rsync -P -urvz $(REPORT_DIR)/*.pdf $(DOC_DIR)/
+	rsync -P -urvz $(REPORT_DIR)/*.pdf $(PAR_DOC_DIR)/
 endif
 
 ifeq ($(COF_READY),yes)
 	rsync -P -urvz $(COF_DIR)/*.pdf $(DOC_DIR)/
+	rsync -P -urvz $(COF_DIR)/*.pdf $(PAR_DOC_DIR)/
 endif
 
 ifeq ($(JNL_READY),yes)
 	rsync -P -urvz $(JNL_DIR)/*.pdf $(DOC_DIR)/
+	rsync -P -urvz $(JNL_DIR)/*.pdf $(PAR_DOC_DIR)/
 endif
 
 ifeq ($(SLD_READY),yes)
 	rsync -P -urvz $(SLD_DIR)/*.pdf $(DOC_DIR)/
+	rsync -P -urvz $(SLD_DIR)/*.pdf $(PAR_DOC_DIR)/
 endif
 
 print-%:
