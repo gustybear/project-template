@@ -15,7 +15,7 @@ REPORT_DIR =$(PROJ_DIR)/docs/report
 COF_DIR =$(PROJ_DIR)/docs/conf
 JNL_DIR =$(PROJ_DIR)/docs/jnl
 SLD_DIR =$(PROJ_DIR)/docs/slides
-REF_DIR =$(PROJ_DIR)/ref
+REF_DIR =$(PROJ_DIR)/bib
 FIG_DIR =$(PROJ_DIR)/figures
 
 tmp_dir = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
@@ -23,7 +23,7 @@ pack_name = $(addprefix $(PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_pack
 	# create directory
-	mkdir -p $(addprefix $(call tmp_dir, $(1)),/ref)
+	mkdir -p $(addprefix $(call tmp_dir, $(1)),/bib)
 	mkdir -p $(addprefix $(call tmp_dir, $(1)),/figures)
 	# sync files
 	cd $(REF_DIR); \
@@ -45,10 +45,7 @@ define gen_pack
 
 	## correct the path to include figures and bib
 	find $(call tmp_dir, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/\(\.\.\/\)\{1,\}figures/\.\/figures/g' {} +
-
-	find $(call tmp_dir, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/\(\.\.\/\)\{1,\}ref/\.\/ref/g' {} +
+		sed -i '' 's/\(\.\.\/\)\{1,\}/\.\//g' {} +
 
 	cd $(call tmp_dir, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call pack_name,$(1))) *
