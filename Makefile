@@ -29,19 +29,10 @@ define gen_pack
 	cd $(REF_DIR); \
 		find . -name '*.bib' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/bib) \;
 	cd $(FIG_DIR); \
-		find . -name '*.eps' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
-	cd $(FIG_DIR); \
-		find . -name '*.tikz' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
-	cd $(FIG_DIR); \
-		find . -name '*.pdf' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
+		find . -name '*.eps' -o -name '*.tikz' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
 	cd $(1); \
-		find . -name '*.cls' -exec rsync -R {} $(call tmp_dir, $(1)) \;
-	cd $(1); \
-	    find . -name '*.bst' -exec rsync -R {} $(call tmp_dir, $(1)) \;
-	cd $(1); \
-	    find . -name '*.sty' -exec rsync -R {} $(call tmp_dir, $(1)) \;
-	cd $(1); \
-	    find . -name '*.tex' -exec rsync -R {} $(call tmp_dir, $(1)) \;
+		find . -name '*.cls' -o -name '*.bst' -o -name '*.sty' -o -name '*.tex' \
+			   -exec rsync -R {} $(call tmp_dir, $(1)) \;
 
 	## correct the path to include figures and bib
 	find $(call tmp_dir, $(1)) -name '*.tex' -exec \
@@ -59,25 +50,14 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
-	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/_$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
-	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' -o \
+	       -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \
+	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.jeminc\)/_$(PROJ_NAME)\1/g' {} +
-	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.tex\)/$(PROJ_NAME)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.eps\)/$(PROJ_NAME)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.tikz\)/$(PROJ_NAME)\1/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
 
 	rm -rf .git
 	git init
