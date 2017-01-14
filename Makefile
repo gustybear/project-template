@@ -7,11 +7,11 @@ COURSE_NAME = $(subst course_,,$(notdir $(COURSE_DIR)))
 MATERIAL_NAME_PREFIX = $(COURSE_NAME)_$(WEEK_NAME)
 INIT_FILE = .init
 
-SLIDES_READY = yes
+SLIDES_READY = no
 NOTES_READY = no
 QUIZ_READY = no
 QUIZ_SOL_READY = no
-ASSG_READY = yes
+ASSG_READY = no
 ASSG_SOL_READY = no
 
 SLIDES_DIR = $(MATERIAL_DIR)/docs/slides
@@ -66,7 +66,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(MATERIAL_NAME_PREFIX)\2}/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)\.\([^/]\{1,\}\)}/{\1\/$(MATERIAL_NAME_PREFIX)\2\.\3}/g' {} +
 
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))

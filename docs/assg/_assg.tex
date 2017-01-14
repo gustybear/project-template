@@ -37,7 +37,7 @@
 %
 % Use this macro to generate the header.
 % usage: \assignment{COURSE NUMBER}{COURSE NAME}{SEMESTER}{ASSIGNMENTS NUMBER}{DUE DATE}{TOTAL SCORE}{STUDENT NAME}{LAST MODIFIED DATE}
-\newcommand{\assignments}[8]{
+\newcommand{\assignment}[8]{
    \pagestyle{myheadings}
    \thispagestyle{plain}
    \newpage
@@ -49,7 +49,7 @@
       \vbox{\vspace{2mm}
       \hbox to 6.28in { {\bf #1: #2 \hfill #3} }
       \vspace{4mm}
-      \hbox to 6.28in { {\Large \hfill Assignments #4 (Due: #5)  \hfill} }
+      \hbox to 6.28in { {\Large \hfill Assignment No. #4 (Due: #5)  \hfill} }
       \vspace{4mm}
       \hbox to 6.28in { {\Large \hfill Score: $\rule{1cm}{0.1mm}$/#6  \hfill}}
       \vspace{2mm}
@@ -57,7 +57,7 @@
       \vspace{2mm}}
    }
    \end{center}
-   \markboth{Assignments #4 (Due: #5)}{Assignments #4 (Due: #5)}
+   \markboth{Assignment No. #4 (Due: #5)}{Assignment No. #4 (Due: #5)}
 
 }
 
@@ -95,18 +95,17 @@
 
 \begin{document}
 %FILL IN THE RIGHT INFO.
-\newcommand{\totalscore}{100}
-\assignment{course number}{course name}{semester}{0}{due date}{\totalscore}{student name}{\today{last modified date}}
+\assignment{course number}{course name}{semester}{0}{due date}{100}{student name}{\today}{last modified date}
 
-\problem{20}{\totalscore} .
-
-\solution Your solution ...
-
-\problem{40}{\totalscore} .
+\problem{20}{100} .
 
 \solution Your solution ...
 
-\problem{40}{\totalscore} .
+\problem{40}{100} .
+
+\solution Your solution ...
+
+\problem{40}{100} .
 
 \solution Your solution...
 
