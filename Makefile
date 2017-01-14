@@ -23,7 +23,10 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	       -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(PROJ_NAME)\2.jeminc}/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(COURSE_NAME)\2.jeminc}/g' {} +
+
+	find . -name 'MENU' -exec \
+		sed -i '' 's/[\(.*\)\/\([^/]\{1,\}\).html]/[\1\/$(COURSE_NAME)\2.html]/g' {} +
 
 	rm -rf .git
 	git init
