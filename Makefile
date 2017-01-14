@@ -59,11 +59,17 @@ none: ;
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
+	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/_$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
+	find . -name '*.jemdoc' -exec \
+		sed -i '' 's/\([^/]*\.jeminc\)/_$(PROJ_NAME)\1/g' {} +
+	find . -name '*.jemdoc' -exec \
+		sed -i '' 's/\([^/]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
 		sed -i '' 's/\([^/\s]*\.bib\)/_$(PROJ_NAME)\1/g' {} +
 	find . -name '*.tex' -exec \
