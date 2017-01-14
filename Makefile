@@ -55,7 +55,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(PROJ_NAME)\2.jeminc}/g' {} +
 	find . -name '*.tex' -exec \
 		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
 
