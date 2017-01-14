@@ -19,14 +19,11 @@ none: ;
 .PHONY : init
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
-	find . -name '*.bib' -exec bash -c 'mv {} `dirname {}`/_$(COURSE_NAME)`basename {}`' \;
-	find . -name '*.jemdoc' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-	find . -name '*.jemseg' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find . \( -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' \) \
+	       -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.jeminc\)/_$(COURSE_NAME)\1/g' {} +
-	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\([^/]*\.bib\)/_$(COURSE_NAME)\1/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(PROJ_NAME)\2.jeminc}/g' {} +
 
 	rm -rf .git
 	git init
