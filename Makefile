@@ -16,16 +16,11 @@ init:
 ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
 
-	find . -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-	find . -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-	find . -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find . \( -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
+		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tex\)/$(COURSE_NAME)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.eps\)/$(COURSE_NAME)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/]*\.tikz\)/$(COURSE_NAME)\1/g' {} +
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))
