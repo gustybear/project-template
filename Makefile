@@ -62,17 +62,11 @@ none: ;
 .PHONY : init
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
-	#add project title
-	find $(MATERIAL_DIR) -name '*.tex' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
-	find $(MATERIAL_DIR) -name '*.eps' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
-	find $(MATERIAL_DIR) -name '*.tikz' -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
+	find . \( -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
+	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
-	find $(MATERIAL_DIR) -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.tex\)/$(MATERIAL_NAME_PREFIX)\1/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.eps\)/$(MATERIAL_NAME_PREFIX)\1/g' {} +
-	find . -name '*.tex' -exec \
-		sed -i '' 's/\([^/\s]*\.tikz\)/$(MATERIAL_NAME_PREFIX)\1/g' {} +
+		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(MATERIAL_NAME_PREFIX)\2}/g' {} +
 
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))
@@ -87,27 +81,27 @@ endif
 .PHONY : publish
 publish:
 ifeq ($(SLIDES_READY),yes)
-	rsync -P -urvz $(SLIDES_DIR)/*.pdf $(DOC_DIR)/
+	-rsync -P -urvz $(SLIDES_DIR)/*.pdf $(DOC_DIR)/
 endif
 
 ifeq ($(NOTES_READY),yes)
-	rsync -P -urvz $(NOTES_DIR)/*.pdf $(DOC_DIR)/
+	-rsync -P -urvz $(NOTES_DIR)/*.pdf $(DOC_DIR)/
 endif
 
 ifeq ($(QUIZ_READY),yes)
-	rsync -P -urvz $(QUIZ_DIR)/*.pdf $(DOC_DIR)/
+	-rsync -P -urvz $(QUIZ_DIR)/*.pdf $(DOC_DIR)/
 endif
 
 ifeq ($(QUIZ_SOL_READY),yes)
-	rsync -P -urvz $(QUIZ_SOL_DIR)/*.pdf $(DOC_DIR)/
+	-rsync -P -urvz $(QUIZ_SOL_DIR)/*.pdf $(DOC_DIR)/
 endif
 
 ifeq ($(ASSG_READY),yes)
-	rsync -P -urvz $(ASSG_DIR)/*.tar.gz $(DOC_DIR)/
+	-rsync -P -urvz $(ASSG_DIR)/*.tar.gz $(DOC_DIR)/
 endif
 
 ifeq ($(ASSG_SOL_READY),yes)
-	rsync -P -urvz $(ASSG_SOL_DIR)/*.pdf $(DOC_DIR)/
+	-rsync -P -urvz $(ASSG_SOL_DIR)/*.pdf $(DOC_DIR)/
 endif
 
 print-%:
