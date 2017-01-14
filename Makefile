@@ -27,7 +27,7 @@ define gen_pack
 	mkdir -p $(addprefix $(call tmp_dir, $(1)),/figures)
 	# sync files
 	cd $(REF_DIR); \
-		find . -name '*.bib' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/ref) \;
+		find . -name '*.bib' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/bib) \;
 	cd $(FIG_DIR); \
 		find . -name '*.eps' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
 	cd $(FIG_DIR); \
