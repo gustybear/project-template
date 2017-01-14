@@ -26,7 +26,7 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(COURSE_NAME)\2.jeminc}/g' {} +
 
 	find . -name 'MENU' -exec \
-		sed -i '' 's/[\(.*\)\/\([^/]\{1,\}\).html]/[\1\/$(COURSE_NAME)\2.html]/g' {} +
+		sed -i '' 's/\[\(.*\).html/[$(PROJ_NAME)\1.html/g' {} +
 
 	rm -rf .git
 	git init
