@@ -55,11 +55,12 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\).jeminc}/{\1\/$(PROJ_NAME)\2.jeminc}/g' {} +
+	's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(PROJ_NAME)\1\.\2/g'
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(PROJ_NAME)\1\.\2/g' {} +
 	find . -name 'MENU' -exec \
-		sed -i '' 's/\[\(.*\).html/[$(PROJ_NAME)\1.html/g' {} +
+		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(PROJ_NAME)\1\.\2/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/{\(.*\)\/\([^/]\{1,\}\)}/{\1\/$(PROJ_NAME)\2}/g' {} +
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(PROJ_NAME)\1\.\2/g' {} +
 
 
 	rm -rf .git
