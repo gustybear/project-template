@@ -1,0 +1,41 @@
+# jemdoc: menu{src/MENU}{index.html} toptitle, title{COURSE TITLE}, notime
+# jemdoc: addcss{css/bibover.css}
+= COURSE TITLE
+[http://www2.hawaii.edu/~yaozheng Yao Zheng], [http://manoa.hawaii.edu University of Hawai\&\#699;i at M\&\#257;noa]
+
+*Lecturer*:\n
+[http://www2.hawaii.edu/~yaozheng Yao Zheng] ([yao.zheng@hawaii.edu yao.zheng@hawaii.edu])
+
+*Teaching assistants*:\n
+TBA
+
+*Lecture*:\n
+TBA
+
+*Office hours*:\n
+TBA
+
+*Textbook*:\n
+TBA
+
+*Syllabus*: TBA
+
+== Schedule
+{{<a name="schedule"></a>}}
+Here is the estimated course schedule. It is subject to change, depending on time and class interests.
+
+~~~
+{}{table}{Schedule}
+TIME | TOPIC | SLIDES | NOTES | READING | QUIZ | ASSG
+{{</td></tr> <tr class="topics"><td colspan="7"> TBA}} ||
+TBA | TBA | TBA | TBA | TBA | TBA | TBA 
+{{</td></tr> <tr ><td class="exams" colspan="7"> Midterm Exam}}
+{{</td></tr> <tr ><td class="exams" colspan="7"> Final Project}}
+~~~
+
+
+== Miscellaneous
+#{{<a name="miscellaneous"></a>}}
+
+#include{src/_ref.jeminc}
+
