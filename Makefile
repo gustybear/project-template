@@ -55,7 +55,6 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-	's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(PROJ_NAME)\1\.\2/g'
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(PROJ_NAME)\1\.\2/g' {} +
 	find . -name 'MENU' -exec \
 		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(PROJ_NAME)\1\.\2/g' {} +
