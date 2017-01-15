@@ -1,34 +1,35 @@
-PROJ_DIR = $(shell pwd)
-TMP_DIR_PREFIX = $(PROJ_DIR)/tmp
-PARENT_DIR = $(shell dirname $(PROJ_DIR))
-PROJ_NAME = $(shell echo $(notdir $(PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
-INIT_FILE = .init
+RESEARCH_PROJ_DIR     := $(shell pwd)
+PACK_DIR_PREFIX       := $(RESEARCH_PROJ_DIR)/tmp
+RESEARCH_PROJ_NAME    := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
+INIT_FILE             := .init
 
-REPORT_READY = no
-COF_READY = no
-JNL_READY = no
-SLD_READY = no
+RESEARCH_REPORT_READY := no
+RESEARCH_COF_READY    := no
+RESEARCH_JNL_READY    := no
+RESEARCH_SLD_READY    := no
 
-DOC_DIR =$(PROJ_DIR)/__webpages/src/_asset/doc
-PAR_DOC_DIR = $(PARENT_DIR)/__webpages/src/_asset/doc
-REPORT_DIR =$(PROJ_DIR)/docs/report
-COF_DIR =$(PROJ_DIR)/docs/conf
-JNL_DIR =$(PROJ_DIR)/docs/jnl
-SLD_DIR =$(PROJ_DIR)/docs/slides
-REF_DIR =$(PROJ_DIR)/bib
-FIG_DIR =$(PROJ_DIR)/figures
+WEBPAGES_SRC_DIR      := $(RESEARCH_PROJ_DIR)/__webpages/src
+WEBPAGES_DOC_DIR      := $(WEBPAGES_SRC_DIR)/_asset/doc
+RESEARCH_REPORT_DIR   := $(RESEARCH_PROJ_DIR)/docs/report
+RESEARCH_COF_DIR      := $(RESEARCH_PROJ_DIR)/docs/conf
+RESEARCH_JNL_DIR      := $(RESEARCH_PROJ_DIR)/docs/jnl
+RESEARCH_SLD_DIR      := $(RESEARCH_PROJ_DIR)/docs/slides
+RESEARCH_BIB_DIR      := $(RESEARCH_PROJ_DIR)/bib
+RESEARCH_FIG_DIR      := $(RESEARCH_PROJ_DIR)/figures
 
-tmp_dir = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
-pack_name = $(addprefix $(PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
+PUBLISH_DIR           := $(WEBPAGES_DOC_DIR)
+
+tmp_dir               := $(addprefix $(PACK_DIR_PREFIX)_,$(notdir $(1)))
+pack_name             := $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_pack
 	# create directory
 	mkdir -p $(addprefix $(call tmp_dir, $(1)),/bib)
 	mkdir -p $(addprefix $(call tmp_dir, $(1)),/figures)
 	# sync files
-	cd $(REF_DIR); \
+	cd $(RESEARCH_BIB_DIR); \
 		find . -name '*.bib' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/bib) \;
-	cd $(FIG_DIR); \
+	cd $(RESEARCH_FIG_DIR); \
 		find . -name '*.eps' -o -name '*.tikz' -exec rsync -R {} $(addprefix $(call tmp_dir, $(1)),/figures) \;
 	cd $(1); \
 		find . -name '*.cls' -o -name '*.bst' -o -name '*.sty' -o -name '*.tex' \
@@ -52,14 +53,14 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	#add project title
 	find . \( -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' -o \
 	       -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
-	       -exec bash -c 'mv {} `dirname {}`/$(PROJ_NAME)`basename {}`' \;
+	       -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 	find . -name '*.jemdoc' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(PROJ_NAME)\1\.\2/g' {} +
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 	find . -name 'MENU' -exec \
-		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(PROJ_NAME)\1\.\2/g' {} +
+		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 	find . -name '*.tex' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(PROJ_NAME)\1\.\2/g' {} +
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 
 
 	rm -rf .git
@@ -69,39 +70,36 @@ endif
 
 .PHONY : pack
 pack:
-ifeq ($(REPORT_READY),yes)
-	$(call gen_pack, $(REPORT_DIR))
+ifeq ($(RESEARCH_REPORT_READY),yes)
+	$(call gen_pack, $(RESEARCH_REPORT_DIR))
 endif
 
-ifeq ($(COF_READY),yes)
-	$(call gen_pack, $(COF_DIR))
+ifeq ($(RESEARCH_COF_READY),yes)
+	$(call gen_pack, $(RESEARCH_COF_DIR))
 endif
 
-ifeq ($(JNL_READY),yes)
-	$(call gen_pack, $(JNL_DIR))
+ifeq ($(RESEARCH_JNL_READY),yes)
+	$(call gen_pack, $(RESEARCH_JNL_DIR))
 endif
 
 .PHONY : publish
 publish:
-ifeq ($(REPORT_READY),yes)
-	-rsync -P -urvz $(REPORT_DIR)/*.pdf $(DOC_DIR)/
-	-rsync -P -urvz $(REPORT_DIR)/*.pdf $(PAR_DOC_DIR)/
+	find $(RESEARCH_BIB_DIR) -name '*.bib' -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
+ifeq ($(RESEARCH_REPORT_READY),yes)
+	-rsync -urz $(RESEARCH_REPORT_DIR)/*.pdf $(PUBLISH_DIR)/
 endif
 
-ifeq ($(COF_READY),yes)
-	-rsync -P -urvz $(COF_DIR)/*.pdf $(DOC_DIR)/
-	-rsync -P -urvz $(COF_DIR)/*.pdf $(PAR_DOC_DIR)/
+ifeq ($(RESEARCH_COF_READY),yes)
+	-rsync -urz $(RESEARCH_COF_DIR)/*.pdf $(PUBLISH_DIR)/
 endif
 
-ifeq ($(JNL_READY),yes)
-	-rsync -P -urvz $(JNL_DIR)/*.pdf $(DOC_DIR)/
-	-rsync -P -urvz $(JNL_DIR)/*.pdf $(PAR_DOC_DIR)/
+ifeq ($(RESEARCH_JNL_READY),yes)
+	-rsync -urz $(RESEARCH_JNL_DIR)/*.pdf $(PUBLISH_DIR)/
 endif
 
-ifeq ($(SLD_READY),yes)
-	-rsync -P -urvz $(SLD_DIR)/*.pdf $(DOC_DIR)/
-	-rsync -P -urvz $(SLD_DIR)/*.pdf $(PAR_DOC_DIR)/
+ifeq ($(RESEARCH_SLD_READY),yes)
+	-rsync -urz $(RESEARCH_SLD_DIR)/*.pdf $(PUBLISH_DIR)/
 endif
 
 print-%:
-	@echo '$*=$($*)'
+	@echo '$*:=$($*)'
