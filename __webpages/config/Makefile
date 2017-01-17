@@ -5,13 +5,13 @@ WEBPAGES_DIR	   := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 WEBPAGES_SRC_DIR   := $(WEBPAGES_DIR)/src
 WEBPAGES_DES_DIR   := $(WEBPAGES_DIR)/des
 JEMDOC_FILES       := $(patsubst $(WEBPAGES_SRC_DIR)/%,%, $(shell find $(WEBPAGES_SRC_DIR) -name '*.jemdoc'))
-HTML_FILES         := $(addprefix  $(WEBPAGES_DES_DIR)/, $(subst jemdoc,html, $(SRC)))
+HTML_FILES         := $(addprefix  $(WEBPAGES_DES_DIR)/, $(subst jemdoc,html, $(JEMDOC_FILES)))
 
 BIB_FILES          := $(shell find $(WEBPAGES_SRC_DIR) -name '*.bib')
 BIB_FILE_NAMES     := $(notdir $(BIB_FILES))
 
 JEMSEG_FILES       := $(shell find $(WEBPAGES_SRC_DIR) -name '*.jemseg')
-JEMSEG_RULE_NAMES  := $(shell sed -e 's/                                                                                                                                                    := .*$$//g' $(JEMSEG_FILES))
+JEMSEG_RULE_NAMES  := $(shell sed -e 's/:= .*$$//g' $(JEMSEG_FILES))
 
 include $(JEMSEG_FILES)
 
@@ -27,11 +27,10 @@ $$(WEBPAGES_SRC_DIR)/%.$1.publist: $$(WEBPAGES_SRC_DIR)/%.bib
 		@echo '</ol>' >> $$@
 endef
 
+$(foreach JEMSEG_RULE_NAME,$(JEMSEG_RULE_NAMES),$(eval $(call gen_publist,$(JEMSEG_RULE_NAME))))
+
 .PHONY : all $(PUBLIST_FILES) $(JEMINC_FILES) $(HTML_FILES)
 all : $(PUBLIST_FILES) $(JEMINC_FILES) $(HTML_FILES)
-
-$(PUBLIST_FILES):
-	for JEMSEG_RULE_NAME in $(JEMSEG_RULE_NAMES); do $(call gen_publist,$(JEMSEG_RULE_NAME)); done
 
 $(JEMINC_FILES): $(WEBPAGES_SRC_DIR)/%.jeminc: $(WEBPAGES_SRC_DIR)/%.bib
 	$(JABREF) -n -m \

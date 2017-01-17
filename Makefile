@@ -106,7 +106,7 @@ ifeq ($(RESEARCH_PROJ_SLD_READY),yes)
 	-rsync -urz $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_DIR)/
 endif
 
-.PHONY : build_webpages: publish_materials
+.PHONY : build_webpages publish_materials
 build_webpages: publish_materials
 ifdef WEBSITE_CONFIG_DIR
 	rsync -urz $(WEBSITE_CONFIG_DIR) $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)
@@ -117,7 +117,7 @@ endif
 	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/site.conf $(RESEARCH_PROJ_WEBPAGES_DIR)/src/ ; \
 	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/css $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
 	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/fonts $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
-	rsync -urz $$(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/* $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
+	rsync -urz $(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/* $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
 	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR) ; \
 	fi
 
