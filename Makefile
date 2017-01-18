@@ -1,10 +1,6 @@
-MATERIAL_DIR = $(shell pwd)
-COURSE_DIR = $(shell dirname $(MATERIAL_DIR))
-COURSE_NAME = $(subst course_,,$(notdir $(COURSE_DIR)))
 INIT_FILE := .init
 
-DOC_DIR = $(COURSE_DIR)/__webpages/src/_asset/doc
-SYLLABUS_DIR = $(MATERIAL_DIR)/docs/syllabus
+SYLLABUS_DIR = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/docs/syllabus
 
 SYLLABUS_READY = no
 
@@ -14,8 +10,7 @@ none: ;
 .PHONY : init
 init:
 ifeq ($(shell cat $(INIT_FILE)),no)
-	#add project title
-
+ifdef COURSE_NAME
 	find . \( -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
@@ -25,14 +20,18 @@ ifeq ($(shell cat $(INIT_FILE)),no)
 	rm -rf .git
 	$(shell echo yes > $(INIT_FILE))
 endif
+endif
 
-.PHONY : pack
-pack: ;
+.PHONY : pack_materials
+pack_materials: ;
 
-.PHONY : publish
-publish:
+.PHONY : publish_materials
+publish_materials:
+ifdef PUBLISH_MATERIALS_DIR
+	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 ifeq ($(SYLLABUS_READY),yes)
-	rsync -P -urvz $(SYLLABUS_DIR)/*.pdf $(DOC_DIR)/
+	rsync -P -urvz $(SYLLABUS_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
+endif
 endif
 
 print-%:
