@@ -65,7 +65,8 @@ add_a_week:
 .PHONY : pack_materials
 pack_materials:
 ifneq ($(MATERIALS),)
-	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials); done
+# need some more work
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_DIR=$(COURSE_DIR)); done
 endif
 
 .PHONY : publish_materials
@@ -84,7 +85,7 @@ ifdef COURSE_WEBPAGES_DIR
 
 ifneq ($(PUBLISH_WEBPAGES_DIR),$(WEBPAGES_DES_DIR))
 	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	rsync -urz $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
+	rsync -urz $(WEBPAGES_DES_DIR)/*.html $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
