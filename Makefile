@@ -77,7 +77,7 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
-	find $(RESEARCH_PROJ_BIB_DIR) -name '*.bib' -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
+	find $(COURSE_DIR) -name '*.bib' -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
 	rsync -urz $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -urz $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
