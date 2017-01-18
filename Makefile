@@ -1,8 +1,19 @@
-INIT_FILE := .init
 
-SYLLABUS_DIR = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/docs/syllabus
+MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+INIT_FILE             := $(MATERIAL_DIR)/.init
 
-SYLLABUS_READY = no
+
+SYLLABUS_READY        := no
+SYLLABUS_DIR          := $(MATERIAL_DIR)/docs/syllabus
+
+# default values for COURSE_DIR and PUBLISH_MATERIALS_DIR
+COURSE_DIR            := ''
+PUBLISH_MATERIALS_DIR := ''
+ifdef COURSE_DIR
+COURSE_NAME           := $(subst course_,,$(notdir $(COURSE_DIR)))
+COURSE_BIB_DIR        := $(COURSE_DIR)/bib
+MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
+endif
 
 .PHONY : none
 none: ;
