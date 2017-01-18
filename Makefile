@@ -9,7 +9,7 @@ GIT_BRANCH_COURSE_WEEKLY := course_weekly
 
 SYLLABUS_DIR             := materials_syllabus
 
-NUM_OF_WEEKS             := $(words $(shell find $(COURSE_DIR) -type d -name '*week*'))
+NUM_OF_WEEKS             := (words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
 NUM_OF_NEXT_WEEKS        := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR           := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
