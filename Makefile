@@ -17,10 +17,23 @@ RESEARCH_PROJ_FIG_DIR             := $(RESEARCH_PROJ_DIR)/figures
 
 
 RESEARCH_PROJ_WEBPAGES_DIR        := $(shell find $(RESEARCH_PROJ_DIR) -type d -name __webpages)
-RESEARCH_PROJ_WEBPAGES_SRC_DIR    := $(RESEARCH_PROJ_WEBPAGES_DIR)/src
-RESEARCH_PROJ_WEBPAGES_DES_DIR    := $(RESEARCH_PROJ_WEBPAGES_DIR)/des
-RESEARCH_PROJ_WEBPAGES_CONFIG_DIR := $(RESEARCH_PROJ_WEBPAGES_DIR)/config
-PUBLISH_DIR                       := $(RESEARCH_PROJ_WEBPAGES_SRC_DIR)/des/doc
+
+ifdef RESEARCH_PROJ_WEBPAGES_DIR
+WEBPAGES_CSS_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/config/css
+WEBPAGES_FONTS_DIR           := $(RESEARCH_PROJ_WEBPAGES_DIR)/config/fonts
+WEBPAGES_MAKEFILE            := $(RESEARCH_PROJ_WEBPAGES_DIR)/config/Makefile
+WEBPAGES_SITECONF            := $(RESEARCH_PROJ_WEBPAGES_DIR)/config/site.conf
+
+WEBPAGES_SRC_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/src
+WEBPAGES_DES_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/des
+
+WEBPAGES_PIC_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/pic
+WEBPAGES_DOC_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/doc
+WEBPAGES_CODE_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/code
+
+PUBLISH_WEBPAGES_DIR		 := $(WEBPAGES_DES_DIR)
+PUBLISH_MATERIALS_DIR        := $(WEBPAGES_DES_DIR)
+endif
 
 TMP_DIR_PREFIX                    := $(RESEARCH_PROJ_DIR)/tmp
 
@@ -90,42 +103,47 @@ endif
 
 .PHONY : publish_materials
 publish_materials:
+ifdef PUBLISH_MATERIALS_DIR
+	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 ifeq ($(RESEARCH_PROJ_REPORT_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_REPORT_DIR)/*.pdf $(PUBLISH_DIR)/
+	-rsync -urzR $(RESEARCH_PROJ_REPORT_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
 endif
 
 ifeq ($(RESEARCH_PROJ_COF_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_COF_DIR)/*.pdf $(PUBLISH_DIR)/
+	-rsync -urzR $(RESEARCH_PROJ_COF_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
 endif
 
 ifeq ($(RESEARCH_PROJ_JNL_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_JNL_DIR)/*.pdf $(PUBLISH_DIR)/
+	-rsync -urzR $(RESEARCH_PROJ_JNL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
 endif
 
 ifeq ($(RESEARCH_PROJ_SLD_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_DIR)/
+	-rsync -urzR $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
+endif
 endif
 
-.PHONY : build_webpages publish_materials
-build_webpages: publish_materials
-ifdef WEBSITE_CONFIG_DIR
-	rsync -urz $(WEBSITE_CONFIG_DIR) $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)
+.PHONY : build_webpages
+build_webpages:
+ifdef RESEARCH_PROJ_WEBPAGES_DIR
+	find $(RESEARCH_PROJ_BIB_DIR) -name '*.bib' -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
+	rsync -urz $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
+	rsync -urz $(WEBPAGES_MAKEFILE) $(RESEARCH_PROJ_WEBPAGES_DIR)
+	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR)
+
+ifneq ($(PUBLISH_WEBPAGES_DIR),$(WEBPAGES_DES_DIR))
+	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
+	rsync -urz $(WEBPAGES_DES_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzR $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzR $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzR $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
-	if [ -d $(RESEARCH_PROJ_WEBPAGES_DIR) ]; then \
-	find $(RESEARCH_PROJ_BIB_DIR) -name '*.bib' -exec rsync -urz {} $(RESEARCH_PROJ_WEBPAGES_SRC_DIR) \; ; \
-	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/Makefile $(RESEARCH_PROJ_WEBPAGES_DIR) ; \
-	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/site.conf $(RESEARCH_PROJ_WEBPAGES_DIR)/src/ ; \
-	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/css $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
-	rsync -urz $(RESEARCH_PROJ_WEBPAGES_CONFIG_DIR)/fonts $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
-	rsync -urz $(RESEARCH_PROJ_WEBPAGES_DIR)/src/_asset/* $(RESEARCH_PROJ_WEBPAGES_DIR)/des/ ; \
-	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR) ; \
-	fi
+endif
 
 .PHONY : clean
 clean :
-	if [ -d $(RESEARCH_PROJ_WEBPAGES_DIR) ]; then \
-	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR) clean ; \
-	fi
+ifdef RESEARCH_PROJ_WEBPAGES_DIR
+	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR) clean
+endif
 
 print-%:
 	@echo '$*:=$($*)'

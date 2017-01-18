@@ -11,7 +11,7 @@ BIB_FILES          := $(shell find $(WEBPAGES_SRC_DIR) -name '*.bib')
 BIB_FILE_NAMES     := $(notdir $(BIB_FILES))
 
 JEMSEG_FILES       := $(shell find $(WEBPAGES_SRC_DIR) -name '*.jemseg')
-JEMSEG_RULE_NAMES  := $(shell sed -e 's/:= .*$$//g' $(JEMSEG_FILES))
+JEMSEG_RULE_NAMES  := $(shell sed -e 's/\s*:= .*$$//g' $(JEMSEG_FILES))
 
 include $(JEMSEG_FILES)
 
