@@ -106,19 +106,19 @@ publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 ifeq ($(RESEARCH_PROJ_REPORT_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_REPORT_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
+	-rsync -urz $(RESEARCH_PROJ_REPORT_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
 endif
 
 ifeq ($(RESEARCH_PROJ_COF_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_COF_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
+	-rsync -urz $(RESEARCH_PROJ_COF_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
 endif
 
 ifeq ($(RESEARCH_PROJ_JNL_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_JNL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
+	-rsync -urz $(RESEARCH_PROJ_JNL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
 endif
 
 ifeq ($(RESEARCH_PROJ_SLD_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc
+	-rsync -urz $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
 endif
 endif
 
@@ -132,7 +132,7 @@ ifdef RESEARCH_PROJ_WEBPAGES_DIR
 
 ifneq ($(PUBLISH_WEBPAGES_DIR),$(WEBPAGES_DES_DIR))
 	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	rsync -urz $(WEBPAGES_DES_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urz $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
