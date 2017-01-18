@@ -29,8 +29,8 @@ endef
 
 $(foreach JEMSEG_RULE_NAME,$(JEMSEG_RULE_NAMES),$(eval $(call gen_publist,$(JEMSEG_RULE_NAME))))
 
-.PHONY : all $(PUBLIST_FILES) $(JEMINC_FILES) $(HTML_FILES)
-all : $(PUBLIST_FILES) $(JEMINC_FILES) $(HTML_FILES)
+.PHONY : all $(HTML_FILES)
+all : $(HTML_FILES)
 
 $(JEMINC_FILES): $(WEBPAGES_SRC_DIR)/%.jeminc: $(WEBPAGES_SRC_DIR)/%.bib
 	$(JABREF) -n -m \
