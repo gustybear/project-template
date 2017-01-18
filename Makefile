@@ -55,12 +55,12 @@ endif
 .PHONY : add_syllabus
 add_syllabus: 
 	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
-	$(MAKE) -C $(SYLLABUS_DIR) init
+	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_a_week
 add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
 pack_materials:
