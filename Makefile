@@ -2,8 +2,6 @@ PUBLISH_WEBPAGES_DIR       :=
 PUBLISH_MATERIALS_DIR      :=
 
 RESEARCH_PROJ_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-RESEARCH_PROJ_BIB          := $(shell find $(RESEARCH_PROJ_DIR) -name '*.bib')
-RESEARCH_PROJ_FIG          := $(shell find $(RESEARCH_PROJ_DIR) -name '*.eps' -o -name '*.tikz')
 RESEARCH_PROJ_NAME         := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 
 RESEARCH_PROJ_REPORT_READY := no
@@ -11,6 +9,8 @@ RESEARCH_PROJ_COF_READY    := no
 RESEARCH_PROJ_JNL_READY    := no
 RESEARCH_PROJ_SLD_READY    := no
 
+RESEARCH_PROJ_BIB_DIR      := $(RESEARCH_PROJ_DIR)/bib
+RESEARCH_PROJ_FIG_DIR      := $(RESEARCH_PROJ_DIR)/figures
 RESEARCH_PROJ_REPORT_DIR   := $(RESEARCH_PROJ_DIR)/docs/report
 RESEARCH_PROJ_COF_DIR      := $(RESEARCH_PROJ_DIR)/docs/conf
 RESEARCH_PROJ_JNL_DIR      := $(RESEARCH_PROJ_DIR)/docs/jnl
@@ -39,20 +39,17 @@ gen_tmp_dir_name           = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
 gen_package_name           = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
-	cd $(1); find . \( -name '*.cls' -o -name '*.bst' -o -name '*.sty' -o -name '*.tex' \) \
-		-exec rsync -R {} $(call gen_tmp_dir_name, $(1)) \;
+	mkdir -p $(call gen_tmp_dir_name, $(1))
+	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) -type f \
+		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
 
-	# sync bib files
-	rsync -urz $(RESEARCH_PROJ_BIB) $(call gen_tmp_dir_name, $(1))
-	rsync -urz $(RESEARCH_PROJ_FIG) $(call gen_tmp_dir_name, $(1))
-
-	# correct the path to include bib
+	# correct the path
 	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([\(bib\)\(eps\)\(tikz\)]\)bib/{\1\.\2/g' {} +
+		sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
 
 	# correct the output path for eps2pdf
 	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/\[outdir=\.\.\/\.\.\/figures\/pdf\/\]//g' {} +
+		sed -i '' 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
