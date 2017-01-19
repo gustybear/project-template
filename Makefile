@@ -5,7 +5,7 @@ PUBLISH_MATERIALS_DIR :=
 
 MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ifdef COURSE_NAME
-MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
+MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_materials
 endif
 
 
