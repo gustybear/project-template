@@ -47,7 +47,7 @@ init:
 	find . \( -name '_*.jemdoc' -o -name '_*.jemseg' -o -name '_*.bib' \) \
 	     -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
-	find . -name '_MENU' -exec \ \
+	find . -name '_MENU' -exec \
 	       -exec bash -c 'mv {} MENU' \;
 
 	rm -rf .git
