@@ -1,4 +1,3 @@
-
 MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 INIT_FILE             := $(MATERIAL_DIR)/.init
 
