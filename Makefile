@@ -18,11 +18,11 @@ none: ;
 
 .PHONY : init
 init:
-	find . \( -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
-		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-
-	find . -name '*.tex' -exec \
+find . -name '_*.tex' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+
+	find . \( -name '_*.tex' -o -name '_*.eps' -o -name '_*.tikz' \) \
+		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	rm -rf .git
 
