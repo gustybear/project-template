@@ -48,7 +48,7 @@ init:
 	     -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '_MENU' -exec \ \
-	       -exec bash -c 'mv {} _MENU' \;
+	       -exec bash -c 'mv {} MENU' \;
 
 	rm -rf .git
 	git init
