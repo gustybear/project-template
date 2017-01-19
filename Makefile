@@ -1,6 +1,6 @@
 #default values
-PUBLISH_WEBPAGES_DIR     := ''
-PUBLISH_MATERIALS_DIR    := ''
+PUBLISH_WEBPAGES_DIR     :=
+PUBLISH_MATERIALS_DIR    :=
 
 COURSE_DIR               := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
@@ -62,7 +62,7 @@ add_syllabus:
 .PHONY : add_a_week
 add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_DIR=$(COURSE_DIR) COURSE_BIB=$(COURSE_BIB)
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME) COURSE_BIB=$(COURSE_BIB)
 
 .PHONY : pack_materials
 pack_materials:
