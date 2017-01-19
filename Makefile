@@ -18,7 +18,7 @@ none: ;
 
 .PHONY : init
 init:
-find . -name '_*.tex' -exec \
+	find . -name '_*.tex' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
 	find . \( -name '_*.tex' -o -name '_*.eps' -o -name '_*.tikz' \) \
