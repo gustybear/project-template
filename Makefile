@@ -71,10 +71,10 @@ init:
 	find . -type f -name '_*.tex' \
 	    -exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 
-	find . -name '_*.*' \
+	find . -type f -name '_*.*' \
 	    -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
-	find . -name '_MENU' \
+	find . -type f -name '_MENU' \
 	    -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 	rm -rf .git
