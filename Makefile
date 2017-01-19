@@ -3,7 +3,7 @@ PUBLISH_WEBPAGES_DIR     := ''
 PUBLISH_MATERIALS_DIR    := ''
 
 COURSE_DIR               := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_NAME              := $(notdir $(COURSE_DIR))
+COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
 COURSE_BIB				 := $(shell find $(COURSE_DIR) -name '*.bib')
 MATERIALS                := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
