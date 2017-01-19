@@ -43,8 +43,8 @@ define gen_package
 	rm -rf $(call gen_tmp_dir_name, $(1))
 endef
 
-.PHONY : none
-none: ;
+.PHONY : clear
+clear: ;
 
 .PHONY : init
 init:
@@ -53,7 +53,7 @@ init:
 	find . -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 	
-	find . -type f -name '_*' \
+	find . -type f -name '_*.*' \
 	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
 	rm -rf .git
