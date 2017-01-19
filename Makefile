@@ -6,7 +6,7 @@ RESEARCH_PROJ_BIB          := $(shell find $(RESEARCH_PROJ_DIR) -name '*.bib')
 RESEARCH_PROJ_FIG          := $(shell find $(RESEARCH_PROJ_DIR) -name '*.eps' -o -name '*.tikz')
 RESEARCH_PROJ_NAME         := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 
-RESEARCH_PROJ_REPORT_READY := yes
+RESEARCH_PROJ_REPORT_READY := no
 RESEARCH_PROJ_COF_READY    := no
 RESEARCH_PROJ_JNL_READY    := no
 RESEARCH_PROJ_SLD_READY    := no
