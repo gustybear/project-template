@@ -13,7 +13,7 @@ SLIDES_READY          := no
 NOTES_READY           := no
 QUIZ_READY            := no
 QUIZ_SOL_READY        := no
-ASSG_READY            := yes
+ASSG_READY            := no
 ASSG_SOL_READY        := no
 
 SLIDES_DIR            := $(MATERIAL_DIR)/docs/slides
