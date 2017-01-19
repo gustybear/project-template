@@ -9,7 +9,7 @@ GIT_BRANCH_COURSE_WEEKLY := course_weekly
 
 SYLLABUS_DIR             := materials_syllabus
 
-NUM_OF_WEEKS             := (words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
+NUM_OF_WEEKS             := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
 NUM_OF_NEXT_WEEKS        := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR           := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
@@ -55,12 +55,12 @@ endif
 .PHONY : add_syllabus
 add_syllabus: 
 	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
-	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME)
+	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_DIR=$(COURSE_DIR)
 
 .PHONY : add_a_week
 add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_DIR=$(COURSE_DIR)
 
 .PHONY : pack_materials
 pack_materials:
