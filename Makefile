@@ -1,6 +1,6 @@
 # default values for 
 COURSE_NAME           :=
-COURSE_BIB        	  :=
+COURSE_BIB_DIR        :=
 PUBLISH_MATERIALS_DIR :=
 
 MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -31,15 +31,12 @@ gen_package_name     = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
-	cd $(1); find . \( -name '*.doc' -o -name '*.docx' -o -name '*.tex' -o -name '*.pdf' \) \
-			-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
+	find $(1) $(COURSE_BIB_DIR) -type f \
+		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
 
-	# sync bib files
-	rsync -urz $(COURSE_BIB) $(call gen_tmp_dir_name, $(1))
-
-	# ## correct the path to include bib
-	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/{.*\/\([^/]\{1,\}\)\.bib/{\1\.bib/g' {} +
+	# ## correct the path
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
+		-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -51,12 +48,12 @@ none: ;
 
 .PHONY : init
 init:
-	find . -name '_*.tex' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
-	find . -name '_*.tex' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+	find . -type f -name '_*.tex' \
+		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
+	find . -type f -name '_*.tex' \
+		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 	
-	find . \( -name '_*.tex' -o -name '_*.eps' -o -name '_*.tikz' \) \
+	find . -type f -name '_*' \
 	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
 	rm -rf .git
