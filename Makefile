@@ -44,12 +44,12 @@ define gen_package
 		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# correct the path
-	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
+	    -exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
 
 	# correct the output path for eps2pdf
-	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
-		sed -i '' 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
+		-exec sed -i '' 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -64,19 +64,18 @@ endif
 
 .PHONY : init
 init:
-	find . -name '_*.jemdoc' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -name '_MENU' -exec \
-		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -name '_*.tex' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+	find . -type f -name '_*.jemdoc' \
+		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+	find . -type f -name '_MENU' \
+	    -exec sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+	find . -type f -name '_*.tex' \
+	    -exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 
-	find . \( -name '_*.jemdoc' -o -name '_*.jemseg' -o -name '_*.bib' -o \
-	       -name '_*.tex' -o -name '_*.eps' -o -name '_*.tikz' \) \
-	       -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
+	find . -name '_*.*' \
+	    -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 	find . -name '_MENU' \
-	       -exec bash -c 'mv {} `dirname {}`/MENU' \;
+	    -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 	rm -rf .git
 	git init
