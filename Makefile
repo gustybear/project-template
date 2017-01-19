@@ -1,7 +1,7 @@
 # default values for 
-COURSE_NAME           := ''
-COURSE_BIB        	  := ''
-PUBLISH_MATERIALS_DIR := ''
+COURSE_NAME           :=
+COURSE_BIB        	  :=
+PUBLISH_MATERIALS_DIR :=
 
 MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ifdef COURSE_NAME
