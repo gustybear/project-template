@@ -13,7 +13,7 @@ SLIDES_READY          := no
 NOTES_READY           := no
 QUIZ_READY            := no
 QUIZ_SOL_READY        := no
-ASSG_READY            := no
+ASSG_READY            := yes
 ASSG_SOL_READY        := no
 
 SLIDES_DIR            := $(MATERIAL_DIR)/docs/slides
@@ -29,13 +29,13 @@ gen_tmp_dir_name     = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
 gen_package_name     = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
+	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
-	cd $(1); \
-		find . \( -name '*.doc' -o -name '*.docx' -o -name '*.tex' -o -name '*.pdf' \) \
-			-exec rsync -R {} $(call gen_tmp_dir_name, $(1)) \;
+	cd $(1); find . \( -name '*.doc' -o -name '*.docx' -o -name '*.tex' -o -name '*.pdf' \) \
+			-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# sync bib files
-	rsync -R $(COURSE_BIB) $(call gen_tmp_dir_name, $(1))
+	rsync -urz $(COURSE_BIB) $(call gen_tmp_dir_name, $(1))
 
 	# ## correct the path to include bib
 	find $(call gen_tmp_dir_name, $(1)) -name '*.tex' -exec \
