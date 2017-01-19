@@ -1,7 +1,11 @@
+#default values
+PUBLISH_WEBPAGES_DIR     := ''
+PUBLISH_MATERIALS_DIR    := ''
+
 COURSE_DIR               := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
-MATERIALS                := $(shell find $(COURSE_DIR) -type d -name 'materials_*')
-INIT_FILE                := .init
+COURSE_NAME              := $(notdir $(COURSE_DIR))
+COURSE_BIB				 := $(shell find $(COURSE_DIR) -name '*.bib')
+MATERIALS                := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
 GIT_REPO                 := git@github.com:gustybear/project-template.git
 GIT_BRANCH_SYLLABUS      := course_syllabus
@@ -27,9 +31,6 @@ WEBPAGES_DES_DIR         := $(COURSE_WEBPAGES_DIR)/des
 WEBPAGES_PIC_DIR         := $(COURSE_WEBPAGES_DIR)/src/_asset/pic
 WEBPAGES_DOC_DIR         := $(COURSE_WEBPAGES_DIR)/src/_asset/doc
 WEBPAGES_CODE_DIR        := $(COURSE_WEBPAGES_DIR)/src/_asset/code
-
-PUBLISH_WEBPAGES_DIR     := $(WEBPAGES_DES_DIR)
-PUBLISH_MATERIALS_DIR    := $(WEBPAGES_DES_DIR)
 endif
 
 .PHONY : none
@@ -37,36 +38,37 @@ none: ;
 
 .PHONY : init
 init:
-ifeq ($(shell cat $(INIT_FILE)),no)
-	find . \( -name '*.jemdoc' -o -name '*.jemseg' -o -name '*.bib' \) \
-	       -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-
-	find . -name '*.jemdoc' -exec \
+	find . -name '_*.jemdoc' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
-	find . -name 'MENU' -exec \
+	find . -name '_MENU' -exec \
 		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
+
+	find . \( -name '_*.jemdoc' -o -name '_*.jemseg' -o -name '_*.bib' \) \
+	     -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+
+	find . -name '_MENU' -exec \ \
+	       -exec bash -c 'mv {} _MENU' \;
 
 	rm -rf .git
 	git init
-	$(shell echo yes > $(INIT_FILE))
-endif
+
 
 .PHONY : add_syllabus
 add_syllabus: 
 	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
-	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_DIR=$(COURSE_DIR)
+	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME) COURSE_BIB=$(COURSE_BIB)
 
 .PHONY : add_a_week
 add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_DIR=$(COURSE_DIR)
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_DIR=$(COURSE_DIR) COURSE_BIB=$(COURSE_BIB)
 
 .PHONY : pack_materials
 pack_materials:
 ifneq ($(MATERIALS),)
 # need some more work
-	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_DIR=$(COURSE_DIR)); done
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB=$(COURSE_BIB)); done
 endif
 
 .PHONY : publish_materials
@@ -83,7 +85,7 @@ ifdef COURSE_WEBPAGES_DIR
 	rsync -urz $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
 
-ifneq ($(PUBLISH_WEBPAGES_DIR),$(WEBPAGES_DES_DIR))
+ifdef PUBLISH_WEBPAGES_DIR
 	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
 	rsync -urz $(WEBPAGES_DES_DIR)/*.html $(PUBLISH_WEBPAGES_DIR)
 	rsync -urz $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
