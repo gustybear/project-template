@@ -51,13 +51,13 @@ none: ;
 
 .PHONY : init
 init:
-	find . \( -name '*.tex' -o -name '*.eps' -o -name '*.tikz' \) \
-	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
-
-	find . -name '*.tex' -exec \
+	find . -name '_*.tex' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
-	find . -name '*.tex' -exec \
+	find . -name '_*.tex' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+	
+	find . \( -name '_*.tex' -o -name '_*.eps' -o -name '_*.tikz' \) \
+	       -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
 	rm -rf .git
 
