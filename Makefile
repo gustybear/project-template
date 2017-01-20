@@ -12,6 +12,10 @@ endif
 
 MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
 
+PUBLISTH_DOCS_SUBDIR  := docs
+PUBLISTH_CODE_SUBDIR  := codes
+PUBLISTH_DATA_SUBDIR  := data
+
 ###### the default list in the template is:  #########
 ######               "syllabus"              #########
 ###### for instance, if the report is ready  #########
@@ -76,7 +80,8 @@ publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
-		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR)/doc \; ;)
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
+		     -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR)/$(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
