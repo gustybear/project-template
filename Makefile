@@ -4,7 +4,6 @@ PUBLISH_MATERIALS_DIR    :=
 
 COURSE_DIR               := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
-COURSE_BIB				 := $(shell find $(COURSE_DIR) -name '*.bib')
 MATERIALS                := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
 GIT_REPO                 := git@github.com:gustybear/project-template.git
@@ -17,6 +16,7 @@ NUM_OF_WEEKS             := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type
 NUM_OF_NEXT_WEEKS        := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR           := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
+COURSE_BIB_DIR           := $(COURSE_DIR)/bib
 COURSE_WEBPAGES_DIR      := $(shell find $(COURSE_DIR) -type d -name __webpages)
 
 ifdef COURSE_WEBPAGES_DIR
@@ -33,8 +33,11 @@ WEBPAGES_DOC_DIR         := $(COURSE_WEBPAGES_DIR)/src/_asset/doc
 WEBPAGES_CODE_DIR        := $(COURSE_WEBPAGES_DIR)/src/_asset/code
 endif
 
-.PHONY : none
-none: ;
+.PHONY : clean
+clean :
+ifdef COURSE_WEBPAGES_DIR
+	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
+endif
 
 .PHONY : init
 init:
@@ -45,10 +48,10 @@ init:
 		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
 
 	find . \( -name '_*.jemdoc' -o -name '_*.jemseg' -o -name '_*.bib' \) \
-	     -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '_MENU' \
-	       -exec bash -c 'mv {} `dirname {}`/MENU' \;
+		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 	rm -rf .git
 	git init
@@ -57,18 +60,18 @@ init:
 .PHONY : add_syllabus
 add_syllabus: 
 	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
-	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME) COURSE_BIB=$(COURSE_BIB)
+	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_a_week
 add_a_week:
 	git clone -b $(GIT_BRANCH_COURSE_WEEKLY) $(GIT_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME) COURSE_BIB=$(COURSE_BIB)
+	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
 pack_materials:
 ifneq ($(MATERIALS),)
 # need some more work
-	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB=$(COURSE_BIB)); done
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR)); done
 endif
 
 .PHONY : publish_materials
@@ -80,7 +83,7 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
-	find $(COURSE_DIR) -name '*.bib' -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
+	find $(COURSE_BIB_DIR) -type f -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
 	rsync -urz $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -urz $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
