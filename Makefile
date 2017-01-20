@@ -22,17 +22,14 @@ COURSE_BIB_DIR           := $(COURSE_DIR)/bib
 COURSE_WEBPAGES_DIR      := $(shell find $(COURSE_DIR) -type d -name __webpages)
 
 ifdef COURSE_WEBPAGES_DIR
-WEBPAGES_CSS_DIR         := $(COURSE_WEBPAGES_DIR)/config/css
-WEBPAGES_FONTS_DIR       := $(COURSE_WEBPAGES_DIR)/config/fonts
-WEBPAGES_MAKEFILE        := $(COURSE_WEBPAGES_DIR)/config/Makefile
-WEBPAGES_SITECONF        := $(COURSE_WEBPAGES_DIR)/config/site.conf
-
+WEBPAGES_MAKEFILE        := $(COURSE_WEBPAGES_DIR)/Makefile
 WEBPAGES_SRC_DIR         := $(COURSE_WEBPAGES_DIR)/src
 WEBPAGES_DES_DIR         := $(COURSE_WEBPAGES_DIR)/des
 
-WEBPAGES_PIC_DIR         := $(COURSE_WEBPAGES_DIR)/src/_asset/pic
-WEBPAGES_DOC_DIR         := $(COURSE_WEBPAGES_DIR)/src/_asset/doc
-WEBPAGES_CODE_DIR        := $(COURSE_WEBPAGES_DIR)/src/_asset/code
+WEBPAGES_SITECONF        := $(WEBPAGES_SRC_DIR)/site.conf
+WEBPAGES_CSS_DIR         := $(WEBPAGES_SRC_DIR)/css
+WEBPAGES_FONTS_DIR       := $(WEBPAGES_SRC_DIR)/fonts
+WEBPAGES_PIC_DIR         := $(WEBPAGES_SRC_DIR)/pic
 endif
 
 .PHONY : clean
@@ -66,8 +63,8 @@ endif
 	git init
 
 
-.PHONY : add_syllabus
-add_syllabus: 
+.PHONY : add_curriculum
+add_curriculum: 
 	git clone -b $(GIT_BRANCH_CURRICULUM) $(GIT_REPO) $(CURRICULUM_DIR)
 	$(MAKE) -C $(CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
@@ -93,8 +90,8 @@ endif
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
 	find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
-	rsync -urzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -urzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
 
 ifdef PUBLISH_WEBPAGES_DIR
