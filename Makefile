@@ -1,7 +1,9 @@
-#default values
+#input parameters
 PUBLISH_WEBPAGES_DIR     :=
 PUBLISH_MATERIALS_DIR    :=
 
+#local variables
+OS                       := $(shell uname)
 COURSE_DIR               := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
 MATERIALS                := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
@@ -41,12 +43,19 @@ endif
 
 .PHONY : init
 init:
+ifeq ($(OS), Darwin)
+	find . -name '_*.jemdoc' -exec \
+		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+
+	find . -name '_MENU' -exec \
+		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
+else
 	find . -name '_*.jemdoc' -exec \
 		sed -i 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
 	find . -name '_MENU' -exec \
 		sed -i 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
-
+endif
 	find . -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
