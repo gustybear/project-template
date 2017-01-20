@@ -21,6 +21,10 @@ ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
 endif
 
+PUBLISTH_DOCS_SUBDIR  := docs
+PUBLISTH_CODE_SUBDIR  := codes
+PUBLISTH_DATA_SUBDIR  := data
+
 TMP_DIR_PREFIX        := $(MATERIAL_DIR)/tmp
 
 gen_tmp_dir_name     = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
@@ -79,7 +83,7 @@ ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f \( -name "*.pdf" -o -name "*.tar.gz" \) \
-			 -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR) \; ;)
+			 -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR)/$(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
