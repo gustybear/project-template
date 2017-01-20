@@ -8,13 +8,36 @@ ifdef COURSE_NAME
 MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_materials
 endif
 
+MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
 
-SYLLABUS_READY        := no
+###### the default list in the template is:  #########
+######               "syllabus"              #########
+###### for instance, if the report is ready  #########
+###### put it after MATERIAL_DOCS_READY      #########
+MATERIAL_DOCS_READY   := 
+ifdef MATERIAL_DOCS_READY
+MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
+endif
 
-SYLLABUS_DIR          := $(MATERIAL_DIR)/docs/syllabus
+define gen_package
+	mkdir -p $(call gen_tmp_dir_name, $(1))
+	# sync other files
+	find $(1) $(COURSE_BIB_DIR) -type f \
+		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
+
+	# ## correct the path
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
+		-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
+
+	cd $(call gen_tmp_dir_name, $(1)); \
+		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
+	rm -rf $(call gen_tmp_dir_name, $(1))
+endef
+
 
 .PHONY : clean
 clean: ;
+
 
 .PHONY : init
 init:
@@ -28,17 +51,20 @@ init:
 
 	rm -rf .git
 
+
 .PHONY : pack_materials
-pack_materials: ;
+pack_materials:
+	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+
 
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
-ifeq ($(SYLLABUS_READY),yes)
-	rsync -P -urvz $(SYLLABUS_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
+	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR) \; ;)
 endif
-endif
+
 
 print-%:
 	@echo '$*=$($*)'
