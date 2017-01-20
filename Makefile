@@ -1,8 +1,10 @@
-# default values for
+# input parameters
 COURSE_NAME           :=
 COURSE_BIB_DIR        :=
 PUBLISH_MATERIALS_DIR :=
 
+# local variables
+OS                    := $(shell uname)
 MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ifdef COURSE_NAME
 MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_materials
@@ -23,11 +25,16 @@ define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
 	find $(1) $(COURSE_BIB_DIR) -type f \
-		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
+		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# ## correct the path
+ifeq ($(OS), Darwin)
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
 		-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
+else
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
+		-exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
+endif
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -41,11 +48,17 @@ clean: ;
 
 .PHONY : init
 init:
+ifeq ($(OS), Darwin)
 	find . -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
 	find . -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
-
+else
+	find . -type f -name '_*.tex' \
+		-exec sed -i 's/\/\(_[^\.]\{1,\}\)\.\([^\s\(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
+	find . -type f -name '_*.tex' \
+		-exec sed -i 's/\/\(_[^\.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+endif
 	find . -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
@@ -62,7 +75,7 @@ publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
-		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR) \; ;)
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR) \; ;)
 endif
 
 
