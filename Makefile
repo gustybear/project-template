@@ -76,7 +76,7 @@ publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
-		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR) \; ;)
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR)/doc \; ;)
 endif
 
 
