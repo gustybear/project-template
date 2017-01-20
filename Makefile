@@ -45,7 +45,7 @@ define gen_package
 
 	# correct the path
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
-	    -exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
+		-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
 
 	# correct the output path for eps2pdf
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
@@ -67,15 +67,15 @@ init:
 	find . -type f -name '_*.jemdoc' \
 		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 	find . -type f -name '_MENU' \
-	    -exec sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+		-exec sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 	find . -type f -name '_*.tex' \
-	    -exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+		-exec sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 
 	find . -type f -name '_*.*' \
-	    -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
+		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 	find . -type f -name '_MENU' \
-	    -exec bash -c 'mv {} `dirname {}`/MENU' \;
+		-exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 	rm -rf .git
 	git init
@@ -120,7 +120,7 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef RESEARCH_PROJ_WEBPAGES_DIR
-	rsync -urz $(RESEARCH_PROJ_BIB) $(WEBPAGES_SRC_DIR) \;
+	find $(RESEARCH_PROJ_BIB_DIR) -type f -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
 	rsync -urz $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -urz $(WEBPAGES_MAKEFILE) $(RESEARCH_PROJ_WEBPAGES_DIR)
 	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR)
