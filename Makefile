@@ -8,20 +8,16 @@ ifdef COURSE_NAME
 MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
 endif
 
+MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
 
-SLIDES_READY          := no
-NOTES_READY           := no
-QUIZ_READY            := no
-QUIZ_SOL_READY        := no
-ASSG_READY            := no
-ASSG_SOL_READY        := no
-
-SLIDES_DIR            := $(MATERIAL_DIR)/docs/slides
-NOTES_DIR             := $(MATERIAL_DIR)/docs/notes
-QUIZ_DIR              := $(MATERIAL_DIR)/docs/quiz
-QUIZ_SOL_DIR          := $(MATERIAL_DIR)/docs/quiz_sol
-ASSG_DIR              := $(MATERIAL_DIR)/docs/assg
-ASSG_SOL_DIR          := $(MATERIAL_DIR)/docs/assg_sol
+###### the default list in the template is:  #########
+##    "assg assg_sol quiz quiz_sol notes slides"   ###
+###### for instance, if the assg is ready    #########
+###### put it after MATERIAL_DOCS_READY      #########
+MATERIAL_DOCS_READY   :=
+ifdef MATERIAL_DOCS_READY
+MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
+endif
 
 TMP_DIR_PREFIX        := $(MATERIAL_DIR)/tmp
 
@@ -60,38 +56,18 @@ init:
 
 .PHONY : pack_materials
 pack_materials:
-ifeq ($(ASSG_READY),yes)
-	$(call gen_package, $(ASSG_DIR))
-endif
+	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+
 
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
-ifeq ($(SLIDES_READY),yes)
-	-rsync -P -urvz $(SLIDES_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
+	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
+		find $(SUBDIR) -maxdepth 1 -type f \( -name "*.pdf" -o -name "*.tar.gz" \) \
+			 -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR) \; ;)
 endif
 
-ifeq ($(NOTES_READY),yes)
-	-rsync -P -urvz $(NOTES_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(QUIZ_READY),yes)
-	-rsync -P -urvz $(QUIZ_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(QUIZ_SOL_READY),yes)
-	-rsync -P -urvz $(QUIZ_SOL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(ASSG_READY),yes)
-	-rsync -P -urvz $(ASSG_DIR)/*.tar.gz $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(ASSG_SOL_READY),yes)
-	-rsync -P -urvz $(ASSG_SOL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-endif
 
 print-%:
 	@echo '$*:=$($*)'
