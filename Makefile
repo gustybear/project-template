@@ -4,20 +4,23 @@ PUBLISH_MATERIALS_DIR      :=
 RESEARCH_PROJ_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 RESEARCH_PROJ_NAME         := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 
-RESEARCH_PROJ_REPORT_READY := no
-RESEARCH_PROJ_COF_READY    := no
-RESEARCH_PROJ_JNL_READY    := no
-RESEARCH_PROJ_SLD_READY    := no
-
 RESEARCH_PROJ_BIB_DIR      := $(RESEARCH_PROJ_DIR)/bib
 RESEARCH_PROJ_FIG_DIR      := $(RESEARCH_PROJ_DIR)/figures
-RESEARCH_PROJ_REPORT_DIR   := $(RESEARCH_PROJ_DIR)/docs/report
-RESEARCH_PROJ_COF_DIR      := $(RESEARCH_PROJ_DIR)/docs/conf
-RESEARCH_PROJ_JNL_DIR      := $(RESEARCH_PROJ_DIR)/docs/jnl
-RESEARCH_PROJ_SLD_DIR      := $(RESEARCH_PROJ_DIR)/docs/slides
+RESEARCH_PROF_FIG_DRAW_DIR := $(RESEARCH_PROJ_DIR)/figures/draw
+RESEARCH_PROJ_DOCS_DIR     := $(RESEARCH_PROJ_DIR)/docs
 
+###### change this part to fit the project   #########
+###### the default list in the template is:  #########
+######      "report conf jnl slides"         #########
+###### for instance, if the report is ready  #########
+###### put it after RESEARCH_PROJ_DOCS_READY #########
+RESEARCH_PROJ_DOCS_READY   :=
+ifdef RESEARCH_PROJ_DOCS_READY
+RESEARCH_PROJ_DOCS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCS_READY))
+endif
+###################################################
 
-RESEARCH_PROJ_WEBPAGES_DIR := $(shell find $(RESEARCH_PROJ_DIR) -type d -name __webpages)
+RESEARCH_PROJ_WEBPAGES_DIR := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
 
 ifdef RESEARCH_PROJ_WEBPAGES_DIR
 WEBPAGES_CSS_DIR           := $(RESEARCH_PROJ_WEBPAGES_DIR)/config/css
@@ -40,8 +43,10 @@ gen_package_name           = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(no
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
-	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) -type f \
-		-exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
+	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) \
+		 -not \( -path $(RESEARCH_PROF_FIG_DRAW_DIR) -prune \) \
+		 -type f \
+		 -exec rsync -urz {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# correct the path
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
@@ -56,11 +61,13 @@ define gen_package
 	rm -rf $(call gen_tmp_dir_name, $(1))
 endef
 
+
 .PHONY : clean
 clean :
 ifdef RESEARCH_PROJ_WEBPAGES_DIR
 	$(MAKE) -C $(RESEARCH_PROJ_WEBPAGES_DIR) clean
 endif
+
 
 .PHONY : init
 init:
@@ -83,39 +90,17 @@ init:
 
 .PHONY : pack_materials
 pack_materials:
-ifeq ($(RESEARCH_PROJ_REPORT_READY),yes)
-	$(call gen_package, $(RESEARCH_PROJ_REPORT_DIR))
-endif
-
-ifeq ($(RESEARCH_PROJ_COF_READY),yes)
-	$(call gen_package, $(RESEARCH_PROJ_COF_DIR))
-endif
-
-ifeq ($(RESEARCH_PROJ_JNL_READY),yes)
-	$(call gen_package, $(RESEARCH_PROJ_JNL_DIR))
-endif
+	$(foreach SUBDIR,$(RESEARCH_PROJ_DOCS_SUBDIRS),$(call gen_package,$(SUBDIR));)
 
 
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
-ifeq ($(RESEARCH_PROJ_REPORT_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_REPORT_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
+	$(foreach SUBDIR,$(RESEARCH_PROJ_DOCS_SUBDIRS),\
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR) \; ;)
 endif
 
-ifeq ($(RESEARCH_PROJ_COF_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_COF_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(RESEARCH_PROJ_JNL_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_JNL_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-
-ifeq ($(RESEARCH_PROJ_SLD_READY),yes)
-	-rsync -urz $(RESEARCH_PROJ_SLD_DIR)/*.pdf $(PUBLISH_MATERIALS_DIR)/doc/
-endif
-endif
 
 .PHONY : build_webpages
 build_webpages:
@@ -133,6 +118,7 @@ ifdef PUBLISH_WEBPAGES_DIR
 	rsync -urz $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 endif
+
 
 print-%:
 	@echo '$*:=$($*)'
