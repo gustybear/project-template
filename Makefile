@@ -42,12 +42,12 @@ endif
 .PHONY : init
 init:
 	find . -name '_*.jemdoc' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+		sed -i 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
 	find . -name '_MENU' -exec \
-		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
+		sed -i 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
 
-	find . \( -name '_*.jemdoc' -o -name '_*.jemseg' -o -name '_*.bib' \) \
+	find . -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find . -name '_MENU' \
@@ -84,16 +84,16 @@ endif
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
 	find $(COURSE_BIB_DIR) -type f -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
-	rsync -urz $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
-	rsync -urz $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
+	rsync -urzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
 
 ifdef PUBLISH_WEBPAGES_DIR
 	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	rsync -urz $(WEBPAGES_DES_DIR)/*.html $(PUBLISH_WEBPAGES_DIR)
-	rsync -urz $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urz $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urz $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_DES_DIR)/*.html $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_PIC_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 endif
 
