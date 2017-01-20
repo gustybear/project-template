@@ -92,7 +92,7 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
-	find $(COURSE_BIB_DIR) -type f -exec rsync -urz {} $(WEBPAGES_SRC_DIR) \;
+	find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	rsync -urzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -urzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
