@@ -12,10 +12,6 @@ endif
 
 MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
 
-PUBLISTH_DOCS_SUBDIR  := docs
-PUBLISTH_CODE_SUBDIR  := codes
-PUBLISTH_DATA_SUBDIR  := data
-
 ###### the default list in the template is:  #########
 ######               "syllabus"              #########
 ###### for instance, if the report is ready  #########
@@ -24,6 +20,10 @@ MATERIAL_DOCS_READY   :=
 ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
 endif
+
+PUBLISTH_DOCS_SUBDIR  := docs
+PUBLISTH_CODE_SUBDIR  := codes
+PUBLISTH_DATA_SUBDIR  := data
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
