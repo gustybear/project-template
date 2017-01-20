@@ -9,10 +9,10 @@ COURSE_NAME              := $(subst course_,,$(notdir $(COURSE_DIR)))
 MATERIALS                := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
 GIT_REPO                 := git@github.com:gustybear/project-template.git
-GIT_BRANCH_SYLLABUS      := course_syllabus
+GIT_BRANCH_CURRICULUM    := course_curriculum
 GIT_BRANCH_COURSE_WEEKLY := course_weekly
 
-SYLLABUS_DIR             := materials_syllabus
+CURRICULUM_DIR           := materials_curriculum
 
 NUM_OF_WEEKS             := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
 NUM_OF_NEXT_WEEKS        := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
@@ -68,8 +68,8 @@ endif
 
 .PHONY : add_syllabus
 add_syllabus: 
-	git clone -b $(GIT_BRANCH_SYLLABUS) $(GIT_REPO) $(SYLLABUS_DIR)
-	$(MAKE) -C $(SYLLABUS_DIR) init COURSE_NAME=$(COURSE_NAME)
+	git clone -b $(GIT_BRANCH_CURRICULUM) $(GIT_REPO) $(CURRICULUM_DIR)
+	$(MAKE) -C $(CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_a_week
 add_a_week:
