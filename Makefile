@@ -23,10 +23,12 @@ RESEARCH_PROJ_DOCS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_
 endif
 ###################################################
 
-PUBLISTH_DOCS_SUBDIR       := docs
-PUBLISTH_CODE_SUBDIR       := codes
-PUBLISTH_DATA_SUBDIR       := data
-PUBLISTH_PICS_SUBDIR       := pics
+ifdef PUBLISH_MATERIALS_DIR
+PUBLISTH_DOCS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
+endif
 
 RESEARCH_PROJ_WEBPAGES_DIR := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
 
@@ -116,10 +118,10 @@ pack_materials:
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
-	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
+	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	$(foreach SUBDIR,$(RESEARCH_PROJ_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
-		     -exec rsync -urzL {} $(PUBLISH_MATERIALS_DIR)/$(PUBLISTH_DOCS_SUBDIR) \; ;)
+		     -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
