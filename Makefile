@@ -21,10 +21,12 @@ ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
 endif
 
-PUBLISTH_DOCS_SUBDIR  := docs
-PUBLISTH_CODE_SUBDIR  := codes
-PUBLISTH_DATA_SUBDIR  := data
-PUBLISTH_PICS_SUBDIR  := pics
+ifdef PUBLISH_MATERIALS_DIR
+PUBLISTH_DOCS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
+endif
 
 TMP_DIR_PREFIX        := $(MATERIAL_DIR)/tmp
 
@@ -81,10 +83,10 @@ pack_materials:
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
-	if [ ! -d $(PUBLISH_MATERIALS_DIR) ]; then mkdir -p $(PUBLISH_MATERIALS_DIR); fi
+	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f \( -name "*.pdf" -o -name "*.tar.gz" \) \
-			 -exec rsync -urz {} $(PUBLISH_MATERIALS_DIR)/$(PUBLISTH_DOCS_SUBDIR) \; ;)
+			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
