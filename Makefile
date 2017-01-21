@@ -24,6 +24,7 @@ endif
 PUBLISTH_DOCS_SUBDIR  := docs
 PUBLISTH_CODE_SUBDIR  := codes
 PUBLISTH_DATA_SUBDIR  := data
+PUBLISTH_PICS_SUBDIR  := pics
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
