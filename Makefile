@@ -9,7 +9,7 @@ RESEARCH_PROJ_NAME         := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 
 
 RESEARCH_PROJ_BIB_DIR      := $(RESEARCH_PROJ_DIR)/bib
 RESEARCH_PROJ_FIG_DIR      := $(RESEARCH_PROJ_DIR)/figures
-RESEARCH_PROF_FIG_DRAW_DIR := $(RESEARCH_PROJ_DIR)/figures/draw
+RESEARCH_PROJ_FIG_DRAW_DIR := $(RESEARCH_PROJ_DIR)/figures/draw
 RESEARCH_PROJ_DOCS_DIR     := $(RESEARCH_PROJ_DIR)/docs
 
 ###### change this part to fit the project   #########
@@ -51,7 +51,7 @@ gen_package_name           = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(no
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) \
-		 -not \( -path $(RESEARCH_PROF_FIG_DRAW_DIR) -prune \) \
+		 -not \( -path $(RESEARCH_PROJ_FIG_DRAW_DIR) -prune \) \
 		 -type f \
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
