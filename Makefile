@@ -19,7 +19,13 @@ NUM_OF_NEXT_WEEKS        := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR           := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
 COURSE_BIB_DIR           := $(COURSE_DIR)/bib
+
+###### set this flag when the webpage is ready ########
+COURSE_WEBPAGES_READY    :=
+#######################################################
+ifdef COURSE_WEBPAGES_READY
 COURSE_WEBPAGES_DIR      := $(shell find $(COURSE_DIR) -type d -name __webpages)
+endif
 
 ifdef COURSE_WEBPAGES_DIR
 WEBPAGES_MAKEFILE        := $(COURSE_WEBPAGES_DIR)/Makefile
