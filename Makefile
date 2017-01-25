@@ -1,57 +1,57 @@
 #input parameters
-PUBLISH_WEBPAGES_DIR       :=
-PUBLISH_MATERIALS_DIR      :=
+PUBLISH_WEBPAGES_DIR         :=
+PUBLISH_MATERIALS_DIR        :=
 
 #local variables
-OS                         := $(shell uname)
-RESEARCH_PROJ_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-RESEARCH_PROJ_NAME         := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
+OS                           := $(shell uname)
+RESEARCH_PROJ_DIR            := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+RESEARCH_PROJ_NAME           := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 
-RESEARCH_PROJ_BIB_DIR      := $(RESEARCH_PROJ_DIR)/bib
-RESEARCH_PROJ_FIG_DIR      := $(RESEARCH_PROJ_DIR)/figures
-RESEARCH_PROJ_FIG_DRAW_DIR := $(RESEARCH_PROJ_DIR)/figures/draw
-RESEARCH_PROJ_DOCS_DIR     := $(RESEARCH_PROJ_DIR)/docs
+RESEARCH_PROJ_BIB_DIR        := $(RESEARCH_PROJ_DIR)/bib
+RESEARCH_PROJ_FIG_DIR        := $(RESEARCH_PROJ_DIR)/figures
+RESEARCH_PROJ_FIG_DRAW_DIR   := $(RESEARCH_PROJ_DIR)/figures/draw
+RESEARCH_PROJ_DOCS_DIR       := $(RESEARCH_PROJ_DIR)/docs
 
 ###### change this part to fit the project   #########
 ###### the default list in the template is:  #########
 ######      "report conf jnl slides"         #########
 ###### for instance, if the report is ready  #########
 ###### put it after RESEARCH_PROJ_DOCS_READY #########
-RESEARCH_PROJ_DOCS_READY   :=
+RESEARCH_PROJ_DOCS_READY     :=
 ifdef RESEARCH_PROJ_DOCS_READY
-RESEARCH_PROJ_DOCS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCS_READY))
+RESEARCH_PROJ_DOCS_SUBDIRS   := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCS_READY))
 endif
 ###################################################
 
 ifdef PUBLISH_MATERIALS_DIR
-PUBLISTH_DOCS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
+PUBLISTH_DOCS_SUBDIR         := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR         := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR         := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR         := $(PUBLISH_MATERIALS_DIR)/pics
 endif
 
 ###### set this flag when the webpage is ready ########
 RESEARCH_PROJ_WEBPAGES_READY :=
 #######################################################
 ifdef RESEARCH_PROJ_WEBPAGES_READY
-RESEARCH_PROJ_WEBPAGES_DIR := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
+RESEARCH_PROJ_WEBPAGES_DIR   := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
 endif
 
 ifdef RESEARCH_PROJ_WEBPAGES_DIR
-WEBPAGES_MAKEFILE          := $(RESEARCH_PROJ_WEBPAGES_DIR)/Makefile
-WEBPAGES_SRC_DIR           := $(RESEARCH_PROJ_WEBPAGES_DIR)/src
-WEBPAGES_DES_DIR           := $(RESEARCH_PROJ_WEBPAGES_DIR)/des
+WEBPAGES_MAKEFILE            := $(RESEARCH_PROJ_WEBPAGES_DIR)/Makefile
+WEBPAGES_SRC_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/src
+WEBPAGES_DES_DIR             := $(RESEARCH_PROJ_WEBPAGES_DIR)/des
 
-WEBPAGES_SITECONF          := $(WEBPAGES_SRC_DIR)/site.conf
-WEBPAGES_CSS_DIR           := $(WEBPAGES_SRC_DIR)/css
-WEBPAGES_FONTS_DIR         := $(WEBPAGES_SRC_DIR)/fonts
-WEBPAGES_PICS_DIR          := $(WEBPAGES_SRC_DIR)/pics
+WEBPAGES_SITECONF            := $(WEBPAGES_SRC_DIR)/site.conf
+WEBPAGES_CSS_DIR             := $(WEBPAGES_SRC_DIR)/css
+WEBPAGES_FONTS_DIR           := $(WEBPAGES_SRC_DIR)/fonts
+WEBPAGES_PICS_DIR            := $(WEBPAGES_SRC_DIR)/pics
 endif
 
-TMP_DIR_PREFIX             := $(RESEARCH_PROJ_DIR)/tmp
+TMP_DIR_PREFIX               := $(RESEARCH_PROJ_DIR)/tmp
 
-gen_tmp_dir_name           = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
-gen_package_name           = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
+gen_tmp_dir_name             = $(addprefix $(TMP_DIR_PREFIX)_,$(notdir $(1)))
+gen_package_name             = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
