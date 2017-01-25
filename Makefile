@@ -30,7 +30,12 @@ PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
 PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
 endif
 
+###### set this flag when the webpage is ready ########
+RESEARCH_PROJ_WEBPAGES_READY :=
+#######################################################
+ifdef RESEARCH_PROJ_WEBPAGES_READY
 RESEARCH_PROJ_WEBPAGES_DIR := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
+endif
 
 ifdef RESEARCH_PROJ_WEBPAGES_DIR
 WEBPAGES_MAKEFILE          := $(RESEARCH_PROJ_WEBPAGES_DIR)/Makefile
