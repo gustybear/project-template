@@ -21,7 +21,7 @@ ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS    := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
 endif
 
-MATERIAL_DOCPACS_READY   :=
+MATERIAL_DOCPACS_READY   := assg
 ifdef MATERIAL_DOCPACS_READY
 MATERIAL_DOCPACS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCPACS_READY))
 endif
@@ -42,7 +42,7 @@ define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
 	find $(1) $(COURSE_BIB_DIR) -type f \
-		-not \( -name "*.tar.*" -o -name "*.zip" \) \
+		-not \( -name "*.zip" -o -name "*.gz" \) \
 		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# ## correct the path
@@ -57,7 +57,6 @@ define gen_package
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
 	rm -rf $(call gen_tmp_dir_name, $(1))
-endefm -rf $(call gen_tmp_dir_name, $(1))
 endef
 
 .PHONY : clear
