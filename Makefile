@@ -16,9 +16,14 @@ MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
 ######               "syllabus"              #########
 ###### for instance, if the report is ready  #########
 ###### put it after MATERIAL_DOCS_READY      #########
-MATERIAL_DOCS_READY   := 
+MATERIAL_DOCS_READY      :=
 ifdef MATERIAL_DOCS_READY
-MATERIAL_DOCS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
+MATERIAL_DOCS_SUBDIRS    := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
+endif
+
+MATERIAL_DOCPACS_READY   :=
+ifdef MATERIAL_DOCPACS_READY
+MATERIAL_DOCPACS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCPACS_READY))
 endif
 
 ifdef PUBLISH_MATERIALS_DIR
@@ -40,13 +45,13 @@ define gen_package
 		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# ## correct the path
-ifeq ($(OS), Darwin)
-	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
-		-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
-else
-	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex' \
-		-exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +
-endif
+	if [ $(OS) = Darwin ]; then                                                                \
+		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
+			-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
+	else                                                                                       \
+		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
+			-exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +    ;\
+	fi
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -80,7 +85,7 @@ endif
 
 .PHONY : pack_materials
 pack_materials:
-	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+	$(foreach SUBDIR,$(MATERIAL_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
 
 
 .PHONY : publish_materials
@@ -89,7 +94,10 @@ ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	$(foreach SUBDIR,$(MATERIAL_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
-		     -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+	$(foreach SUBDIR,$(MATERIAL_DOCPACS_SUBDIRS),\
+		find $(SUBDIR) -maxdepth 1 -type f -name "*.tar.gz" \
+			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
