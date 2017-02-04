@@ -17,16 +17,14 @@ RESEARCH_PROJ_DOCS_DIR        := $(RESEARCH_PROJ_DIR)/docs
 ######      "report conf jnl slides"         #########
 ###### for instance, if the report is ready  #########
 ###### put it after RESEARCH_PROJ_DOCS_READY #########
+###### if some folders are ready to submit   #########
+######               put it after            #########
+######       RESEARCH_PROJ_DOCPACS_READY     #########
 RESEARCH_PROJ_DOCS_READY      :=
 ifdef RESEARCH_PROJ_DOCS_READY
 RESEARCH_PROJ_DOCS_SUBDIRS    := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCS_READY))
 endif
 
-###### change this part to fit the project   #########
-###### the default list in the template is:  #########
-######      "report conf jnl slides"         #########
-###### for instance, if the report is ready  #########
-###### put it after RESEARCH_PROJ_DOCPACS_READY #########
 RESEARCH_PROJ_DOCPACS_READY   :=
 ifdef RESEARCH_PROJ_DOCPACS_READY
 RESEARCH_PROJ_DOCPACS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCPACS_READY))
@@ -78,8 +76,8 @@ define gen_package
 		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
 			-exec sed -i '' 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
 	else                                                                                       \
-	    find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		    -exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +    ;\
+		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
+			-exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +    ;\
 		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
 			-exec sed -i 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +          ;\
 	fi
@@ -135,7 +133,7 @@ ifdef PUBLISH_MATERIALS_DIR
 	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	$(foreach SUBDIR,$(RESEARCH_PROJ_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
-		     -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 
