@@ -42,6 +42,7 @@ define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
 	find $(1) $(COURSE_BIB_DIR) -type f \
+		-not \( -name "*.tar.*" -o -name "*.zip" \) \
 		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# ## correct the path
