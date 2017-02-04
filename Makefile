@@ -29,7 +29,7 @@ endif
 ###### put it after RESEARCH_PROJ_DOCPACS_READY #########
 RESEARCH_PROJ_DOCPACS_READY   :=
 ifdef RESEARCH_PROJ_DOCPACS_READY
-RESEARCH_PROJ_DOCPACS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_ROJ_DOCPACS_READY))
+RESEARCH_PROJ_DOCPACS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCPACS_READY))
 endif
 ###################################################
 
@@ -67,6 +67,7 @@ define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) \
 		 -not \( -path $(RESEARCH_PROJ_FIG_DRAW_DIR) -prune \) \
+		 -not \( -name "*.tar.*" -o -name "*.zip" \) \
 		 -type f \
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
