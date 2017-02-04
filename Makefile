@@ -28,6 +28,10 @@ PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
 PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
 endif
 
+TMP_DIR_PREFIX        := $(MATERIAL_DIR)/tmp
+
+gen_tmp_dir_name     = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
+gen_package_name     = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
