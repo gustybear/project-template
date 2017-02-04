@@ -1,16 +1,16 @@
 # input parameters
-COURSE_NAME           :=
-COURSE_BIB_DIR        :=
-PUBLISH_MATERIALS_DIR :=
+COURSE_NAME              :=
+COURSE_BIB_DIR           :=
+PUBLISH_MATERIALS_DIR    :=
 
 # local variables
-OS                    := $(shell uname)
-MATERIAL_DIR          := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+OS                       := $(shell uname)
+MATERIAL_DIR             := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 ifdef COURSE_NAME
-MATERIAL_NAME_PREFIX  := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
+MATERIAL_NAME_PREFIX     := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
 endif
 
-MATERIAL_DOCS_DIR     := $(MATERIAL_DIR)/docs
+MATERIAL_DOCS_DIR        := $(MATERIAL_DIR)/docs
 
 ###### the default list in the template is:  #########
 ######               "syllabus"              #########
@@ -27,16 +27,16 @@ MATERIAL_DOCPACS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCPACS
 endif
 
 ifdef PUBLISH_MATERIALS_DIR
-PUBLISTH_DOCS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR       := $(PUBLISH_MATERIALS_DIR)/pics
+PUBLISTH_DOCS_SUBDIR     := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR     := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR     := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR     := $(PUBLISH_MATERIALS_DIR)/pics
 endif
 
-TMP_DIR_PREFIX        := $(MATERIAL_DIR)/tmp
+TMP_DIR_PREFIX           := $(MATERIAL_DIR)/tmp
 
-gen_tmp_dir_name     = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
-gen_package_name     = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
+gen_tmp_dir_name         = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
+gen_package_name         = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
