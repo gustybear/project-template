@@ -83,7 +83,7 @@ add_a_week:
 pack_materials:
 ifneq ($(MATERIALS),)
 # need some more work
-	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR)); done
+	for dir in $(MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
 endif
 
 .PHONY : publish_materials
