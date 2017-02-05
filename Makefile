@@ -81,27 +81,27 @@ endif
 .PHONY : init
 init:
 ifeq ($(OS), Darwin)
-	find . -type f -name '_*.jemdoc' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.jemdoc' \
 		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -type f -name '_MENU' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
 		-exec sed -i '' 's/\[\(_[^.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -type f -name '_*.tex' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 else
-	find . -type f -name '_*.jemdoc' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.jemdoc' \
 		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -type f -name '_MENU' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
 		-exec sed -i 's/\[\(_[^.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find . -type f -name '_*.tex' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.tex' \
 		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
 endif
-	find . -type f -name '_*.*' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
-	find . -type f -name '_MENU' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
 
-	rm -rf .git
+	rm -rf $(RESEARCH_PROJ_DIR)/.git
 
 
 .PHONY : pack_materials
