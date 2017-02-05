@@ -1,10 +1,11 @@
 OS                       := $(shell uname)
 MATERIAL_DIR             := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+MATERIAL_NAME            := $(notdir $(MATERIAL_DIR))
 MKFILES                  := $(shell find $(MATERIAL_DIR) -type f -maxdepth 1 -mindepth 1 -name "*.mk")
 -include $(MKFILES)
 
 ifdef COURSE_NAME
-MATERIAL_NAME_PREFIX     := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
+MATERIAL_NAME_PREFIX     := $(COURSE_NAME)_$(MATERIAL_NAME)
 endif
 
 MATERIAL_DOCS_DIR        := $(MATERIAL_DIR)/docs
