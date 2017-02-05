@@ -57,21 +57,21 @@ clear: ;
 .PHONY : init
 init:
 ifeq ($(OS), Darwin)
-	find . -type f -name '_*.tex' \
+	find $(MATERIAL_DIR) -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\([^ \(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
-	find . -type f -name '_*.tex' \
+	find $(MATERIAL_DIR) -type f -name '_*.tex' \
 		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 else
-	find . -type f -name '_*.tex' \
+	find $(MATERIAL_DIR) -type f -name '_*.tex' \
 		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\([^ \(bib\)]\{1,\}\)/\/$(MATERIAL_NAME_PREFIX)\1\.\2/g' {} +
-	find . -type f -name '_*.tex' \
+	find $(MATERIAL_DIR) -type f -name '_*.tex' \
 		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\(bib\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 endif
 
-	find . -type f -name '_*.*' \
+	find $(MATERIAL_DIR) -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
 
-	rm -rf .git
+	rm -rf $(MATERIAL_DIR)/.git
 
 .PHONY : pack_materials
 pack_materials:
