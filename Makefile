@@ -102,7 +102,6 @@ endif
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 	rm -rf .git
-	git init
 
 
 .PHONY : pack_materials
