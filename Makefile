@@ -1,46 +1,22 @@
-#input parameters
-PUBLISH_WEBPAGES_DIR          :=
-PUBLISH_MATERIALS_DIR         :=
-
-#local variables
 OS                            := $(shell uname)
 RESEARCH_PROJ_DIR             := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 RESEARCH_PROJ_NAME            := $(shell echo $(notdir $(RESEARCH_PROJ_DIR)) | sed 's/project_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
+MKFILES                       := $(shell find $(RESEARCH_PROJ_DIR) -type f -maxdepth 1 -mindepth 1 -name "*.mk")
+-include $(MKFILES)
 
 RESEARCH_PROJ_BIB_DIR         := $(RESEARCH_PROJ_DIR)/bib
 RESEARCH_PROJ_FIG_DIR         := $(RESEARCH_PROJ_DIR)/figures
 RESEARCH_PROJ_FIG_DRAW_DIR    := $(RESEARCH_PROJ_DIR)/figures/draw
 RESEARCH_PROJ_DOCS_DIR        := $(RESEARCH_PROJ_DIR)/docs
 
-###### change this part to fit the project   #########
-###### the default list in the template is:  #########
-######      "report conf jnl slides"         #########
-###### for instance, if the report is ready  #########
-###### put it after RESEARCH_PROJ_DOCS_READY #########
-###### if some folders are ready to submit   #########
-######               put it after            #########
-######       RESEARCH_PROJ_DOCPACS_READY     #########
-RESEARCH_PROJ_DOCS_READY      :=
 ifdef RESEARCH_PROJ_DOCS_READY
 RESEARCH_PROJ_DOCS_SUBDIRS    := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCS_READY))
 endif
 
-RESEARCH_PROJ_DOCPACS_READY   :=
 ifdef RESEARCH_PROJ_DOCPACS_READY
 RESEARCH_PROJ_DOCPACS_SUBDIRS := $(addprefix $(RESEARCH_PROJ_DOCS_DIR)/,$(RESEARCH_PROJ_DOCPACS_READY))
 endif
-###################################################
 
-ifdef PUBLISH_MATERIALS_DIR
-PUBLISTH_DOCS_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/pics
-endif
-
-###### set this flag when the webpage is ready ########
-RESEARCH_PROJ_WEBPAGES_READY  :=
-#######################################################
 ifdef RESEARCH_PROJ_WEBPAGES_READY
 RESEARCH_PROJ_WEBPAGES_DIR    := $(shell find $(RESEARCH_PROJ_DIR) -type d -name "__webpages")
 endif
@@ -54,6 +30,13 @@ WEBPAGES_SITECONF             := $(WEBPAGES_SRC_DIR)/site.conf
 WEBPAGES_CSS_DIR              := $(WEBPAGES_SRC_DIR)/css
 WEBPAGES_FONTS_DIR            := $(WEBPAGES_SRC_DIR)/fonts
 WEBPAGES_PICS_DIR             := $(WEBPAGES_SRC_DIR)/pics
+endif
+
+ifdef PUBLISH_MATERIALS_DIR
+PUBLISTH_DOCS_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR          := $(PUBLISH_MATERIALS_DIR)/pics
 endif
 
 TMP_DIR_PREFIX                := $(RESEARCH_PROJ_DIR)/tmp
@@ -154,6 +137,12 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
+.PHONY : update_git_repo
+update_git_repo:
+ifdef GIT_REPO
+	cd $(RESEARCH_PROJ_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
+	cd $(RESEARCH_PROJ_DIR) && git push
+endif
 
 print-%:
 	@echo '$*:=$($*)'
