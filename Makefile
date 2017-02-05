@@ -7,8 +7,7 @@ MKFILES                       := $(shell find $(COURSE_DIR) -type f -maxdepth 1 
 MATERIALS                     := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
 MATERIAL_REPO                 := git@github.com:gustybear/project-template.git
-MATERIAL_BRANCH_CURRICULUM    := course_curriculum
-MATERIAL_BRANCH_COURSE_WEEKLY := course_weekly
+MATERIAL_BRANCH               := course_material
 
 CURRICULUM_DIR                := materials_curriculum
 
@@ -65,12 +64,13 @@ endif
 
 .PHONY : add_curriculum
 add_curriculum:
-	git clone -b $(MATERIAL_BRANCH_CURRICULUM) $(MATERIAL_REPO) $(CURRICULUM_DIR)
+	git clone -b $(MATERIAL_BRANCH) $(MATERIAL_REPO) $(CURRICULUM_DIR)
 	$(MAKE) -C $(CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
+
 
 .PHONY : add_a_week
 add_a_week:
-	git clone -b $(MATERIAL_BRANCH_COURSE_WEEKLY) $(MATERIAL_REPO) $(NEXT_WEEKS_DIR)
+	git clone -b $(MATERIAL_BRANCH) $(MATERIAL_REPO) $(NEXT_WEEKS_DIR)
 	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
