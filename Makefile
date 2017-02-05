@@ -42,30 +42,29 @@ endif
 .PHONY : init
 init:
 ifeq ($(OS), Darwin)
-	find . -name '_*.jemdoc' -exec \
+	find $(COURSE_DIR) -name '_*.jemdoc' -exec \
 		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
-	find . -name '_MENU' -exec \
+	find $(COURSE_DIR) -name '_MENU' -exec \
 		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
 else
-	find . -name '_*.jemdoc' -exec \
+	find $(COURSE_DIR) -name '_*.jemdoc' -exec \
 		sed -i 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
 
-	find . -name '_MENU' -exec \
+	find $(COURSE_DIR) -name '_MENU' -exec \
 		sed -i 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
 endif
-	find . -type f -name '_*.*' \
+	find $(COURSE_DIR) -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
-	find . -name '_MENU' \
+	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
-	rm -rf .git
-	git init
+	rm -rf $(COURSE_DIR)/.git
 
 
 .PHONY : add_curriculum
-add_curriculum: 
+add_curriculum:
 	git clone -b $(MATERIAL_BRANCH_CURRICULUM) $(MATERIAL_REPO) $(CURRICULUM_DIR)
 	$(MAKE) -C $(CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
