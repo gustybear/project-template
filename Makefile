@@ -1,27 +1,19 @@
-# input parameters
-COURSE_NAME              :=
-COURSE_BIB_DIR           :=
-PUBLISH_MATERIALS_DIR    :=
-
-# local variables
 OS                       := $(shell uname)
 MATERIAL_DIR             := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+MKFILES                  := $(shell find $(MATERIAL_DIR) -type f -maxdepth 1 -mindepth 1 -name "*.mk")
+-include $(MKFILES)
+
 ifdef COURSE_NAME
 MATERIAL_NAME_PREFIX     := $(COURSE_NAME)_$(notdir $(MATERIAL_DIR))
 endif
 
 MATERIAL_DOCS_DIR        := $(MATERIAL_DIR)/docs
 
-###### the default list in the template is:  #########
-##    "assg assg_sol quiz quiz_sol notes slides"   ###
-###### for instance, if the assg is ready    #########
-###### put it after MATERIAL_DOCS_READY      #########
-MATERIAL_DOCS_READY      :=
+
 ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS    := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
 endif
 
-MATERIAL_DOCPACS_READY   :=
 ifdef MATERIAL_DOCPACS_READY
 MATERIAL_DOCPACS_SUBDIRS := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCPACS_READY))
 endif
