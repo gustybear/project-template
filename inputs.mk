@@ -12,11 +12,13 @@ PUBLISH_MATERIALS_DIR  :=
 ###### Add the folders ready to be published to #######
 ###### the list. The default folders in the ###########
 ###### template are: ##################################
-#### "assg assg_sol quiz quiz_sol notes slides" #######
+#### "assg assg_sol quiz quiz_sol notes slides ########
+####  syllabus" #######################################
 MATERIAL_DOCS_READY    :=
 
 ###### Add the folders ready to be published to #######
 ###### the list. The default folders in the ###########
 ###### template are: ##################################
-#### "assg assg_sol quiz quiz_sol notes slides" #######
+#### "assg assg_sol quiz quiz_sol notes slides ########
+####  syllabus" #######################################
 MATERIAL_DOCPACS_READY :=
