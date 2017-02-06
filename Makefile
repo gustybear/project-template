@@ -10,6 +10,17 @@ endif
 
 MATERIAL_DOCS_DIR        := $(MATERIAL_DIR)/docs
 
+ifeq ($(findstring $(MATERIAL_NAME),curriculum), find)
+    TRIM_SUBDIRS         := assg assg_sol notes quiz quiz_sol
+else ifeq ($(findstring $(MATERIAL_NAME),week), find)
+    TRIM_SUBDIRS         := syllabus
+else
+	TRIM_SUBDIRS         :=
+endif
+
+ifdef TRIM_SUBDIRS
+MATERIAL_TRIM_SUBDIRS    := $(addprefix $(MATERIAL_DOCS_DIR)/,$(TRIM_SUBDIRS))
+endif
 
 ifdef MATERIAL_DOCS_READY
 MATERIAL_DOCS_SUBDIRS    := $(addprefix $(MATERIAL_DOCS_DIR)/,$(MATERIAL_DOCS_READY))
@@ -71,6 +82,10 @@ endif
 
 	find $(MATERIAL_DIR) -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(MATERIAL_NAME_PREFIX)`basename {}`' \;
+
+ifdef MATERIAL_TRIM_SUBDIRS
+	rm -rf $(MATERIAL_TRIM_SUBDIRS)
+endif
 
 	rm -rf $(MATERIAL_DIR)/.git
 
