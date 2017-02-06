@@ -1,7 +1,7 @@
 %
 % This is a borrowed LaTeX template file for lecture notes for CS267,
 % Applications of Parallel Computing, UCBerkeley EECS Department.
-% Edited and being used by Yao Zheng. 
+% Edited and being used by Yao Zheng.
 %
 
 \documentclass{article}
@@ -28,7 +28,7 @@
 % to the assignment number.
 %
 \newcounter{assgnum}
-\renewcommand{\thepage}{\theassgnum \arabic{page}}
+\renewcommand{\thepage}{\theassgnum.\arabic{page}}
 \renewcommand{\thesection}{\theassgnum.\arabic{section}}
 \renewcommand{\theequation}{\theassgnum.\arabic{equation}}
 \renewcommand{\thefigure}{\theassgnum.\arabic{figure}}
@@ -63,9 +63,9 @@
 
 %Use this command for a figure; it puts a figure in wherever you want it.
 %usage: \fig{NUMBER}{SPACE IN INCHES}{CAPTION}
-\newcommand{\fig}[3]{
-         \vspace{#2}
+\newcommand{\fig}[4]{
          \begin{center}
+         \includegraphics[height=#2]{#4}\\
          Figure \theassgnum.#1:~#3
          \end{center}
    }
@@ -88,7 +88,7 @@
 % usage: %\solution{SUB PROBLEM NUM}
 \newcommand{\solution}{%
   \stepcounter{solnum}%
-  \textbf{Solution~\theassgnum \theprobnum \thesolnum:}\\%
+  \textbf{Solution~\theassgnum.\theprobnum.\thesolnum:}\\%
 }
 
 %  IF YOU WANT TO DEFINE ADDITIONAL MACROS FOR YOURSELF, PUT THEM HERE:
