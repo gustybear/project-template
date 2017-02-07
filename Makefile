@@ -10,6 +10,7 @@ MATERIAL_REPO                 := git@github.com:gustybear/project-template.git
 MATERIAL_BRANCH               := course_material
 
 CURRICULUM_DIR                := materials_curriculum
+PROJECT_DIR                   := materials_project
 
 NUM_OF_WEEKS                  := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
 NUM_OF_NEXT_WEEKS             := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
@@ -72,6 +73,11 @@ add_curriculum:
 add_a_week:
 	git clone -b $(MATERIAL_BRANCH) $(MATERIAL_REPO) $(NEXT_WEEKS_DIR)
 	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
+
+.PHONY : add_project
+add_project:
+	git clone -b $(MATERIAL_BRANCH) $(MATERIAL_REPO) $(PROJECT_DIR)
+	$(MAKE) -C $(PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
 pack_materials:
