@@ -11,11 +11,11 @@ endif
 MATERIAL_DOCS_DIR        := $(MATERIAL_DIR)/docs
 
 ifeq ($(findstring curriculum,$(MATERIAL_NAME)), curriculum)
-    TRIM_SUBDIRS         := assg assg_sol notes quiz quiz_sol topics
+    TRIM_SUBDIRS         := assg assg_sol notes quiz quiz_sol slides topics
 else ifeq ($(findstring week,$(MATERIAL_NAME)), week)
     TRIM_SUBDIRS         := syllabus topics
 else ifeq ($(findstring project,$(MATERIAL_NAME)), project)
-    TRIM_SUBDIRS         := assg assg_sol notes quiz quiz_sol syllabus
+    TRIM_SUBDIRS         := assg assg_sol notes quiz quiz_sol slides syllabus
 else
 	TRIM_SUBDIRS         :=
 endif
