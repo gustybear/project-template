@@ -47,7 +47,7 @@ gen_package_name              = $(addprefix $(RESEARCH_PROJ_NAME)_,$(addprefix $
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	find $(1) $(RESEARCH_PROJ_BIB_DIR) $(RESEARCH_PROJ_FIG_DIR) \
-		 -not \( -path $(RESEARCH_PROJ_FIG_DRAW_DIR) -prune \) \
+		 -not \( -path $(RESEARCH_PROJ_FIG_DRAW_DIR) -o -path '*/\.*' -prune \) \
 		 -not \( -name "*.zip" -o -name "*.gz" \) \
 		 -type f \
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
