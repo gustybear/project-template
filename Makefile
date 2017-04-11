@@ -47,8 +47,10 @@ gen_package_name         = $(addprefix $(MATERIAL_NAME_PREFIX)_,$(addprefix $(no
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
 	# sync other files
-	find $(1) $(COURSE_BIB_DIR) -type f \
-		-not \( -name "*.zip" -o -name "*.gz" \) \
+	find $(1) $(COURSE_BIB_DIR)  \
+		-not \( -path '*/\.*' -prune \) \
+		-not \( -name "*.zip" -o -name "*.gz"  \) \
+		-type f \
 		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# ## correct the path
