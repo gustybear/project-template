@@ -57,6 +57,10 @@ endif
 	find $(COURSE_DIR) -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
+	test -d "$ZSH_CUSTOM" && \
+	find $(COURSE_DIR) - type f -name '*_config.zsh' \
+		-exec link -s {} $ZSH_CUSTOM \;
+
 	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
