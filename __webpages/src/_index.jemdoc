@@ -37,5 +37,5 @@ TBA | TBA | TBA | TBA | TBA | TBA | TBA
 == Miscellaneous
 #{{<a name="miscellaneous"></a>}}
 
-#include{src/_ref.jeminc}
+#include{src/COURSE_NAME_ref.jeminc}
 

@@ -42,17 +42,12 @@ endif
 .PHONY : init
 init:
 ifeq ($(OS), Darwin)
-	find $(COURSE_DIR) -name '_*.jemdoc' -exec \
-		sed -i '' 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
-
-	find $(COURSE_DIR) -name '_MENU' -exec \
-		sed -i '' 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
+	find $(COURSE_DIR) -name '_*.*' -exec \
+		sed -i '' 's/COURSE_NAME/$(COURSE_NAME)/g' {} +
 else
-	find $(COURSE_DIR) -name '_*.jemdoc' -exec \
-		sed -i 's/\/\(_[^\.]\{1,\}\)\.\(jeminc\)/\/$(COURSE_NAME)\1\.\2/g' {} +
+	find $(COURSE_DIR) -name '_*.*' -exec \
+		sed -i 's/COURSE_NAME/$(COURSE_NAME)/g' {} +
 
-	find $(COURSE_DIR) -name '_MENU' -exec \
-		sed -i 's/\[\(_[^\.]\{1,\}\)\.\(html\)/\[$(COURSE_NAME)\1\.\2/g' {} +
 endif
 	find $(COURSE_DIR) -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
