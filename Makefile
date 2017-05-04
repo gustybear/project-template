@@ -93,7 +93,7 @@ endif
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 	test -d "$ZSH_CUSTOM" && \
-	find $(RESEARCH_PROJ_DIR) - type f -name '*_config.zsh' \
+	find $(RESEARCH_PROJ_DIR) - type f -name '$(RESEARCH_PROJ_NAME_config.zsh' \
 		-exec link -s {} $ZSH_CUSTOM \;
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
