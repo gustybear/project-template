@@ -81,19 +81,13 @@ endif
 .PHONY : init
 init:
 ifeq ($(OS), Darwin)
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.jemdoc' \
-		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
-		-exec sed -i '' 's/\[\(_[^.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.tex' \
-		-exec sed -i '' 's/\/\(_[^.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
+		-exec sed -i '' 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} + \
+		-exec sed -i '' 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} + 
 else
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.jemdoc' \
-		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\(jeminc\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
-		-exec sed -i 's/\[\(_[^.]\{1,\}\)\.\(html\)/\[$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.tex' \
-		-exec sed -i 's/\/\(_[^.]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/\/$(RESEARCH_PROJ_NAME)\1\.\2/g' {} +
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
+		-exec sed -i 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} + \
+		-exec sed -i 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} + 
 endif
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;

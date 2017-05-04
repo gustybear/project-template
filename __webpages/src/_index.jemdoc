@@ -1,4 +1,4 @@
-# jemdoc: menu{src/MENU}{index.html} toptitle, title{PROJECT TITLE}, notime
+# jemdoc: menu{src/MENU}{index.html} toptitle, title{RESEARCH_PROJ_TITLE}, notime
 # jemdoc: addcss{css/bibover.css}
 = PROJECT TITLE
 Name, Institute
@@ -8,5 +8,5 @@ Name, Institute
 == Details
 {{<a name="details"></a>}}
 
-#include{src/_ref.jeminc}
+#include{src/RESEARCH_PROJ_NAME_ref.jeminc}
 
