@@ -81,9 +81,10 @@ init:
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
-	test -d "$ZSH_CUSTOM" && \
+ifdef ZSH_CUSTOM
 	find $(RESEARCH_PROJ_DIR) - type f -name '$(RESEARCH_PROJ_NAME)_config.zsh' \
-		-exec link -s {} $ZSH_CUSTOM \;
+		-exec link -s {} $(ZSH_CUSTOM) \;
+endif
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
