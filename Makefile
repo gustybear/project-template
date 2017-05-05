@@ -10,11 +10,11 @@ PROJECT_FIG_DIR                    := $(PROJECT_DIR)/figures
 PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 
-ifeq ($(PROJECT_NAME), project)
+ifeq ($(PROJECT_TYPE), project)
     TRIM_SUBDIRS                   := prpsl suppl
-else ifeq ($(PROJECT_NAME), award)
+else ifeq ($(PROJECT_TYPE), award)
     TRIM_SUBDIRS                   := conf jnl report
-else ifeq ($(PROJECT_NAME), talk)
+else ifeq ($(PROJECT_TYPE), talk)
     TRIM_SUBDIRS                   := conf jnl prpsl report suppl
 else
 	TRIM_SUBDIRS               :=
