@@ -53,17 +53,10 @@ define gen_package
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
 	# correct the path
-	if [ $(OS) = Darwin ]; then                                                                \
-		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-			-exec sed -i '' 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
-		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-			-exec sed -i '' 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
-	else                                                                                       \
-		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-			-exec sed -i 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} +    ;\
-		find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-			-exec sed -i 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +          ;\
-	fi
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
+		-exec sed -i -e 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
+	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
+		-exec sed -i -e 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -80,20 +73,13 @@ endif
 
 .PHONY : init
 init:
-ifeq ($(OS), Darwin)
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i '' 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} + \
-		-exec sed -i '' 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} + 
-else
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} + \
-		-exec sed -i 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} + 
-endif
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
+		\( -exec sed -i -e 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \; -false -o \
+		   -exec sed -i -e 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} \; -false -o \ 
+		   -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \; \)
 
 	test -d "$ZSH_CUSTOM" && \
-	find $(RESEARCH_PROJ_DIR) - type f -name '$(RESEARCH_PROJ_NAME_config.zsh' \
+	find $(RESEARCH_PROJ_DIR) - type f -name '$(RESEARCH_PROJ_NAME)_config.zsh' \
 		-exec link -s {} $ZSH_CUSTOM \;
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
