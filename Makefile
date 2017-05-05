@@ -11,13 +11,13 @@ PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 
 ifeq ($(PROJECT_TYPE), project)
-    TRIM_SUBDIRS                   := prpsl suppl
+TRIM_SUBDIRS                       := prpsl suppl
 else ifeq ($(PROJECT_TYPE), award)
-    TRIM_SUBDIRS                   := conf jnl report
+TRIM_SUBDIRS                       := conf jnl report
 else ifeq ($(PROJECT_TYPE), talk)
-    TRIM_SUBDIRS                   := conf jnl prpsl report suppl
+TRIM_SUBDIRS                       := conf jnl prpsl report suppl
 else
-	TRIM_SUBDIRS               :=
+TRIM_SUBDIRS                       :=
 endif
 
 ifdef TRIM_SUBDIRS
@@ -67,7 +67,6 @@ define gen_package
 		 -type f \
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
-	# correct the path
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
 		-exec sed -i.bak 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
