@@ -77,8 +77,6 @@ endif
 init:
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \;
-	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i.bak 's|RESEARCH_PROJ_DIR|$(RESEARCH_PROJ_DIR)|g' {} \;
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
