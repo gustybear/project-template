@@ -6,7 +6,7 @@ MKFILES                       := $(shell find $(COURSE_DIR) -type f -maxdepth 1 
 
 MATERIALS                     := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
-MATERIAL_REPO                 := git@github.com:gustybear/project-template.git
+MATERIAL_REPO                 := git@github.com:gustybear/templates.git
 MATERIAL_BRANCH               := course_material
 
 CURRICULUM_DIR                := materials_curriculum
@@ -41,21 +41,17 @@ endif
 
 .PHONY : init
 init:
-ifeq ($(OS), Darwin)
 	find $(COURSE_DIR) -name '_*.*' -exec \
-		sed -i '' 's/COURSE_NAME/$(COURSE_NAME)/g' {} +
-else
-	find $(COURSE_DIR) -name '_*.*' -exec \
-		sed -i 's/COURSE_NAME/$(COURSE_NAME)/g' {} +
+		sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' \;
+	find $(COURSE_DIR) -type -f -name '*.bak' -exec rm -f {} \;
 
-endif
 	find $(COURSE_DIR) -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
-	test -d "$ZSH_CUSTOM" && \
-	find $(COURSE_DIR) - type f -name '*_config.zsh' \
-		-exec link -s {} $ZSH_CUSTOM \;
-
+ifdef ZSH_CUSTOM
+	find $(COURSE_DIR) -type f -name '*.zsh' \
+		-exec ln -sf {} $(ZSH_CUSTOM) \;
+endif
 	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
@@ -66,7 +62,6 @@ endif
 add_curriculum:
 	git clone -b $(MATERIAL_BRANCH) $(MATERIAL_REPO) $(CURRICULUM_DIR)
 	$(MAKE) -C $(CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
-
 
 .PHONY : add_a_week
 add_a_week:

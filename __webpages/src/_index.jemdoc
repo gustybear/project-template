@@ -1,4 +1,4 @@
-# jemdoc: menu{src/MENU}{index.html} toptitle, title{COURSE TITLE}, notime
+# jemdoc: menu{src/MENU}{index.html} toptitle, title{COURSE_TITLE}, notime
 # jemdoc: addcss{css/bibover.css}
 = COURSE TITLE
 [http://www2.hawaii.edu/~yaozheng Yao Zheng], [http://manoa.hawaii.edu University of Hawai\&\#699;i at M\&\#257;noa]
