@@ -74,9 +74,12 @@ endif
 .PHONY : init
 init:
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		\( -exec sed -i -e 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \; -false -o \
-		   -exec sed -i -e 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} \; -false -o \ 
-		   -exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \; \)
+		-exec sed -i -e 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \;
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
+		-exec sed -i -e 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} \;
+
+	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
+		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 	test -d "$ZSH_CUSTOM" && \
 	find $(RESEARCH_PROJ_DIR) - type f -name '$(RESEARCH_PROJ_NAME)_config.zsh' \
