@@ -86,7 +86,7 @@ init:
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
 
 ifdef ZSH_CUSTOM
-	find $(RESEARCH_PROJ_DIR) -type f -name '$(RESEARCH_PROJ_NAME)_config.zsh' \
+	find $(RESEARCH_PROJ_DIR) -type f -name '$*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
