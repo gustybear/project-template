@@ -54,9 +54,11 @@ define gen_package
 
 	# correct the path
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		-exec sed -i -e 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
+		-exec sed -i.bak 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
 	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		-exec sed -i -e 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
+		-exec sed -i.bak 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
+
+	find $(call gen_tmp_dir_name, $(1))  -type f -name '*.bak' -exec rm -f {} \;
 
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
@@ -74,9 +76,11 @@ endif
 .PHONY : init
 init:
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i -e 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \;
+		-exec sed -i.bak 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \;
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i -e 's|RESEARCH_PROJ_DIR|$(RESEARCH_PROJ_DIR)|g' {} \;
+		-exec sed -i.bak 's|RESEARCH_PROJ_DIR|$(RESEARCH_PROJ_DIR)|g' {} \;
+
+	find $(RESEARCH_PROJ_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
