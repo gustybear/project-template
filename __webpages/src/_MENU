@@ -1,3 +1,3 @@
-{{<a href="https://manoa.hawaii.edu"><img class="menu" src="pics/uhm_stack.png" width="100px" align="center"/></a><br>RESEARCH_PROJ_TITLE}}
-  Home                 [RESEARCH_PROJ_NAME_index.html]
-  Details              [RESEARCH_PROJ_NAME_index.html#details]
+{{<a href="https://manoa.hawaii.edu"><img class="menu" src="pics/uhm_stack.png" width="100px" align="center"/></a><br>PROJECT_TITLE}}
+  Home                 [PROJECT_NAME_index.html]
+  Details              [PROJECT_NAME_index.html#details]

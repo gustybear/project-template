@@ -10,12 +10,12 @@ PUBLISH_MATERIALS_DIR         :=
 ###### Add the folders ready to be published to #######
 ###### the list. The default folders in the ###########
 ###### template are: "report conf jnl slides." ########
-RESEARCH_PROJ_DOCS_READY      :=
+PROJECT_DOCS_READY            :=
 
 ###### Add the folders ready to be packed to ##########
 ###### the list. The default folders in the ###########
 ###### template are: "report conf jnl slides." ########
-RESEARCH_PROJ_DOCPACS_READY   :=
+PROJECT_DOCPACS_READY         :=
 
 ###### Set this flag when the webpage is ready. #######
-RESEARCH_PROJ_WEBPAGES_READY  :=
+PROJECT_WEBPAGES_READY        :=
