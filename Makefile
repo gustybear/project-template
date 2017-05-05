@@ -87,7 +87,7 @@ init:
 
 ifdef ZSH_CUSTOM
 	find $(RESEARCH_PROJ_DIR) -type f -name '$(RESEARCH_PROJ_NAME)_config.zsh' \
-		-exec link -sf {} $(ZSH_CUSTOM) \;
+		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_MENU' \
