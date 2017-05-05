@@ -76,7 +76,7 @@ init:
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec sed -i -e 's/RESEARCH_PROJ_NAME/$(RESEARCH_PROJ_NAME)/g' {} \;
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
-		-exec sed -i -e 's/RESEARCH_PROJ_DIR/$(RESEARCH_PROJ_DIR)/g' {} \;
+		-exec sed -i -e 's|RESEARCH_PROJ_DIR|$(RESEARCH_PROJ_DIR)|g' {} \;
 
 	find $(RESEARCH_PROJ_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(RESEARCH_PROJ_NAME)`basename {}`' \;
