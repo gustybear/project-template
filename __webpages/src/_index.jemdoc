@@ -1,6 +1,6 @@
 # jemdoc: menu{src/MENU}{index.html} toptitle, title{RESEARCH_PROJ_TITLE}, notime
 # jemdoc: addcss{css/bibover.css}
-= PROJECT TITLE
+= RESEARCH_PROJ_TITLE
 Name, Institute
 
 *Summary*:\n
