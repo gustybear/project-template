@@ -86,8 +86,11 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init
-init:
+.PHONY : init init_files trim_files delete_git link_zsh
+
+init: init_files trim_files delete_git link_zsh
+
+init_files:
 	find $(PROJECT_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/PROJECT_NAME/$(PROJECT_NAME)/g' {} \;
 	find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
@@ -95,19 +98,22 @@ init:
 	find $(PROJECT_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(PROJECT_NAME)`basename {}`' \;
 
-ifdef ZSH_CUSTOM
-	find $(PROJECT_DIR) -type f -name '*.zsh' \
-		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
-
 	find $(PROJECT_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
 
+trim_files:
 ifdef PROJECT_TRIM_SUBDIRS
 	rm -rf $(PROJECT_TRIM_SUBDIRS)
 endif
 
+delete_git:
 	rm -rf $(PROJECT_DIR)/.git
+
+link_zsh: init_files
+ifdef ZSH_CUSTOM
+	find $(PROJECT_DIR) -type f -name '*.zsh' \
+		-exec ln -sf {} $(ZSH_CUSTOM) \;
+endif
 
 
 .PHONY : pack_materials
