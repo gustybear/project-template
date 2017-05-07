@@ -74,7 +74,7 @@ ifdef COURSE_NAME
 endif
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
-	find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME_AND_MATERIAL_NAME)`basename {}`' \;
