@@ -45,7 +45,7 @@ init: init_files delete_git link_zsh
 
 init_files::
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init COURSE_NAME=$(COURSE_NAME)); done
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	find $(COURSE_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
