@@ -62,7 +62,7 @@ ifdef ZSH_CUSTOM
 	find $(COURSE_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_zsh COURSE_NAME=$(COURSE_NAME); done
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_zsh COURSE_NAME=$(COURSE_NAME)); done
 endif
 endif
 
