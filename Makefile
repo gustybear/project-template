@@ -44,12 +44,15 @@ endif
 init: init_files delete_git link_zsh
 
 init_files:
-	find $(COURSE_DIR) -name '_*.*' -exec \
-		sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
-	find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	find $(COURSE_DIR) -not \( -path $(COURSE_MATERIALS) -prune \) \
+		-type f -name '_*.*' \ 
+		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
+	find $(COURSE_DIR) -not \( -path $(COURSE_MATERIALS) -prune \) \
+		-type f -name '*.bak' -exec rm -f {} \;
 
-	find $(COURSE_DIR) -type f -name '_*.*' \
-		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
+	find $(COURSE_DIR) -not \( -path $(COURSE_MATERIALS) -prune \) \
+		-type f -name '_*.*' \
+		-exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
 	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
