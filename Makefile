@@ -68,8 +68,10 @@ clear: ;
 init: init_files trim_files delete_git link_zsh
 
 init_files:
+ifdef COURSE_NAME
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
+endif
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
