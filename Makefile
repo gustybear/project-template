@@ -87,7 +87,7 @@ endif
 delete_git:
 	rm -rf $(COURSE_MATERIAL_DIR)/.git
 
-link_zsh: init_files
+link_zsh: 
 ifdef ZSH_CUSTOM
 	find $(COURSE_MATERIAL_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
