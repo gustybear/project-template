@@ -43,11 +43,11 @@ endif
 
 init: init_files delete_git link_zsh
 
-init_files:
+init_files::
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init COURSE_NAME=$(COURSE_NAME)); done
 endif
-	find $(COURSE_DIR) -type f -name '_*.*' \ 
+	find $(COURSE_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
@@ -62,9 +62,6 @@ delete_git:
 
 link_zsh: init_files
 ifdef ZSH_CUSTOM
-ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_zsh COURSE_NAME=$(COURSE_NAME)); done
-endif
 	find $(COURSE_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
