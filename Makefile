@@ -39,8 +39,11 @@ ifdef COURSE_WEBPAGES_DIR
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
-.PHONY : init
-init:
+.PHONY : init init_files delete_git link_zsh
+
+init: init_files delete_git link_zsh
+
+init_files:
 	find $(COURSE_DIR) -name '_*.*' -exec \
 		sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
@@ -48,15 +51,17 @@ init:
 	find $(COURSE_DIR) -type f -name '_*.*' \
 		 -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
+	find $(COURSE_DIR) -name '_MENU' \
+		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
+
+delete_git:
+	rm -rf $(COURSE_DIR)/.git
+
+link_zsh: init_files
 ifdef ZSH_CUSTOM
 	find $(COURSE_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
-	find $(COURSE_DIR) -name '_MENU' \
-		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
-
-	rm -rf $(COURSE_DIR)/.git
-
 
 .PHONY : add_curriculum
 add_curriculum:

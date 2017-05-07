@@ -1,2 +1,2 @@
 # Example aliases
-alias goto_COURSE_NAME="cd "$(dirname "$(readlink "$0")")""
+alias dir_COURSE_NAME="$(dirname "$(readlink "$0")")"
