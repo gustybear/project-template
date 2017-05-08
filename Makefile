@@ -2,7 +2,7 @@ OS                                 := $(shell uname)
 PROJECT_DIR                        := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME                       := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^[^_]\{1,\}_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 PROJECT_TYPE                       := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^\([^_]\{1,\}\).*/\1/g')
-MKFILES                            := $(shell find $(PROJECT_DIR) -type f -maxdepth 1 -mindepth 1 -name "*.mk")
+MKFILES                            := $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk")
 -include $(MKFILES)
 
 PROJECT_BIB_DIR                    := $(PROJECT_DIR)/bib
