@@ -148,12 +148,5 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
-.PHONY : update_git_repo
-update_git_repo:
-ifdef GIT_REPO
-	cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
-	cd $(PROJECT_DIR) && git push
-endif
-
 print-%:
 	@echo '$*:=$($*)'
