@@ -64,8 +64,8 @@ endef
 .PHONY : clear
 clear: ;
 
-.PHONY : init init_files trim_files delete_git link_zsh
-init: init_files trim_files delete_git link_zsh
+.PHONY : init init_files trim_files prepare_git link_zsh
+init: init_files trim_files prepare_git link_zsh
 
 init_files:
 ifdef COURSE_NAME
@@ -84,7 +84,7 @@ ifdef COURSE_MATERIAL_TRIM_SUBDIRS
 	rm -rf $(COURSE_MATERIAL_TRIM_SUBDIRS)
 endif
 
-delete_git:
+prepare_git:
 	rm -rf $(COURSE_MATERIAL_DIR)/.git
 
 link_zsh: 
