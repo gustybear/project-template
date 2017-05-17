@@ -78,6 +78,11 @@ define gen_package
 	rm -rf $(call gen_tmp_dir_name, $(1))
 endef
 
+define GITIGNORE
+# Only track the download script in the data directory
+data/*
+!/data.sh
+endef
 
 .PHONY : clean
 clean :
@@ -86,9 +91,9 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init init_files trim_files delete_git link_zsh
+.PHONY : init init_files trim_files init_git link_zsh
 
-init: init_files trim_files delete_git link_zsh
+init: init_files trim_files init_git link_zsh
 
 init_files:
 	find $(PROJECT_DIR) -type f -name '_*.*' \
@@ -106,8 +111,10 @@ ifdef PROJECT_TRIM_SUBDIRS
 	rm -rf $(PROJECT_TRIM_SUBDIRS)
 endif
 
-delete_git:
+init_git:
 	rm -rf $(PROJECT_DIR)/.git
+	git init $(PROJECT_DIR)
+	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 link_zsh:
 ifdef ZSH_CUSTOM
