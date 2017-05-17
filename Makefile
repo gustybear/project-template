@@ -16,6 +16,8 @@ else ifeq ($(PROJECT_TYPE), award)
 TRIM_SUBDIRS                       := conf jnl report
 else ifeq ($(PROJECT_TYPE), talk)
 TRIM_SUBDIRS                       := conf jnl prpsl report suppl
+else ifeq ($(PROJECT_TYPE), student)
+TRIM_SUBDIRS                       := prpsl suppl conf jnl
 else
 TRIM_SUBDIRS                       :=
 endif
