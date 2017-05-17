@@ -69,7 +69,10 @@ init: init_files trim_files prepare_git link_zsh
 
 init_files:
 ifdef COURSE_NAME
-	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
+	find $(COURSE_MATERIAL_DIR) -type f \
+		\( -name '_*.tex' -o -name '_*.bib' -o \
+		   -name '_*.jem*' -o -name '_MENU' -o \
+		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 endif
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
