@@ -83,6 +83,7 @@ define GITIGNORE
 data/*
 !/data.sh
 endef
+export GITIGNORE
 
 .PHONY : clean
 clean :
