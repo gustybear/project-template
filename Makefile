@@ -91,9 +91,9 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init init_files trim_files init_git link_zsh
+.PHONY : init init_files trim_files prepare_git link_zsh
 
-init: init_files trim_files init_git link_zsh
+init: init_files trim_files prepare_git link_zsh
 
 init_files:
 	find $(PROJECT_DIR) -type f -name '_*.*' \
@@ -111,9 +111,8 @@ ifdef PROJECT_TRIM_SUBDIRS
 	rm -rf $(PROJECT_TRIM_SUBDIRS)
 endif
 
-init_git:
+prepare_git:
 	rm -rf $(PROJECT_DIR)/.git
-	git init $(PROJECT_DIR)
 	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 link_zsh:
