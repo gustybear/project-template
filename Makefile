@@ -96,7 +96,9 @@ endif
 init: init_files trim_files prepare_git link_zsh
 
 init_files:
-	find $(PROJECT_DIR) -type f -name '_*.*' \
+	find $(PROJECT_DIR) \
+		-not \( -path $(PROJECT_FIG_DIR) -prune \) \
+		-type f -name '_*.*' \
 		-exec sed -i.bak 's/PROJECT_NAME/$(PROJECT_NAME)/g' {} \;
 	find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
