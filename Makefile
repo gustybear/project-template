@@ -39,11 +39,11 @@ ifdef COURSE_WEBPAGES_DIR
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
-.PHONY : init init_files delete_git link_zsh
+.PHONY : init init_files prepare_git link_zsh
 
-init: init_files delete_git link_zsh
+init: init_files prepare_git link_zsh
 
-init_files::
+init_files:
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
@@ -57,7 +57,7 @@ endif
 	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
-delete_git:
+prepare_git:
 	rm -rf $(COURSE_DIR)/.git
 
 link_zsh:
