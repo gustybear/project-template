@@ -47,7 +47,10 @@ init_files:
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
-	find $(COURSE_DIR) -type f -name '_*.*' \
+	find $(COURSE_DIR) -type f \
+		\( -name '_*.tex' -o -name '_*.bib' -o \
+		   -name '_*.jem*' -o -name '_MENU' -o \
+		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
