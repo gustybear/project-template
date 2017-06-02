@@ -173,18 +173,27 @@ endif
 
 .PHONY : fast_archive
 fast_archive:
-	[[ ! -d $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP) ]] || mkdir -p $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)
-	rsync -rLptgoDv $(PROJECT_DATA_DIR) $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)/ \
+	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/archive; \
+	fi
+	mkdir -p $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)
+	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP) \
 		--exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
 
 .PHONY : fast_s3
 fast_s3:
 ifdef S3_BUCKET
-	[[ ! -d $(PROJECT_DATA_DIR)/upload ]] || mkdir -p $(PROJECT_DATA_DIR)/upload
-	[[ ! -d $(PROJECT_DATA_DIR)/archive ]] || mkdir -p $(PROJECT_DATA_DIR)/archive
-	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude "archive/*"
-	rsync -rLptgoDvu $(PROJECT_DATA_DIR)/upload $(PROJECT_DATA_DIR)/
-	rsync -rLptgoDv $(PROJECT_DATA_DIR) $(PROJECT_DATA_DIR)/upload/ --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
+	if [ ! -d $(PROJECT_DATA_DIR)/upload ]  && [ ! -L $(PROJECT_DATA_DIR)/upload ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/upload; \
+	fi
+	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/archive; \
+	fi
+	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude 'archive/*'
+	# forward sync will follow the symbolinks
+	rsync -avu --keep-dirlinks $(PROJECT_DATA_DIR)/upload/ $(PROJECT_DATA_DIR)
+	# backward sync will copy the actual files
+	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/upload --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
 	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET)
 	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store"
 endif
