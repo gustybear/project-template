@@ -1,8 +1,11 @@
 ###### Set the remote git repo and branch. ############
 GIT_REPO                      :=
 
+###### Set the remote aws s3 bucket for data. #########
+S3_BUCKET                     :=
+
 ###### The parameters passed via the make command #####
-###### specifying the folders to publish ##############       
+###### specifying the folders to publish ##############
 ###### the webpages and materials. ####################
 PUBLISH_WEBPAGES_DIR          :=
 PUBLISH_MATERIALS_DIR         :=

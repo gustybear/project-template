@@ -1,4 +1,5 @@
 OS                                 := $(shell uname)
+TIMESTAMP                          := $(shell date +"%Y%m%d_%H%M%S")
 PROJECT_DIR                        := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 PROJECT_NAME                       := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^[^_]\{1,\}_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
 PROJECT_TYPE                       := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^\([^_]\{1,\}\).*/\1/g')
@@ -9,6 +10,7 @@ PROJECT_BIB_DIR                    := $(PROJECT_DIR)/bib
 PROJECT_FIG_DIR                    := $(PROJECT_DIR)/figures
 PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
+PROJECT_DATA_DIR                   := $(PROJECT_DIR)/data
 
 ifeq ($(PROJECT_TYPE), project)
 TRIM_SUBDIRS                       := prpsl suppl
@@ -160,5 +162,31 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
+.PHONY : fast_git
+fast_git:
+ifdef GIT_REPO
+	#fast commit and push to git repository
+	cd $(PROJECT_DIR) && git pull
+	cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
+	cd $(PROJECT_DIR) && git push
+endif
+
+.PHONY : fast_archive
+fast_archive:
+	[[ ! -d $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP) ]] || mkdir -p $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)
+	rsync -rLptgoDv $(PROJECT_DATA_DIR) $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)/ \
+		--exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
+
+.PHONY : fast_s3
+fast_s3:
+ifdef S3_BUCKET
+	[[ ! -d $(PROJECT_DATA_DIR)/upload ]] || mkdir -p $(PROJECT_DATA_DIR)/upload
+	[[ ! -d $(PROJECT_DATA_DIR)/archive ]] || mkdir -p $(PROJECT_DATA_DIR)/archive
+	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude "archive/*"
+	rsync -rLptgoDvu $(PROJECT_DATA_DIR)/upload $(PROJECT_DATA_DIR)/
+	rsync -rLptgoDv $(PROJECT_DATA_DIR) $(PROJECT_DATA_DIR)/upload/ --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
+	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET)
+	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store"
+endif
 print-%:
 	@echo '$*:=$($*)'
