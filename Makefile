@@ -64,8 +64,8 @@ endef
 .PHONY : clear
 clear: ;
 
-.PHONY : init init_files trim_files prepare_git link_zsh
-init: init_files trim_files prepare_git link_zsh
+.PHONY : init init_files trim_files prepare_git link_files
+init: init_files trim_files prepare_git link_files
 
 init_files:
 ifdef COURSE_NAME
@@ -90,7 +90,7 @@ endif
 prepare_git:
 	rm -rf $(COURSE_MATERIAL_DIR)/.git
 
-link_zsh:
+link_files:
 ifdef ZSH_CUSTOM
 	find $(COURSE_MATERIAL_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
