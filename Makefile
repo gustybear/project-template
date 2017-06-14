@@ -96,9 +96,9 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init init_files trim_files prepare_git link_zsh
+.PHONY : init init_files trim_files prepare_git link_files
 
-init: init_files trim_files prepare_git link_zsh
+init: init_files trim_files prepare_git link_files
 
 init_files:
 	find $(PROJECT_DIR) -type f \
@@ -123,7 +123,7 @@ prepare_git:
 	rm -rf $(PROJECT_DIR)/.git
 	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
-link_zsh:
+link_files:
 ifdef ZSH_CUSTOM
 	find $(PROJECT_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
