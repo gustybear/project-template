@@ -39,9 +39,9 @@ ifdef COURSE_WEBPAGES_DIR
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
-.PHONY : init init_files prepare_git link_zsh
+.PHONY : init init_files prepare_git link_files
 
-init: init_files prepare_git link_zsh
+init: init_files prepare_git link_files
 
 init_files:
 ifneq ($(COURSE_MATERIALS),)
@@ -63,7 +63,7 @@ endif
 prepare_git:
 	rm -rf $(COURSE_DIR)/.git
 
-link_zsh:
+link_files:
 ifdef ZSH_CUSTOM
 	find $(COURSE_DIR) -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
