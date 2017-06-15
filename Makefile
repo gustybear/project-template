@@ -178,24 +178,33 @@ fast_archive:
 	fi
 	mkdir -p $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)
 	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP) \
-		--exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
+		--exclude 's3/' --exclude 'archive/' --exclude '.DS_Store'
 
-.PHONY : fast_s3
-fast_s3:
+.PHONY : fast_s3_upload
+fast_s3_upload:
 ifdef S3_BUCKET
 	if [ ! -d $(PROJECT_DATA_DIR)/upload ]  && [ ! -L $(PROJECT_DATA_DIR)/upload ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/upload; \
+		mkdir -p $(PROJECT_DATA_DIR)/s3; \
 	fi
 	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/archive; \
 	fi
-	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude 'archive/*' # --dryrun
-	# forward sync will follow the symbolinks
-	rsync -avu --keep-dirlinks $(PROJECT_DATA_DIR)/upload/ $(PROJECT_DATA_DIR) # --dry-run
+	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/s3 --delete --exclude 'archive/*' # --dryrun
 	# backward sync will copy the actual files
-	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/upload --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store' # --dry-run
-	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET) --exclude "*.DS_Store" # --dryrun
-	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store" # --dryrun
+	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/s3 --exclude 's3/' --exclude 'archive/' # --dry-run
+	aws s3 sync $(PROJECT_DATA_DIR)/s3 $(S3_BUCKET) --delete --exclude 'archive/*' # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive # --dryrun
+endif
+
+.PHONY : fast_s3_download
+fast_s3_download:
+ifdef S3_BUCKET
+	if [ ! -d $(PROJECT_DATA_DIR)/upload ]  && [ ! -L $(PROJECT_DATA_DIR)/upload ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/s3; \
+	fi
+	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/s3 --delete --exclude 'archive/*' # --dryrun
+	# forward sync will follow the symbolinks
+	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/s3/ $(PROJECT_DATA_DIR) --exclude 's3/' --exclude 'archive/' # --dry-run
 endif
 print-%:
 	@echo '$*:=$($*)'
