@@ -189,13 +189,13 @@ ifdef S3_BUCKET
 	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/archive; \
 	fi
-	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude 'archive/*'
+	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/upload --exclude 'archive/*' # --dryrun
 	# forward sync will follow the symbolinks
-	rsync -avu --keep-dirlinks $(PROJECT_DATA_DIR)/upload/ $(PROJECT_DATA_DIR)
+	rsync -avu --keep-dirlinks $(PROJECT_DATA_DIR)/upload/ $(PROJECT_DATA_DIR) # --dry-run
 	# backward sync will copy the actual files
-	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/upload --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
-	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET) --exclude "*.DS_Store"
-	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store"
+	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/upload --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store' # --dry-run
+	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET) --exclude "*.DS_Store" # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store" # --dryrun
 endif
 print-%:
 	@echo '$*:=$($*)'
