@@ -194,7 +194,7 @@ ifdef S3_BUCKET
 	rsync -avu --keep-dirlinks $(PROJECT_DATA_DIR)/upload/ $(PROJECT_DATA_DIR)
 	# backward sync will copy the actual files
 	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/upload --exclude 'upload/' --exclude 'archive/' --exclude '.DS_Store'
-	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET)
+	aws s3 sync $(PROJECT_DATA_DIR)/upload $(S3_BUCKET) --exclude "*.DS_Store"
 	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive --exclude "*.DS_Store"
 endif
 print-%:
