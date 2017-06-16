@@ -1,12 +1,4 @@
 # jemdoc: menu{src/MENU}{index.html} toptitle, title{PROJECT_TITLE}, notime
-# jemdoc: addcss{css/bibover.css}
-= PROJECT_TITLE
-Name, Institute
 
-*Summary*:\n
-
-== Details
-{{<a name="details"></a>}}
-
-#include{src/PROJECT_NAME_ref.jeminc}
+#includeraw{src/PROJECT_NAME_report.html}
 
