@@ -9,3 +9,4 @@ PUBLISH_MATERIALS_DIR         :=
 
 ###### Set this flag when the webpage is ready. #######
 COURSE_WEBPAGES_READY         :=
+COURSE_MATERIALS_READY        :=
