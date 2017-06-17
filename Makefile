@@ -113,5 +113,10 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
+.PHONY : fast_archive
+fast_archive:
+	find $(COURSE_DIR) -type -f -name "inputs.mk" \
+		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
+
 print-%:
 	@echo '$*=$($*)'
