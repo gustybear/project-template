@@ -117,12 +117,12 @@ endif
 
 .PHONY : fast_archive
 fast_archive:
-	find $(COURSE_MATERIAL_DIR) -type -f -maxdepth 1 -mindepth 1 -name "inputs.mk" \
+	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
 
 .PHONY : fast_unarchive
 fast_unarchive:
-	find $(COURSE_MATERIAL_DIR) -type -f -maxdepth 1 -mindepth 1 -name "inputs.mk.bak" \
+	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
 print-%:
 	@echo '$*:=$($*)'
