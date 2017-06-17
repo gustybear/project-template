@@ -182,8 +182,17 @@ fast_archive:
 	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
 	rsync -av --copy-links  $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
+
+.PHONY : fast_put_archive
+fast_put_archive:
 ifdef S3_BUCKET
-	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
+endif
+
+.PHONY : fast_get_archive
+fast_get_archive:
+ifdef S3_BUCKET
+	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)  # --dryrun
 endif
 
 .PHONY : fast_s3_upload
