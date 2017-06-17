@@ -74,6 +74,8 @@ ifdef COURSE_NAME
 		   -name '_*.jem*' -o -name '_MENU' -o \
 		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
+	find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's/\(^COURSE_NAME\s+:=$$\)/\1\s$(COURSE_NAME)/g' {} \;
 endif
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
@@ -92,7 +94,7 @@ prepare_git:
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(COURSE_MATERIAL_DIR) -type f -name '*.zsh' \
+	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
