@@ -94,7 +94,7 @@ prepare_git:
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -type f -name '*.zsh' \
+	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
