@@ -65,7 +65,10 @@ prepare_git:
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(COURSE_DIR) -type f -name '*.zsh' \
+ifneq ($(COURSE_MATERIALS),)
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_files; done
+endif
+	find $(COURSE_DIR) -type f -maxdepth 1 -mindepth 1 -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
@@ -115,8 +118,19 @@ endif
 
 .PHONY : fast_archive
 fast_archive:
-	find $(COURSE_DIR) -type -f -name "inputs.mk" \
+ifneq ($(COURSE_MATERIALS),)
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_archive; done
+endif
+	find $(COURSE_DIR) -type -f -maxdepth 1 -mindepth 1 -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
+
+.PHONY : fast_unarchive
+fast_unarchive:
+ifneq ($(COURSE_MATERIALS),)
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_unarchive; done
+endif
+	find $(COURSE_DIR) -type -f -maxdepth 1 -mindepth 1 -name "inputs.mk.bak" \
+		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
 
 print-%:
 	@echo '$*=$($*)'
