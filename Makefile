@@ -11,6 +11,8 @@ PROJECT_FIG_DIR                    := $(PROJECT_DIR)/figures
 PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 PROJECT_DATA_DIR                   := $(PROJECT_DIR)/data
+ARCHIVE_SUBDIR                     := archive
+S3_SUBDIR                          := s3
 
 ifeq ($(PROJECT_TYPE), project)
 TRIM_SUBDIRS                       := prpsl suppl
@@ -125,7 +127,7 @@ prepare_git:
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(PROJECT_DIR) -type f -name '*.zsh' \
+	find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
@@ -174,40 +176,40 @@ endif
 
 .PHONY : fast_archive
 fast_archive:
-	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/archive; \
+	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR); \
 	fi
-	mkdir -p $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP)
-	rsync -av -L $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/archive/$(TIMESTAMP) \
-		--exclude 's3/' --exclude 'archive/' --exclude '.DS_Store'
+	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
+	rsync -av --copy-links  $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
+		$(DATA_RSYNC_EXCLUDE) # --dry-run
 ifdef S3_BUCKET
-	aws s3 sync $(PROJECT_DATA_DIR)/archive $(S3_BUCKET)/archive # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/ # --dryrun
 endif
 
 .PHONY : fast_s3_upload
 fast_s3_upload:
 ifdef S3_BUCKET
-	if [ ! -d $(PROJECT_DATA_DIR)/upload ]  && [ ! -L $(PROJECT_DATA_DIR)/upload ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/s3; \
+	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
 	fi
-	if [ ! -d $(PROJECT_DATA_DIR)/archive ] && [ ! -L $(PROJECT_DATA_DIR)/archive ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/archive; \
-	fi
-	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/s3 --delete --exclude 'archive/*' # --dryrun
 	# backward sync will copy the actual files
-	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/s3 --exclude 's3/' --exclude 'archive/' # --dry-run
-	aws s3 sync $(PROJECT_DATA_DIR)/s3 $(S3_BUCKET) --delete --exclude 'archive/*' # --dryrun
+	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
+		$(DATA_RSYNC_EXCLUDE) # --dry-run
+	aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_SUBDIR) $(S3_BUCKET) \
+		$(DATA_SSYNC_EXCLUDE) # --dryrun
 endif
 
 .PHONY : fast_s3_download
 fast_s3_download:
 ifdef S3_BUCKET
-	if [ ! -d $(PROJECT_DATA_DIR)/upload ]  && [ ! -L $(PROJECT_DATA_DIR)/upload ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/s3; \
+	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
+		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
 	fi
-	aws s3 sync $(S3_BUCKET) $(PROJECT_DATA_DIR)/s3 --delete --exclude 'archive/*' # --dryrun
+	aws s3 sync --delete $(S3_BUCKET) $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
+		$(DATA_SSYNC_EXCLUDE) # --dryrun
 	# forward sync will follow the symbolinks
-	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/s3/ $(PROJECT_DATA_DIR) --exclude 's3/' --exclude 'archive/' # --dry-run
+	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR) \
+		$(DATA_RSYNC_EXCLUDE) # --dry-run
 endif
 
 print-%:
