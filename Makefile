@@ -92,10 +92,8 @@ endif
 
 .PHONY : publish_materials
 publish_materials:
-ifdef COURSE_MATERIALS_READY
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
-endif
 endif
 
 .PHONY : build_webpages
