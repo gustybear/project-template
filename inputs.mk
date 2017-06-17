@@ -3,8 +3,12 @@ GIT_REPO                      :=
 
 ###### Set the remote aws s3 bucket for data. #########
 S3_BUCKET                     :=
-DATA_RSYNC_EXCLUDE            := --exclude "$(S3_SUBDIR)/" --exclude "$(ARCHIVE_SUBDIR)/"
-DATA_SSYNC_EXCLUDE            := --exclude "$(ARCHIVE_SUBDIR)/*"
+
+###### Set the exclude folders for data sync ##########
+###### NOTE: use '=' instead of ':=' so the ###########
+######       variables are expanded when use ##########
+DATA_RSYNC_EXCLUDE            = --exclude="$(S3_SUBDIR)" --exclude="$(ARCHIVE_SUBDIR)"
+DATA_SSYNC_EXCLUDE            = --exclude="$(ARCHIVE_SUBDIR)/*"
 
 ###### The parameters passed via the make command #####
 ###### specifying the folders to publish ##############
