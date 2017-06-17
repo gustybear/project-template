@@ -174,6 +174,12 @@ ifdef GIT_REPO
 	cd $(PROJECT_DIR) && git push
 endif
 
+.PHONY : fast_ls_archive
+fast_ls_archive:
+ifdef S3_BUCKET
+	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
+endif
+
 .PHONY : fast_archive
 fast_archive:
 	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
