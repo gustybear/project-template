@@ -177,7 +177,7 @@ endif
 .PHONY : fast_ls_archive
 fast_ls_archive:
 ifdef S3_BUCKET
-	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
+	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/ # --dryrun
 endif
 
 .PHONY : fast_archive
