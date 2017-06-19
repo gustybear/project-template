@@ -181,7 +181,7 @@ ifdef S3_BUCKET
 endif
 
 .PHONY : fast_mk_archive
-fast_archive:
+fast_mk_archive:
 	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR); \
 	fi
