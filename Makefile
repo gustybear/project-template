@@ -180,7 +180,7 @@ ifdef S3_BUCKET
 	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/ # --dryrun
 endif
 
-.PHONY : fast_archive
+.PHONY : fast_mk_archive
 fast_archive:
 	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR); \
