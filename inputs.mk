@@ -1,5 +1,5 @@
 ###### Set the remote git repo and branch. ############
-GIT_REPO                      :=
+GITHUB_REPO                   :=
 
 ###### Set the remote aws s3 bucket for data. #########
 S3_BUCKET                     :=

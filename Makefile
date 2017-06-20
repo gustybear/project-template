@@ -182,15 +182,15 @@ ifdef GITHUB_USER
 	git init
 	git add -A
 	git commit -m "First commit"
-	git remote add origin remote $(GIT_REPO_URL)
+	git remote add origin remote $(GITHUB_REPO_URL)
 	git push -u origin master
 	find $(PROJECT_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/\(^GIT_REPO[ ]\{1,\}:=$$\)/\1 $(GITHUB_REPO_URL)/g' {} \;
+		-exec sed -i.bak 's/\(^GITHUB_REPO[ ]\{1,\}:=$$\)/\1 $(GITHUB_REPO_URL)/g' {} \;
 endif
 
 .PHONY : github_update
 github_update:
-ifdef GIT_REPO
+ifdef GITHUB_REPO
 	#fast commit and push to git repository
 	cd $(PROJECT_DIR) && git pull
 	cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
