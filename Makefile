@@ -84,6 +84,12 @@ endif
 	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME_AND_MATERIAL_NAME)`basename {}`' \;
 
+link_files:
+ifdef ZSH_CUSTOM
+	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
+		-exec ln -sf {} $(ZSH_CUSTOM) \;
+endif
+
 trim_files:
 ifdef COURSE_MATERIAL_TRIM_SUBDIRS
 	rm -rf $(COURSE_MATERIAL_TRIM_SUBDIRS)
@@ -91,12 +97,6 @@ endif
 
 prepare_git:
 	rm -rf $(COURSE_MATERIAL_DIR)/.git
-
-link_files:
-ifdef ZSH_CUSTOM
-	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
-		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
 
 .PHONY : pack_materials
 pack_materials:
@@ -115,13 +115,13 @@ ifdef PUBLISH_MATERIALS_DIR
 			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
-.PHONY : fast_archive
-fast_archive:
+.PHONY : course_offline
+course_offline:
 	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
 
-.PHONY : fast_unarchive
-fast_unarchive:
+.PHONY : course_online
+course_online:
 	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
 print-%:
