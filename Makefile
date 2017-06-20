@@ -98,9 +98,9 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init init_files trim_files prepare_git link_files
+.PHONY : init init_files trim_files link_files prepare_git
 
-init: init_files trim_files prepare_git link_files
+init: init_files trim_files link_files prepare_git
 
 init_files:
 	find $(PROJECT_DIR) -type f \
@@ -121,15 +121,15 @@ ifdef PROJECT_TRIM_SUBDIRS
 	rm -rf $(PROJECT_TRIM_SUBDIRS)
 endif
 
-prepare_git:
-	rm -rf $(PROJECT_DIR)/.git
-	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
-
 link_files:
 ifdef ZSH_CUSTOM
 	find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
+
+prepare_git:
+	rm -rf $(PROJECT_DIR)/.git
+	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 
 .PHONY : pack_materials
@@ -165,8 +165,31 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
-.PHONY : fast_git
-fast_git:
+
+# Run 'git config --global github.user <username>' to set username.
+# Run 'git config --global github.token <token>' to set security token.
+GITHUB_USER                      := $(shell git config github.user)
+GITHUB_TOKEN                     := :$(shell git config github.token)
+GITHUB_API_URL                   := https://api.github.com/$(GITHUB_USER)/$(notdir $(PROJECT_DIR))
+GITHUB_REPO_URL                  := git@github.com:$(GIT_USER)/$(notdir $(PROJECT_DIR)).git
+
+.PHONY : github_mk
+github_mk:
+ifdef GITHUB_USER
+	curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
+		$(GITHUB_API_URL) \
+		-d '{"name":"$(notdir $(PROJECT_DIR))", "scopes" : ["private_repo"]}'
+	git init
+	git add -A
+	git commit -m "First commit"
+	git remote add origin remote $(GIT_REPO_URL)
+	git push -u origin master
+	find $(PROJECT_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's/\(^GIT_REPO[ ]\{1,\}:=$$\)/\1 $(GITHUB_REPO_URL)/g' {} \;
+endif
+
+.PHONY : github_update
+github_update:
 ifdef GIT_REPO
 	#fast commit and push to git repository
 	cd $(PROJECT_DIR) && git pull
@@ -174,14 +197,16 @@ ifdef GIT_REPO
 	cd $(PROJECT_DIR) && git push
 endif
 
-.PHONY : fast_ls_archive
-fast_ls_archive:
+
+.PHONY : archive_ls
+archive_ls:
 ifdef S3_BUCKET
 	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/ # --dryrun
 endif
 
-.PHONY : fast_mk_archive
-fast_mk_archive:
+
+.PHONY : archive_mk
+archive_mk:
 	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR); \
 	fi
@@ -189,20 +214,23 @@ fast_mk_archive:
 	rsync -av --copy-links  $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
 
-.PHONY : fast_put_archive
-fast_put_archive:
+
+.PHONY : archive_put
+archive_put:
 ifdef S3_BUCKET
 	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
 endif
 
-.PHONY : fast_get_archive
-fast_get_archive:
+
+.PHONY : archive_get
+archive_get:
 ifdef S3_BUCKET
 	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)  # --dryrun
 endif
 
-.PHONY : fast_s3_upload
-fast_s3_upload:
+
+.PHONY : s3_upload
+s3_upload:
 ifdef S3_BUCKET
 	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
@@ -214,8 +242,9 @@ ifdef S3_BUCKET
 		$(DATA_SSYNC_EXCLUDE) # --dryrun
 endif
 
-.PHONY : fast_s3_download
-fast_s3_download:
+
+.PHONY : s3_download
+s3_download:
 ifdef S3_BUCKET
 	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
 		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
@@ -226,6 +255,7 @@ ifdef S3_BUCKET
 	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
 endif
+
 
 print-%:
 	@echo '$*:=$($*)'
