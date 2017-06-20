@@ -39,9 +39,9 @@ ifdef COURSE_WEBPAGES_DIR
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
-.PHONY : init init_files prepare_git link_files
+.PHONY : init init_files link_files prepare_git
 
-init: init_files prepare_git link_files
+init: init_files link_files prepare_git
 
 init_files:
 ifneq ($(COURSE_MATERIALS),)
@@ -60,9 +60,6 @@ endif
 	find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
-prepare_git:
-	rm -rf $(COURSE_DIR)/.git
-
 link_files:
 ifdef ZSH_CUSTOM
 ifneq ($(COURSE_MATERIALS),)
@@ -71,6 +68,10 @@ endif
 	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
+
+prepare_git:
+	rm -rf $(COURSE_DIR)/.git
+
 
 .PHONY : add_curriculum
 add_curriculum:
@@ -116,16 +117,16 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
-.PHONY : fast_archive
-fast_archive:
+.PHONY : course_offline
+course_offline:
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_archive); done
 endif
 	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
 
-.PHONY : fast_unarchive
-fast_unarchive:
+.PHONY : course_online
+course_online:
 ifneq ($(COURSE_MATERIALS),)
 	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_unarchive); done
 endif

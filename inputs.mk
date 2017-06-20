@@ -1,5 +1,5 @@
 ###### Set the remote git repo and branch. ############
-GIT_REPO                      :=
+GITHUB_REPO                   :=
 
 ###### The parameters passed via the make command #####
 ###### specifying the folders to publish ##############
