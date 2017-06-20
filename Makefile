@@ -170,22 +170,22 @@ endif
 # Run 'git config --global github.token <token>' to set security token.
 GITHUB_USER                      := $(shell git config --global --includes github.user)
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
-GITHUB_API_URL                   := https://api.github.com/$(GITHUB_USER)/$(notdir $(PROJECT_DIR))
-GITHUB_REPO_URL                  := git@github.com:$(GIT_USER)/$(notdir $(PROJECT_DIR)).git
+GITHUB_API_URL                   := https://api.github.com/user/repos
+GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
 
 .PHONY : github_mk
 github_mk:
 ifdef GITHUB_USER
 	curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
-		-d '{"name":"$(notdir $(PROJECT_DIR))", "scopes" : ["private_repo"]}'
+		-d '{ "name" : "$(notdir $(PROJECT_DIR))", "private" : true }'
 	git init
 	git add -A
 	git commit -m "First commit"
 	git remote add origin $(GITHUB_REPO_URL)
 	git push -u origin master
 	find $(PROJECT_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/\(^GITHUB_REPO[ ]\{1,\}:=$$\)/\1 $(GITHUB_REPO_URL)/g' {} \;
+		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 endif
 
 .PHONY : github_update
