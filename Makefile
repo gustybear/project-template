@@ -168,8 +168,8 @@ endif
 
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
-GITHUB_USER                      := $(shell git config github.user)
-GITHUB_TOKEN                     := :$(shell git config github.token)
+GITHUB_USER                      := $(shell git config --global --includes github.user)
+GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/$(GITHUB_USER)/$(notdir $(PROJECT_DIR))
 GITHUB_REPO_URL                  := git@github.com:$(GIT_USER)/$(notdir $(PROJECT_DIR)).git
 
