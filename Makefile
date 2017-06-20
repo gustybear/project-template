@@ -182,7 +182,7 @@ ifdef GITHUB_USER
 	git init
 	git add -A
 	git commit -m "First commit"
-	git remote add origin remote $(GITHUB_REPO_URL)
+	git remote add origin $(GITHUB_REPO_URL)
 	git push -u origin master
 	find $(PROJECT_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's/\(^GITHUB_REPO[ ]\{1,\}:=$$\)/\1 $(GITHUB_REPO_URL)/g' {} \;
