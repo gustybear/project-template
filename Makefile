@@ -120,7 +120,7 @@ endif
 .PHONY : course_offline
 course_offline:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_archive); done
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_offline); done
 endif
 	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
@@ -128,7 +128,7 @@ endif
 .PHONY : course_online
 course_online:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir fast_unarchive); done
+	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_online); done
 endif
 	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
