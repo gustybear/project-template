@@ -173,8 +173,11 @@ GITHUB_USER                      := $(shell git config --global --includes githu
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/user/repos
 GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
+ifdef GITHUB_REPO
 CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
-OTHER_BRANCHES                   := $(filter-out $(CURRENT_BRANCH),$(shell git for-each-ref --format='%(refname:short)' refs/heads))
+ALL_BRANCHES                     := $(shell git for-each-ref --format='%(refname:short)' refs/heads)
+OTHER_BRANCHES                   := $(filter-out $(CURRENT_BRANCH),$(OTHER_BRANCHES))
+endif
 CURRENT_COMMIT                   :=
 UPDATE_SCOPE                     := null
 
