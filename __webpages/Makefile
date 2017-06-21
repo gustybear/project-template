@@ -1,4 +1,4 @@
-JABREF             := java -Dapple.awt.UIElement=true -jar /Applications/JabRef.app/Contents/java/app/JabRef-3.8.1.jar
+JABREF             := java -Dapple.awt.UIElement=true -jar $(HOME)/.jabref/JabRef-3.8.2.jar
 JEMDOC             := /usr/local/bin/jemdoc.mathjax
 
 WEBPAGES_DIR       := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -11,6 +11,7 @@ HTML_FILES         := $(addprefix  $(WEBPAGES_DES_DIR)/, $(subst jemdoc,html, $(
 BIB_FILES          := $(shell find $(WEBPAGES_SRC_DIR) -name '*.bib')
 BIB_FILE_NAMES     := $(notdir $(BIB_FILES))
 
+ifdef BIB_FILES
 JEMSEG_FILES       := $(shell find $(WEBPAGES_SRC_DIR) -name '*.jemseg')
 JEMSEG_RULE_NAMES  := $(shell sed -e 's/\s*:= .*$$//g' $(JEMSEG_FILES))
 
@@ -29,6 +30,7 @@ $$(WEBPAGES_SRC_DIR)/%.$1.publist: $$(WEBPAGES_SRC_DIR)/%.bib
 endef
 
 $(foreach JEMSEG_RULE_NAME,$(JEMSEG_RULE_NAMES),$(eval $(call gen_publist,$(JEMSEG_RULE_NAME))))
+endif
 
 .PHONY : all $(HTML_FILES)
 all : $(HTML_FILES)
@@ -47,9 +49,7 @@ $(HTML_FILES): $(WEBPAGES_DES_DIR)/%.html: $(WEBPAGES_SRC_DIR)/%.jemdoc \
 
 .PHONY : clean
 clean :
-	rm -rf $(WEBPAGES_DES_DIR)/*
-	rm -f $(PUBLIST_FILES)
-	rm -f $(JEMINC_FILES)
+	rm -rf $(WEBPAGES_DES_DIR)/* $(PUBLIST_FILES) $(JEMINC_FILES)
 
 print-%:
 	@echo '$*=$($*)'
