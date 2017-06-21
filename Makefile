@@ -176,6 +176,7 @@ GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PRO
 CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
 OTHER_BRANCHES                   := $(filter-out $(CURRENT_BRANCH),$(shell git for-each-ref --format='%(refname:short)' refs/heads))
 CURRENT_COMMIT                   :=
+UPDATE_SCOPE                     := null
 
 .PHONY : github_mk
 github_mk:
@@ -194,6 +195,7 @@ endif
 
 # if UPDATE_SCOPE contains a, update all deployed projects' repos.
 # if UPDATE_SCOPE contains b, update the other branches of the current repo.
+
 .PHONY : github_update
 github_update:
 ifdef GITHUB_REPO
@@ -201,7 +203,7 @@ ifdef GITHUB_REPO
 	cd $(PROJECT_DIR) && git pull
 	cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
 	cd $(PROJECT_DIR) && git push
-	if [[ ${UPDATE_SCOPE+null} == *"b"* ]]; then \
+	if [[ $(UPDATE_SCOPE) == *"b"* ]]; then \
 	$(eval CURRENT_COMMIT := $(shell git log -n1 | head -n1 | cut -c8-)) \
 	for branch in $(OTHER_BRANCHES); do \
 		cd $(PROJECT_DIR) && git checkout $$branch; \
