@@ -41,9 +41,7 @@ $(JEMINC_FILES): $(WEBPAGES_SRC_DIR)/%.jeminc: $(WEBPAGES_SRC_DIR)/%.bib
 
 $(HTML_FILES): $(WEBPAGES_DES_DIR)/%.html: $(WEBPAGES_SRC_DIR)/%.jemdoc \
 	$(WEBPAGES_SRC_DIR)/site.conf \
-	$(WEBPAGES_SRC_DIR)/MENU \
-	$(PUBLIST_FILES) \
-	$(JEMINC_FILES)
+	$(WEBPAGES_SRC_DIR)/MENU $(PUBLIST_FILES) $(JEMINC_FILES)
 	mkdir -p $(@D)
 	$(JEMDOC) -o $@ -c $(<D)/site.conf $<
 
