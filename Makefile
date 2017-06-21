@@ -173,6 +173,9 @@ GITHUB_USER                      := $(shell git config --global --includes githu
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/user/repos
 GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
+CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
+OTHER_BRANCHES                   := $(filter-out $(CURRENT_BRANCH),$(shell git for-each-ref --format='%(refname:short)' refs/heads))
+CURRENT_COMMIT                   :=
 
 .PHONY : github_mk
 github_mk:
@@ -189,6 +192,8 @@ ifdef GITHUB_USER
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 endif
 
+# if UPDATE_SCOPE contains a, update all deployed projects' repos.
+# if UPDATE_SCOPE contains b, update the other branches of the current repo.
 .PHONY : github_update
 github_update:
 ifdef GITHUB_REPO
@@ -196,6 +201,16 @@ ifdef GITHUB_REPO
 	cd $(PROJECT_DIR) && git pull
 	cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
 	cd $(PROJECT_DIR) && git push
+	if [[ ${UPDATE_SCOPE+null} == *"b"* ]]; then \
+	$(eval CURRENT_COMMIT := $(shell git log -n1 | head -n1 | cut -c8-)) \
+	for branch in $(OTHER_BRANCHES); do \
+		cd $(PROJECT_DIR) && git checkout $$branch; \
+		cd $(PROJECT_DIR) && git pull; \
+		cd $(PROJECT_DIR) && git cherry-pick $(CURRENT_COMMIT); \
+		cd $(PROJECT_DIR) && git push; \
+	done; \
+	cd $(PROJECT_DIR) && git checkout $(CURRENT_BRANCH); \
+	fi
 endif
 
 
