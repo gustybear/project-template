@@ -152,7 +152,8 @@ build_webpages:
 ifdef PROJECT_WEBPAGES_DIR
 	# uncomment if there are bib files to include into the webpage
 	# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
-	find $(PROJECT_DOCS_DIR) -type f -name "*.html" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+	find $(PROJECT_DOCS_DIR) -not \( -path '*/\.*' -prune \) \
+		-type f -name "*.ipynb" -exec jupyter nbconvert --to html --template basic {} --output-dir ${WEBPAGES_SRC_DIR} \;
 	rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
 	$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
