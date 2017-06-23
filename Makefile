@@ -205,7 +205,7 @@ ifdef GITHUB_REPO
 	@cd $(PROJECT_DIR) && git pull
 	@cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
 	@cd $(PROJECT_DIR) && git push
-	@if [[ ! -z "$(BRANCHES)" ]]; then \
+	@if [ ! -z "$(BRANCHES)" ]; then \
 	$(eval CURRENT_COMMIT := $(shell git log -n1 | head -n1 | cut -c8-)) \
 	for branch in $(OTHER_BRANCHES); do \
 		cd $(PROJECT_DIR) && git checkout $$branch; \
