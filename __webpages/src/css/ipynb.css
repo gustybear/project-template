@@ -36,6 +36,7 @@ div.input_area { /* box around box with code */
 }
 
 div.input { /* box with code */
+    display: none;
 }
 
 div.CodeMirror { /* code font */
@@ -56,3 +57,10 @@ div.cell.border-box-sizing.code_cell.running {
     border: 3px dotted #f33;
 }
 
+div.output_png{
+  max-width: 50em;
+}
+img {
+  max-width: 50em;
+
+}
