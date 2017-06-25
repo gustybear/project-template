@@ -85,6 +85,8 @@ define gen_package
 endef
 
 define GITIGNORE
+# not track the html files in the webpages
+__webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 !/data.sh
