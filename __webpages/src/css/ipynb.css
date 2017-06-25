@@ -1,58 +1,12 @@
-#notebook_panel { /* main background */
-    background: #333;
-    color: #f6f6f6;
-}
-
-div #notebook { /* centre the content */
-    background: #fff;
-    color: #333;
-    width: 115ex;
-    margin: auto;
-    padding-left: 1em;
-    padding-right: 1em;
-    padding-top: 2ex;
-}
-
-div.cell { /* set cell width to about 80 chars */
-    width: 55em;
-    word-wrap: break-word;
-}
-
-div.cell.code_cell { /* area that contains code + output */
-    background: #fff;
-    border: none;
-    border-radius: 10px;
-    padding-top: 1ex;
-}
-
-div.input_area { /* box around box with code */
-    border: none;
-    background: #f5f5f5;
-    border: 1px solid #ccc;
-    border-radius: 10px;
-    padding-top: 0.5ex;
-    padding-bottom: 0.5ex;
-    padding-left: 0.5em;
+div.cell {
 }
 
 div.input { /* box with code */
-}
-
-div.CodeMirror { /* code font */
-    font-family: "Inconsolata", monospace;
-    font-size: 10pt;
 }
 
 div.prompt { /* remove In/Out prompt */
     display: none;
 }
 
-div.output_subarea { /* remove margin in front of output */
-    border: none;
+div.CodeMirror { /* code font */
 }
-
-div.cell.border-box-sizing.code_cell.running { 
-    /* draw border around running cells */
-    border: 3px dotted #f33;
-}
-
