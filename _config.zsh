@@ -1,2 +1,1 @@
-# Example aliases
-alias dir_PROJECT_NAME="$(dirname "$(readlink "$0")")"
+dir_PROJECT_NAME="$(dirname "$(readlink "$0")")"
