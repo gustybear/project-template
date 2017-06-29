@@ -12,7 +12,9 @@ PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 PROJECT_DATA_DIR                   := $(PROJECT_DIR)/data
 ARCHIVE_SUBDIR                     := archive
+ARCHIVE_FILE                       :=
 S3_SUBDIR                          := s3
+CURRENT_SUBDIR                     := current
 
 ifeq ($(PROJECT_TYPE), project)
 TRIM_SUBDIRS                       := prpsl suppl
@@ -235,30 +237,32 @@ archive_mk:
 	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
 	rsync -av --copy-links  $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
+	tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP).tar.gz \
+		$(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
+	rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
 
 
 .PHONY : archive_put
 archive_put:
 ifdef S3_BUCKET
-	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/*.tar.gz $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
 endif
 
 
 .PHONY : archive_get
 archive_get:
 ifdef S3_BUCKET
-	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)  # --dryrun
+ifdef ARCHIVE_FILE
+	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_FILE) $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_FILE)  # --dryrun
+endif
 endif
 
 
 .PHONY : s3_upload
 s3_upload:
 ifdef S3_BUCKET
-	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
-	fi
 	# backward sync will copy the actual files
-	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
+	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
 	aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_SUBDIR) $(S3_BUCKET) \
 		$(DATA_SSYNC_EXCLUDE) # --dryrun
@@ -268,13 +272,10 @@ endif
 .PHONY : s3_download
 s3_download:
 ifdef S3_BUCKET
-	if [ ! -d $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]  && [ ! -L $(PROJECT_DATA_DIR)/$(S3_SUBDIR) ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR); \
-	fi
 	aws s3 sync --delete $(S3_BUCKET) $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
 		$(DATA_SSYNC_EXCLUDE) # --dryrun
 	# forward sync will follow the symbolinks
-	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR) \
+	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
 endif
 

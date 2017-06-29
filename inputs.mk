@@ -7,8 +7,8 @@ S3_BUCKET                     :=
 ###### Set the exclude folders for data sync ##########
 ###### NOTE: use '=' instead of ':=' so the ###########
 ######       variables are expanded when use ##########
-DATA_RSYNC_EXCLUDE            = --exclude="$(S3_SUBDIR)" --exclude="$(ARCHIVE_SUBDIR)"
-DATA_SSYNC_EXCLUDE            = --exclude="$(ARCHIVE_SUBDIR)/*"
+DATA_RSYNC_EXCLUDE            =
+DATA_SSYNC_EXCLUDE            =
 
 ###### The parameters passed via the make command #####
 ###### specifying the folders to publish ##############
