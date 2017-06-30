@@ -12,7 +12,7 @@ PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 PROJECT_DATA_DIR                   := $(PROJECT_DIR)/data
 ARCHIVE_SUBDIR                     := archive
-ARCHIVE_FILE                       :=
+ARCHIVE_NAME                       :=
 S3_SUBDIR                          := s3
 CURRENT_SUBDIR                     := current
 
@@ -119,6 +119,9 @@ init_files:
 
 	find $(PROJECT_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
+	mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)
+	mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR)
+	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)
 
 trim_files:
 ifdef PROJECT_TRIM_SUBDIRS
@@ -231,15 +234,17 @@ endif
 
 .PHONY : archive_mk
 archive_mk:
-	if [ ! -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ] && [ ! -L $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ]; then \
-		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR); \
-	fi
+ifdef ARCHIVE_NAME
+	tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \
+		-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) .
+else
 	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
-	rsync -av --copy-links  $(PROJECT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
+	rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
 	tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP).tar.gz \
-		$(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
+		-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) .
 	rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
+endif
 
 
 .PHONY : archive_put
@@ -251,9 +256,10 @@ endif
 
 .PHONY : archive_get
 archive_get:
+ifdef ARCHIVE_NAME
 ifdef S3_BUCKET
-ifdef ARCHIVE_FILE
-	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_FILE) $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_FILE)  # --dryrun
+	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz  # --dryrun
+	tar -zxvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz
 endif
 endif
 
