@@ -250,7 +250,7 @@ endif
 .PHONY : archive_put
 archive_put:
 ifdef S3_BUCKET
-	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/*.tar.gz $(S3_BUCKET)/$(ARCHIVE_SUBDIR) # --dryrun
+	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) $(S3_BUCKET)/$(ARCHIVE_SUBDIR) --exclude "*" --include "*.tar.gz" # --dryrun
 endif
 
 
