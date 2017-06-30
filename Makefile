@@ -250,14 +250,20 @@ endif
 .PHONY : archive_put
 archive_put:
 ifdef S3_BUCKET
-	aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) $(S3_BUCKET)/$(ARCHIVE_SUBDIR) --exclude "*" --include "*.tar.gz" # --dryrun
+ifdef ARCHIVE_NAME
+	if [ -z $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz ]; then \
+		aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \ # --dryrun
+	elif [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) ]; then \
+		aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) \ # --dryrun
+	fi
+endif
 endif
 
 
 .PHONY : archive_get
 archive_get:
-ifdef ARCHIVE_NAME
 ifdef S3_BUCKET
+ifdef ARCHIVE_NAME
 	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz  # --dryrun
 	tar -zxvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz
 endif
@@ -270,7 +276,7 @@ ifdef S3_BUCKET
 	# backward sync will copy the actual files
 	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
 		$(DATA_RSYNC_EXCLUDE) # --dry-run
-	aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_SUBDIR) $(S3_BUCKET) \
+	aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_SUBDIR) $(S3_BUCKET)/$(CURRENT_SUBDIR) \
 		$(DATA_SSYNC_EXCLUDE) # --dryrun
 endif
 
@@ -278,7 +284,7 @@ endif
 .PHONY : s3_download
 s3_download:
 ifdef S3_BUCKET
-	aws s3 sync --delete $(S3_BUCKET) $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
+	aws s3 sync --delete $(S3_BUCKET) $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/$(CURRENT_SUBDIR) \
 		$(DATA_SSYNC_EXCLUDE) # --dryrun
 	# forward sync will follow the symbolinks
 	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR) \
