@@ -238,6 +238,7 @@ ifdef ARCHIVE_NAME
 	if [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) ]; then \
 		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \
 			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(ARCHIVE_NAME); \
+		echo "Recreate archive: $(ARCHIVE_NAME)" \
 	else \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME); \
 		rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) \
@@ -245,6 +246,7 @@ ifdef ARCHIVE_NAME
 		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \
 			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(ARCHIVE_NAME); \
 		rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME); \
+		echo "Create archive: $(ARCHIVE_NAME)" \
 	fi
 else
 	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
@@ -253,6 +255,7 @@ else
 	tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP).tar.gz \
 		-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(TIMESTAMP)
 	rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
+	echo "Create archive: $(ARCHIVE_NAME)"
 endif
 
 
