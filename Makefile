@@ -253,11 +253,11 @@ S3_TARGET                         :=
 .PHONY : s3_ls
 s3_ls:
 ifdef S3_BUCKET
-ifdef S3_TARGET
-	@aws s3 ls --recursive --human-readable $(S3_BUCKET)/$(S3_TARGET)/
-else
-	@aws s3 ls --recursive --human-readable $(S3_BUCKET)/ # --dryrun
-endif
+	@echo "Local data at $(PROJECT_DATA_DIR)"
+	@cd $(PROJECT_DATA_DIR) && \
+		find -L . -not \( -path ./$(S3_DATA_DIR)  -prune \) -type f -exec ls -lh {} \;
+	@echo "S3 data at $(S3_BUCKET)"
+	@aws s3 ls --recursive --human-readable $(S3_BUCKET)
 endif
 
 
@@ -285,7 +285,7 @@ endif
 s3_get:
 ifdef S3_BUCKET
 ifdef S3_TARGET
-	@aws s3 cp --recursive $(S3_BUCKET)/$(S3_TARGET) $(PROJECT_DATA_DIR)/$(S3_TARGET)
+	@aws s3 sync $(S3_BUCKET)/$(S3_TARGET) $(PROJECT_DATA_DIR)/$(S3_TARGET)
 	@echo "Download $(S3_TARGET) from s3."
 else
 	@aws s3 sync --delete $(S3_BUCKET)/$(CURRENT_DATA_DIR) $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
