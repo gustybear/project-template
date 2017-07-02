@@ -11,10 +11,9 @@ PROJECT_FIG_DIR                    := $(PROJECT_DIR)/figures
 PROJECT_FIG_DRAW_DIR               := $(PROJECT_DIR)/figures/draw
 PROJECT_DOCS_DIR                   := $(PROJECT_DIR)/docs
 PROJECT_DATA_DIR                   := $(PROJECT_DIR)/data
-ARCHIVE_SUBDIR                     := archive
-ARCHIVE_NAME                       :=
-S3_SUBDIR                          := s3
-CURRENT_SUBDIR                     := current
+ARCHIVE_DATA_DIR                   := archive
+CURRENT_DATA_DIR                   := current
+S3_DATA_DIR                        := s3
 
 ifeq ($(PROJECT_TYPE), project)
 TRIM_SUBDIRS                       := prpsl suppl
@@ -119,9 +118,9 @@ init_files:
 
 	find $(PROJECT_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
-	mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)
-	mkdir -p $(PROJECT_DATA_DIR)/$(S3_SUBDIR)
-	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)
+	mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
+	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
+	mkdir -p $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 
 trim_files:
 ifdef PROJECT_TRIM_SUBDIRS
@@ -225,82 +224,76 @@ ifdef GITHUB_REPO
 endif
 
 
-.PHONY : archive_ls
-archive_ls:
-ifdef S3_BUCKET
-	aws s3 ls $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/ # --dryrun
-endif
+# Archive operation
+ARCHIVE_TARGET                   :=
 
-
-.PHONY : archive_mk
-archive_mk:
-ifdef ARCHIVE_NAME
-	if [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) ]; then \
-		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \
-			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(ARCHIVE_NAME); \
-		echo "Recreate archive: $(ARCHIVE_NAME)" \
+.PHONY : mk_archive
+mk_archive:
+ifdef ARCHIVE_TARGET
+	@if [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(ARCHIVE_TARGET) ]; then \
+		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(ARCHIVE_TARGET).tar.gz \
+			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR) ./$(ARCHIVE_TARGET); \
+		echo "Recreate archive file: $(ARCHIVE_FOLDER).tar.gz."; \
 	else \
-		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME); \
-		rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) \
-			$(DATA_RSYNC_EXCLUDE); \
-		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz \
-			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(ARCHIVE_NAME); \
-		rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME); \
-		echo "Create archive: $(ARCHIVE_NAME)" \
+		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
+		rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ \
+			$(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET) \
+			$(RSYNC_DATA_EXCLUDE); \
+		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz \
+			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)_$(ARCHIVE_TARGET); \
+		rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
+		echo "Create archive file: $(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz."; \
 	fi
+endif
+
+
+# variables for archive operations
+S3_TARGET                         :=
+
+.PHONY : s3_ls
+s3_ls:
+ifdef S3_BUCKET
+ifdef S3_TARGET
+	@aws s3 ls --recursive --human-readable $(S3_BUCKET)/$(S3_TARGET)/
 else
-	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
-	rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP) \
-		$(DATA_RSYNC_EXCLUDE) # --dry-run
-	tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP).tar.gz \
-		-C $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR) ./$(TIMESTAMP)
-	rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(TIMESTAMP)
-	echo "Create archive: $(ARCHIVE_NAME)"
+	@aws s3 ls --recursive --human-readable $(S3_BUCKET)/ # --dryrun
+endif
 endif
 
 
-.PHONY : archive_put
-archive_put:
+.PHONY : s3_put
+s3_put:
 ifdef S3_BUCKET
-ifdef ARCHIVE_NAME
-	if [ -z $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz ]; then \
-		aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz; \
-	elif [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) ]; then \
-		aws s3 sync $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME) $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME); \
+ifdef S3_TARGET
+	@if [ -f $(PROJECT_DATA_DIR)/$(S3_TARGET) ]; then \
+		aws s3 cp $(PROJECT_DATA_DIR)/$(S3_TARGET) $(S3_BUCKET)/$(S3_TARGET); \
+	elif [ -d $(PROJECT_DATA_DIR)/$(S3_TARGET) ]; then \
+		aws s3 cp --recursive $(PROJECT_DATA_DIR)/$(S3_TARGET) $(S3_BUCKET)/$(S3_TARGET); \
 	fi
-endif
-endif
-
-
-.PHONY : archive_get
-archive_get:
-ifdef S3_BUCKET
-ifdef ARCHIVE_NAME
-	aws s3 sync $(S3_BUCKET)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz
-	tar -zxvf $(PROJECT_DATA_DIR)/$(ARCHIVE_SUBDIR)/$(ARCHIVE_NAME).tar.gz
-endif
-endif
-
-
-.PHONY : s3_upload
-s3_upload:
-ifdef S3_BUCKET
+	@echo "Upload $(S3_TARGET) to s3."
+else
 	# backward sync will copy the actual files
-	rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR)/ $(PROJECT_DATA_DIR)/$(S3_SUBDIR) \
-		$(DATA_RSYNC_EXCLUDE) # --dry-run
-	aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_SUBDIR) $(S3_BUCKET)/$(CURRENT_SUBDIR) \
-		$(DATA_SSYNC_EXCLUDE) # --dryrun
+	@rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) \
+		$(RSYNC_DATA_EXCLUDE) # --dry-run
+	@aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) $(S3_BUCKET)/$(CURRENT_DATA_DIR)
+	@echo "Sync current data folder to s3."
+endif
 endif
 
 
-.PHONY : s3_download
-s3_download:
+.PHONY : s3_get
+s3_get:
 ifdef S3_BUCKET
-	aws s3 sync --delete $(S3_BUCKET) $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/$(CURRENT_SUBDIR) \
-		$(DATA_SSYNC_EXCLUDE) # --dryrun
+ifdef S3_TARGET
+	@aws s3 cp --recursive $(S3_BUCKET)/$(S3_TARGET) $(PROJECT_DATA_DIR)/$(S3_TARGET)
+	@echo "Download $(S3_TARGET) from s3."
+else
+	@aws s3 sync --delete $(S3_BUCKET)/$(CURRENT_DATA_DIR) $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 	# forward sync will follow the symbolinks
-	rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_SUBDIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_SUBDIR) \
-		$(DATA_RSYNC_EXCLUDE) # --dry-run
+	@rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) \
+		$(RSYNC_DATA_EXCLUDE) # --dry-run
+	@echo "Sync current data folder from s3."
+endif
 endif
 
 
