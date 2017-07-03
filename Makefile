@@ -106,48 +106,48 @@ endif
 init: init_files trim_files link_files prepare_git
 
 init_files:
-	find $(PROJECT_DIR) -type f \
+	@find $(PROJECT_DIR) -type f \
 		\( -name '_*.tex' -o -name '_*.bib' -o \
 		   -name '_*.jem*' -o -name '_MENU' -o \
 		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/PROJECT_NAME/$(PROJECT_NAME)/g' {} \;
-	find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
-	find $(PROJECT_DIR) -type f -name '_*.*' \
+	@find $(PROJECT_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(PROJECT_NAME)`basename {}`' \;
 
-	find $(PROJECT_DIR) -type f -name '_MENU' \
+	@find $(PROJECT_DIR) -type f -name '_MENU' \
 		-exec bash -c 'mv {} `dirname {}`/MENU' \;
-	mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
-	mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
-	mkdir -p $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
+	@mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
+	@mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
+	@mkdir -p $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 
 trim_files:
 ifdef PROJECT_TRIM_SUBDIRS
-	rm -rf $(PROJECT_TRIM_SUBDIRS)
+	@rm -rf $(PROJECT_TRIM_SUBDIRS)
 endif
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
+	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
 prepare_git:
-	rm -rf $(PROJECT_DIR)/.git
-	echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
+	@rm -rf $(PROJECT_DIR)/.git
+	@echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 
 .PHONY : pack_materials
 pack_materials:
-	$(foreach SUBDIR,$(PROJECT_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+	@$(foreach SUBDIR,$(PROJECT_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
 
 
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
-	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	$(foreach SUBDIR,$(PROJECT_DOCS_SUBDIRS),\
+	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
+	@$(foreach SUBDIR,$(PROJECT_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
 			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
@@ -158,18 +158,18 @@ build_webpages:
 ifdef PROJECT_WEBPAGES_DIR
 	# uncomment if there are bib files to include into the webpage
 	# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
-	find $(PROJECT_DOCS_DIR) -not \( -path '*/\.*' -prune \) \
+	@find $(PROJECT_DOCS_DIR) -not \( -path '*/\.*' -prune \) \
 		-type f -name "*.ipynb" -exec jupyter nbconvert --to html --template basic {} --output-dir ${WEBPAGES_SRC_DIR} \;
-	rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
-	rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
-	$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
+	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
+	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
+	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
 
 ifdef PUBLISH_WEBPAGES_DIR
-	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
+	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 endif
 
@@ -191,15 +191,15 @@ CURRENT_COMMIT                   :=
 .PHONY : github_mk
 github_mk:
 ifdef GITHUB_USER
-	curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
+	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(notdir $(PROJECT_DIR))", "private" : true }'
-	git init
-	git add -A
-	git commit -m "First commit"
-	git remote add origin $(GITHUB_REPO_URL)
-	git push -u origin master
-	find $(PROJECT_DIR) -type f -name "inputs.mk" \
+	@git init
+	@git add -A
+	@git commit -m "First commit"
+	@git remote add origin $(GITHUB_REPO_URL)
+	@git push -u origin master
+	@find $(PROJECT_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 endif
 
@@ -231,10 +231,11 @@ ARCHIVE_TARGET                   :=
 mk_archive:
 ifdef ARCHIVE_TARGET
 	@if [ -d $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(ARCHIVE_TARGET) ]; then \
+		echo "Recreating archive file: $(ARCHIVE_FOLDER).tar.gz."; \
 		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(ARCHIVE_TARGET).tar.gz \
 			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR) ./$(ARCHIVE_TARGET); \
-		echo "Recreate archive file: $(ARCHIVE_FOLDER).tar.gz."; \
 	else \
+		echo "Creating archive file: $(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz."; \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
 		rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ \
 			$(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET) \
@@ -242,7 +243,6 @@ ifdef ARCHIVE_TARGET
 		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz \
 			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)_$(ARCHIVE_TARGET); \
 		rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
-		echo "Create archive file: $(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz."; \
 	fi
 endif
 
@@ -265,18 +265,18 @@ endif
 s3_put:
 ifdef S3_BUCKET
 ifdef S3_TARGET
+	@echo "Uploading $(S3_TARGET) to s3."
 	@if [ -f $(PROJECT_DATA_DIR)/$(S3_TARGET) ]; then \
 		aws s3 cp $(PROJECT_DATA_DIR)/$(S3_TARGET) $(S3_BUCKET)/$(S3_TARGET); \
 	elif [ -d $(PROJECT_DATA_DIR)/$(S3_TARGET) ]; then \
 		aws s3 cp --recursive $(PROJECT_DATA_DIR)/$(S3_TARGET) $(S3_BUCKET)/$(S3_TARGET); \
 	fi
-	@echo "Upload $(S3_TARGET) to s3."
 else
+	@echo "Syncing current data folder to s3."
 	# backward sync will copy the actual files
 	@rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) \
 		$(RSYNC_DATA_EXCLUDE) # --dry-run
 	@aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) $(S3_BUCKET)/$(CURRENT_DATA_DIR)
-	@echo "Sync current data folder to s3."
 endif
 endif
 
@@ -285,14 +285,15 @@ endif
 s3_get:
 ifdef S3_BUCKET
 ifdef S3_TARGET
-	@aws s3 sync $(S3_BUCKET)/$(S3_TARGET) $(PROJECT_DATA_DIR)/$(S3_TARGET)
 	@echo "Download $(S3_TARGET) from s3."
+	@echo "Note: currently can only download file, not directory."
+	aws s3 cp $(S3_BUCKET)/$(S3_TARGET) $(PROJECT_DATA_DIR)/$(S3_TARGET)
 else
+	@echo "Syncing current data folder from s3."
 	@aws s3 sync --delete $(S3_BUCKET)/$(CURRENT_DATA_DIR) $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 	# forward sync will follow the symbolinks
 	@rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) \
 		$(RSYNC_DATA_EXCLUDE) # --dry-run
-	@echo "Sync current data folder from s3."
 endif
 endif
 
