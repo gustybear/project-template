@@ -69,60 +69,61 @@ init: init_files trim_files prepare_git link_files
 
 init_files:
 ifdef COURSE_NAME
-	find $(COURSE_MATERIAL_DIR) -type f \
+	@find $(COURSE_MATERIAL_DIR) -type f \
 		\( -name '_*.tex' -o -name '_*.bib' -o \
 		   -name '_*.jem*' -o -name '_MENU' -o \
 		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
-	find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
+	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}:=$$\)/\1 $(COURSE_NAME)/g' {} \;
 endif
-	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
+	@find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
-	find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
-	find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
+	@find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		   -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME_AND_MATERIAL_NAME)`basename {}`' \;
 
 link_files:
 ifdef ZSH_CUSTOM
-	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
 trim_files:
 ifdef COURSE_MATERIAL_TRIM_SUBDIRS
-	rm -rf $(COURSE_MATERIAL_TRIM_SUBDIRS)
+	@rm -rf $(COURSE_MATERIAL_TRIM_SUBDIRS)
 endif
 
 prepare_git:
-	rm -rf $(COURSE_MATERIAL_DIR)/.git
+	@rm -rf $(COURSE_MATERIAL_DIR)/.git
 
 .PHONY : pack_materials
 pack_materials:
-	$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
 
 
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
-	if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	$(foreach SUBDIR,$(COURSE_MATERIAL_DOCS_SUBDIRS),\
+	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
+	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
 			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
-	$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),\
+	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),\
 		find $(SUBDIR) -maxdepth 1 -type f -name "*.tar.gz" \
 			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 endif
 
 .PHONY : course_offline
 course_offline:
-	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
 
 .PHONY : course_online
 course_online:
-	find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
+
 print-%:
 	@echo '$*:=$($*)'
