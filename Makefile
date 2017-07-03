@@ -156,8 +156,8 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_DIR
-	# uncomment if there are bib files to include into the webpage
-	# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+# uncomment if there are bib files to include into the webpage
+# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	@find $(PROJECT_DOCS_DIR) -not \( -path '*/\.*' -prune \) \
 		-type f -name "*.ipynb" -exec jupyter nbconvert --to html --template basic {} --output-dir ${WEBPAGES_SRC_DIR} \;
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
@@ -207,7 +207,7 @@ endif
 .PHONY : github_update
 github_update:
 ifdef GITHUB_REPO
-	#fast commit and push to git repository
+#fast commit and push to git repository
 	@cd $(PROJECT_DIR) && git pull
 	@cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
 	@cd $(PROJECT_DIR) && git push
@@ -273,7 +273,7 @@ ifdef S3_TARGET
 	fi
 else
 	@echo "Syncing current data folder to s3."
-	# backward sync will copy the actual files
+# backward sync will copy the actual files
 	@rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) \
 		$(RSYNC_DATA_EXCLUDE) # --dry-run
 	@aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) $(S3_BUCKET)/$(CURRENT_DATA_DIR)
@@ -291,7 +291,7 @@ ifdef S3_TARGET
 else
 	@echo "Syncing current data folder from s3."
 	@aws s3 sync --delete $(S3_BUCKET)/$(CURRENT_DATA_DIR) $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
-	# forward sync will follow the symbolinks
+# forward sync will follow the symbolinks
 	@rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) \
 		$(RSYNC_DATA_EXCLUDE) # --dry-run
 endif
