@@ -75,7 +75,7 @@ ifdef COURSE_NAME
 		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}:=$$\)/\1 $(COURSE_NAME)/g' {} \;
+		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}:=\).*$$/\1 $(COURSE_NAME)/g' {} \;
 endif
 	@find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
@@ -133,12 +133,16 @@ endif
 .PHONY : course_offline
 course_offline:
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
+		   -exec sed -i.bak 's/^/#/g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^#\(COURSE_NAME[ ]\{1,\}:=.*$$\)/\1/g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
 .PHONY : course_online
 course_online:
-	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
-		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^#//g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
 print-%:
 	@echo '$*:=$($*)'
