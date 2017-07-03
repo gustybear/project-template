@@ -117,6 +117,21 @@ ifdef PUBLISH_WEBPAGES_DIR
 endif
 endif
 
+
+ifdef GITHUB_REPO
+CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
+endif
+.PHONY : github_update
+github_update:
+ifdef GITHUB_REPO
+#fast commit and push to git repository
+	@cd $(COURSE_DIR) && git pull
+	@cd $(COURSE_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
+	@cd $(COURSE_DIR) && git push
+endif
+
+
 .PHONY : course_offline
 course_offline:
 ifneq ($(COURSE_MATERIALS),)
