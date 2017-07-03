@@ -45,7 +45,7 @@ init: init_files link_files prepare_git
 
 init_files:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@find $(COURSE_DIR) -type f \
 		\( -name '_*.tex' -o -name '_*.bib' -o \
@@ -63,7 +63,7 @@ endif
 link_files:
 ifdef ZSH_CUSTOM
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_files); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
 endif
 	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
@@ -76,28 +76,31 @@ prepare_git:
 .PHONY : add_curriculum
 add_curriculum:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
+	@echo "Entering $(COURSE_CURRICULUM_DIR)."
 	@$(MAKE) -C $(COURSE_CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_a_week
 add_a_week:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(NEXT_WEEKS_DIR)
+	@echo "Entering $(NEXT_WEEKS_DIR)."
 	@$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_project
 add_project:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
+	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
 pack_materials:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
 endif
 
 .PHONY : publish_materials
 publish_materials:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
 endif
 
 .PHONY : build_webpages
@@ -135,7 +138,7 @@ endif
 .PHONY : course_offline
 course_offline:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_offline); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_offline); done
 endif
 	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
@@ -143,7 +146,7 @@ endif
 .PHONY : course_online
 course_online:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_online); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_online); done
 endif
 	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
