@@ -45,75 +45,75 @@ init: init_files link_files prepare_git
 
 init_files:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
-	find $(COURSE_DIR) -type f \
+	@find $(COURSE_DIR) -type f \
 		\( -name '_*.tex' -o -name '_*.bib' -o \
 		   -name '_*.jem*' -o -name '_MENU' -o \
 		   -name '_*.*sh' \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
-	find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
-	find $(COURSE_DIR) -type f -name '_*.*' \
+	@find $(COURSE_DIR) -type f -name '_*.*' \
 		-exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
 
-	find $(COURSE_DIR) -name '_MENU' \
+	@find $(COURSE_DIR) -name '_MENU' \
 		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
 
 link_files:
 ifdef ZSH_CUSTOM
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_files); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir link_files); done
 endif
-	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
 prepare_git:
-	rm -rf $(COURSE_DIR)/.git
+	@rm -rf $(COURSE_DIR)/.git
 
 
 .PHONY : add_curriculum
 add_curriculum:
-	git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
-	$(MAKE) -C $(COURSE_CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
+	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
+	@$(MAKE) -C $(COURSE_CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_a_week
 add_a_week:
-	git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(NEXT_WEEKS_DIR)
-	$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
+	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(NEXT_WEEKS_DIR)
+	@$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : add_project
 add_project:
-	git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
-	$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
+	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
+	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 .PHONY : pack_materials
 pack_materials:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
 endif
 
 .PHONY : publish_materials
 publish_materials:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
 endif
 
 .PHONY : build_webpages
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
-	find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
-	rsync -rzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
-	rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
-	$(MAKE) -C $(COURSE_WEBPAGES_DIR)
+	@find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+	@rsync -rzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
+	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
+	@$(MAKE) -C $(COURSE_WEBPAGES_DIR)
 
 ifdef PUBLISH_WEBPAGES_DIR
-	if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
+	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
+	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 endif
 
@@ -135,17 +135,17 @@ endif
 .PHONY : course_offline
 course_offline:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_offline); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_offline); done
 endif
-	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk.bak' \;
 
 .PHONY : course_online
 course_online:
 ifneq ($(COURSE_MATERIALS),)
-	for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_online); done
+	@for dir in $(COURSE_MATERIALS); do ($(MAKE) -C $$dir course_online); done
 endif
-	find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk.bak" \
 		   -exec bash -c 'mv {} `dirname {}`/inputs.mk' \;
 
 print-%:
