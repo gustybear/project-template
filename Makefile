@@ -133,15 +133,17 @@ endif
 .PHONY : course_offline
 course_offline:
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^/#/g' {} \;
+		-exec sed -i.bak 's/^\(COURSE_MATERIAL_DOCS_READY[ ]\{1,\}:=.*\)$$/#\1/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^#\(COURSE_NAME[ ]\{1,\}:=.*$$\)/\1/g' {} \;
-	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
+		-exec sed -i.bak 's/^\(COURSE_MATERIAL_DOCPACS_READY[ ]\{1,\}:=.*\)$$/#\1/g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
 
 .PHONY : course_online
 course_online:
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^#//g' {} \;
+		-exec sed -i.bak 's/^#\(COURSE_MATERIAL_DOCS_READY[ ]\{1,\}:=.*\)$$/\1/g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		-exec sed -i.bak 's/^#\(COURSE_MATERIAL_DOCPACS_READY[ ]\{1,\}:=.*\)$$/\1/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
 print-%:
