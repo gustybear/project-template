@@ -1,4 +1,5 @@
-div.cell {
+div.text_cell {
+    padding-top: 0.5em;
 }
 
 div.input { /* box with code */
