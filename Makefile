@@ -194,6 +194,7 @@ ifdef GITHUB_USER
 	@git push -u origin master
 	@find $(PROJECT_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
 
 ifdef GITHUB_REPO
