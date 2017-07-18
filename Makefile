@@ -1,7 +1,7 @@
 OS                          := $(shell uname)
 COURSE_DIR                  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 COURSE_NAME                 := $(subst course_,,$(notdir $(COURSE_DIR)))
-MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk")
+MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
