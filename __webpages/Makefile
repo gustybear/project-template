@@ -1,4 +1,4 @@
-JABREF             := java -Dapple.awt.UIElement=true -jar $(HOME)/.jabref/JabRef-3.8.2.jar
+JABREF             := java -Dapple.awt.UIElement=true -jar $(shell ls -t $(HOME)/.jabref/JabRef*.jar | head -n1) -n
 JEMDOC             := /usr/local/bin/jemdoc.mathjax
 
 WEBPAGES_DIR       := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -25,7 +25,7 @@ JEMINC_FILES       := $(addprefix  $(WEBPAGES_SRC_DIR)/, $(JEMINC_FILE_NAMES))
 
 define gen_publist
 $$(WEBPAGES_SRC_DIR)/%.$1.publist: $$(WEBPAGES_SRC_DIR)/%.bib
-	$$(JABREF) -n -m $($1),$$@,publist $$<
+	@$$(JABREF) -n -m $($1),$$@,publist $$<
 	@echo '</ol>' >> $$@
 endef
 
@@ -36,7 +36,7 @@ endif
 all : $(HTML_FILES)
 
 $(JEMINC_FILES): $(WEBPAGES_SRC_DIR)/%.jeminc: $(WEBPAGES_SRC_DIR)/%.bib
-	$(JABREF) -n -m \
+	@$(JABREF) -n -m \
 	,$@,bibover $<
 
 $(HTML_FILES): $(WEBPAGES_DES_DIR)/%.html: $(WEBPAGES_SRC_DIR)/%.jemdoc \
