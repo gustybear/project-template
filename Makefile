@@ -106,7 +106,9 @@ endif
 .PHONY : build_webpages
 build_webpages:
 ifdef COURSE_WEBPAGES_DIR
-	@find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+	# uncomment if you need to publish the actual bib file
+	# @find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+	@find $(COURSE_BIB_DIR) -type f -exec ln -sf {} $(WEBPAGES_SRC_DIR) \;
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@$(MAKE) -C $(COURSE_WEBPAGES_DIR)
