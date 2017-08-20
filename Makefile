@@ -86,16 +86,13 @@ init: init_files link_files prepare_git
 init_files:
 	@find $(PROJECT_DIR) -type f \
 		\( -name "PROJECT_NAME_*.ipynb" -o -name "PROJECT_NAME_*.bib" -o \
-		   -name "PROJECT_NAME_*.jem*" -o -name "PROJECT_NAME_MENU" -o \
+		   -name "PROJECT_NAME_*.jem*" -o -name "MENU" -o \
 		   -name "PROJECT_NAME_*.*sh" \) \
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
 	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
 		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME_/$(PROJECT_NAME)_}"' -- {} \;
-
-	@find $(PROJECT_DIR) -type f -name "$(PROJECT_NAME)_MENU" \
-		-exec bash -c 'mv "$$1" "$${1/$(PROJECT_NAME)_/}"' -- {} \;
 
 	@mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
 	@mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
