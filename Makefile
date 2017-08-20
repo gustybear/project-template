@@ -4,25 +4,7 @@ COURSE_MATERIAL_NAME                := $(notdir $(COURSE_MATERIAL_DIR))
 MKFILES                             := $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
-ifdef COURSE_NAME
-COURSE_NAME_AND_MATERIAL_NAME       := $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)
-endif
-
 COURSE_MATERIAL_DOCS_DIR            := $(COURSE_MATERIAL_DIR)/docs
-
-ifeq ($(findstring curriculum,$(COURSE_MATERIAL_NAME)),curriculum)
-TRIM_SUBDIRS                        := assg assg_sol notes quiz quiz_sol slides topics
-else ifeq ($(findstring week,$(COURSE_MATERIAL_NAME)),week)
-TRIM_SUBDIRS                        := syllabus topics
-else ifeq ($(findstring project,$(COURSE_MATERIAL_NAME)),project)
-TRIM_SUBDIRS                        := assg assg_sol notes quiz quiz_sol slides syllabus
-else
-TRIM_SUBDIRS                        :=
-endif
-
-ifdef TRIM_SUBDIRS
-COURSE_MATERIAL_TRIM_SUBDIRS        := $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(TRIM_SUBDIRS))
-endif
 
 ifdef COURSE_MATERIAL_DOCS_READY
 COURSE_MATERIAL_DOCS_SUBDIRS        := $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(COURSE_MATERIAL_DOCS_READY))
@@ -42,7 +24,7 @@ endif
 TMP_DIR_PREFIX                      := $(COURSE_MATERIAL_DIR)/tmp
 
 gen_tmp_dir_name         = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
-gen_package_name         = $(addprefix $(COURSE_NAME_AND_MATERIAL_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
+gen_package_name         = $(addprefix $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
 
 define gen_package
 	mkdir -p $(call gen_tmp_dir_name, $(1))
@@ -52,10 +34,6 @@ define gen_package
 		-type f \
 		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
-	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		-exec sed -i.bak 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
-	find $(call gen_tmp_dir_name, $(1))  -type f -name '*.bak' -exec rm -f {} \;
-
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
 	rm -rf $(call gen_tmp_dir_name, $(1))
@@ -64,35 +42,33 @@ endef
 .PHONY : clear
 clear: ;
 
-.PHONY : init init_files trim_files prepare_git link_files
-init: init_files trim_files prepare_git link_files
+.PHONY : init init_files prepare_git link_files
+init: init_files prepare_git link_files
 
 init_files:
 ifdef COURSE_NAME
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		\( -name '_*.tex' -o -name '_*.bib' -o \
-		   -name '_*.jem*' -o -name '_MENU' -o \
-		   -name '_*.*sh' \) \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.*sh" \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.*sh" \) \
+		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}:=\).*$$/\1 $(COURSE_NAME)/g' {} \;
-endif
-	@find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
-		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@find $(COURSE_MATERIAL_DIR) -type f \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.*sh" \) \
+		   -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \:
+endif
 
-	@find $(COURSE_MATERIAL_DIR) -type f -name '_*.*' \
-		   -exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME_AND_MATERIAL_NAME)`basename {}`' \;
 
 link_files:
 ifdef ZSH_CUSTOM
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '[^_]*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
-
-trim_files:
-ifdef COURSE_MATERIAL_TRIM_SUBDIRS
-	@rm -rf $(COURSE_MATERIAL_TRIM_SUBDIRS)
 endif
 
 prepare_git:
