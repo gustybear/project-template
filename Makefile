@@ -61,7 +61,7 @@ ifdef COURSE_NAME
 	@find $(COURSE_MATERIAL_DIR) -type f \
 		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
 		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.*sh" \) \
-		   -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \:
+		   -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
 endif
 
 
