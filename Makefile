@@ -92,10 +92,10 @@ init_files:
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
 	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
-		-exec bash -c "mv {} `sed 's/PROJECT_NAME_/$(PROJECT_NAME)_/g' {}`" \;
+		-exec bash -c "mv {} `echo "{}" | sed 's/PROJECT_NAME_/$(PROJECT_NAME)_/g'`" \;
 
 	@find $(PROJECT_DIR) -type f -name "$(PROJECT_NAME)_MENU" \
-		-exec bash -c "mv {} `sed 's/$(PROJECT_NAME)_//g' {}`" \;
+		-exec bash -c "mv {} `echo "{}" | sed 's/$(PROJECT_NAME)_//g' {}`" \;
 
 	@mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
 	@mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
