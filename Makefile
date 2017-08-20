@@ -15,22 +15,6 @@ ARCHIVE_DATA_DIR                   := archive
 CURRENT_DATA_DIR                   := current
 S3_DATA_DIR                        := s3
 
-ifeq ($(PROJECT_TYPE), project)
-TRIM_SUBDIRS                       := prpsl suppl
-else ifeq ($(PROJECT_TYPE), award)
-TRIM_SUBDIRS                       := conf jnl report
-else ifeq ($(PROJECT_TYPE), talk)
-TRIM_SUBDIRS                       := conf jnl prpsl report suppl
-else ifeq ($(PROJECT_TYPE), student)
-TRIM_SUBDIRS                       := prpsl suppl conf jnl
-else
-TRIM_SUBDIRS                       :=
-endif
-
-ifdef TRIM_SUBDIRS
-PROJECT_TRIM_SUBDIRS               := $(addprefix $(PROJECT_DOCS_DIR)/,$(TRIM_SUBDIRS))
-endif
-
 ifdef PROJECT_DOCS_READY
 PROJECT_DOCS_SUBDIRS               := $(addprefix $(PROJECT_DOCS_DIR)/,$(PROJECT_DOCS_READY))
 endif
@@ -74,12 +58,6 @@ define gen_package
 		 -type f \
 		 -exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
 
-	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		-exec sed -i.bak 's/{.*\/\([^/]\{1,\}\)\.\([a-zA-Z0-9]\{1,\}\)/{\.\/\1\.\2/g' {} + ;\
-	find $(call gen_tmp_dir_name, $(1)) -type f -name '*.tex'                              \
-		-exec sed -i.bak 's/^\\usepackage.*{epstopdf}/\\usepackage{epstopdf}/g' {} +       ;\
-	find $(call gen_tmp_dir_name, $(1))  -type f -name '*.bak' -exec rm -f {} \;
-
 	cd $(call gen_tmp_dir_name, $(1)); \
 		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
 	rm -rf $(call gen_tmp_dir_name, $(1))
@@ -101,35 +79,31 @@ ifdef PROJECT_WEBPAGES_DIR
 endif
 
 
-.PHONY : init init_files trim_files link_files prepare_git
+.PHONY : init init_files link_files prepare_git
 
-init: init_files trim_files link_files prepare_git
+init: init_files link_files prepare_git
 
 init_files:
 	@find $(PROJECT_DIR) -type f \
-		\( -name '_*.tex' -o -name '_*.bib' -o \
-		   -name '_*.jem*' -o -name '_MENU' -o \
-		   -name '_*.*sh' \) \
-		-exec sed -i.bak 's/PROJECT_NAME/$(PROJECT_NAME)/g' {} \;
-	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
+		\( -name "PROJECT_NAME_*.ipynb" -o -name "PROJECT_NAME_*.bib" -o \
+		   -name "PROJECT_NAME_*.jem*" -o -name "PROJECT_NAME_MENU" -o \
+		   -name "PROJECT_NAME_*.*sh" \) \
+		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
+	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
-	@find $(PROJECT_DIR) -type f -name '_*.*' \
-		-exec bash -c 'mv {} `dirname {}`/$(PROJECT_NAME)`basename {}`' \;
+	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
+		-exec bash -c "mv {} `sed 's/PROJECT_NAME_/$(PROJECT_NAME)_/g' {}`" \;
 
-	@find $(PROJECT_DIR) -type f -name '_MENU' \
-		-exec bash -c 'mv {} `dirname {}`/MENU' \;
+	@find $(PROJECT_DIR) -type f -name "$(PROJECT_NAME)_MENU" \
+		-exec bash -c "mv {} `sed 's/$(PROJECT_NAME)_//g' {}`" \;
+
 	@mkdir -p $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)
 	@mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)
 	@mkdir -p $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 
-trim_files:
-ifdef PROJECT_TRIM_SUBDIRS
-	@rm -rf $(PROJECT_TRIM_SUBDIRS)
-endif
-
 link_files:
 ifdef ZSH_CUSTOM
-	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name '[^_]*.zsh' \
+	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "$(PROJECT_NAME)_*.zsh" \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
@@ -158,9 +132,8 @@ build_webpages:
 ifdef PROJECT_WEBPAGES_DIR
 # uncomment if there are bib files to include into the webpage
 # find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
-	@$(foreach SUBDIR,$(PROJECT_DOCS_SUBDIRS),\
-		find $(SUBDIR) -not \( -path '*/\.*' -prune \) -type f -name "*.ipynb" \
-		-exec jupyter nbconvert --to html --template basic {} --output-dir ${WEBPAGES_SRC_DIR} \; ;)
+	@find $(PROJECT_DOCS_DIR) -not \( -path '*/\.*' -prune \) -type f -name "*.ipynb" \
+		-exec jupyter nbconvert --to html --template basic {} --output-dir ${WEBPAGES_SRC_DIR} \;
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
 	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
