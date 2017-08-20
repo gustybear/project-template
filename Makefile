@@ -48,17 +48,14 @@ ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@find $(COURSE_DIR) -type f \
-		\( -name '_*.tex' -o -name '_*.bib' -o \
-		   -name '_*.jem*' -o -name '_MENU' -o \
-		   -name '_*.*sh' \) \
+		\( -name "COURSE_NAME_*.bib" -o \
+		   -name "COURSE_NAME_*.jem*" -o -name "MENU" -o \
+		   -name "COURSE_NAME_*.*sh" \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
-	@find $(COURSE_DIR) -type f -name '_*.*' \
-		-exec bash -c 'mv {} `dirname {}`/$(COURSE_NAME)`basename {}`' \;
-
-	@find $(COURSE_DIR) -name '_MENU' \
-		   -exec bash -c 'mv {} `dirname {}`/MENU' \;
+	@find $(COURSE_DIR) -type f -name 'COURSE_NAME_*.*' \
+		-exec bash -c 'mv "$$1" "$${1/COURSE_NAME_/$(COURSE_NAME)_}"' -- {} \;
 
 link_files:
 ifdef ZSH_CUSTOM
