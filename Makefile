@@ -109,6 +109,11 @@ prepare_git:
 	@echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 
+.PHONY : build_materials
+build_materials:
+	@$(MAKE) -C PROJECT_DOCS_READY=$(PROJECT_DOCS_READY)
+
+
 .PHONY : pack_materials
 pack_materials:
 	@$(foreach SUBDIR,$(PROJECT_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
