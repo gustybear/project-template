@@ -1,3 +1,4 @@
+# Global Variables {{{1
 OS                          := $(shell uname)
 TIMESTAMP                   := $(shell date +"%Y%m%d_%H%M%S")
 PROJECT_DIR                 := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
@@ -6,33 +7,53 @@ PROJECT_TYPE                := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^\
 MKFILES                     := $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
-PROJECT_BIB_DIR             := $(PROJECT_DIR)/bib
-PROJECT_FIG_DIR             := $(PROJECT_DIR)/figures
+# Initialization Rules {{{1
+# Rule to initialize the project {{{2
+.PHONY : init
+init: init_files link_files prepare_git
+
+# Rule to initialize  files {{{2
+.PHONY: init_files
+init_files:
+	@find $(PROJECT_DIR) -type f \
+		\( -name "PROJECT_NAME_*.ipynb" -o -name "PROJECT_NAME_*.bib" -o \
+		   -name "PROJECT_NAME_*.jem*" -o -name "MENU" -o \
+		   -name "PROJECT_NAME_*.*sh" \) \
+		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
+	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
+
+	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
+		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME_/$(PROJECT_NAME)_}"' -- {} \;
+
+# Rule to create ne cessary links {{{2
+.PHONY: link_files
+link_files:
+ifdef ZSH_CUSTOM
+	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "$(PROJECT_NAME)_*.zsh" \
+		-exec ln -sf {} $(ZSH_CUSTOM) \;
+endif
+
+# Rule to initializ e git repo {{{2
+define GITIGNORE
+# not track the html files in the webpages
+__webpages/*/*.html
+# Only track the download script in the data directory
+data/*
+!/$(PROJECT_NAME)_get_data.sh
+endef
+export GITIGNORE
+
+.PHONY: prepare_git
+prepare_git:
+	@rm -rf $(PROJECT_DIR)/.git
+	@echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
+
+
+# Document Rules {{{1
+# Variables {{{2
 PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
-PROJECT_DATA_DIR            := $(PROJECT_DIR)/data
-
-PROJECT_IPYNB_FILE          := $(shell find $(PROJECT_DOCS_DIR) -maxdepth 1 -mindepth 1 -type f -name "*_master.ipynb" 2>/dev/null)
-
-PROJECT_WEBPAGES_DIR        := $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 1-type d -name "__webpages" 2>/dev/null)
-
-ifdef PROJECT_WEBPAGES_DIR
-WEBPAGES_MAKEFILE           := $(PROJECT_WEBPAGES_DIR)/Makefile
-WEBPAGES_SRC_DIR            := $(PROJECT_WEBPAGES_DIR)/src
-WEBPAGES_DES_DIR            := $(PROJECT_WEBPAGES_DIR)/des
-
-WEBPAGES_SITECONF           := $(WEBPAGES_SRC_DIR)/site.conf
-WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
-WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
-WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
-endif
-
-ifdef PUBLISH_MATERIALS_DIR
-PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
-endif
-
+PROJECT_IPYNB_FILE          := $(PROJECT_DOCS_DIR)/$(PROJECT_NAME)_master.ipynb
+# Function to compile jupyter notebook to tex and pdf files, and create packages for submission {{{2
 define gen_materials
 	if [ ! -d $(PROJECT_DOCS_DIR)/$(1) ]; then mkdir -p $(PROJECT_DOCS_DIR)/$(1); fi
 
@@ -54,54 +75,14 @@ define gen_materials
 	rm -rf $(PROJECT_DOCS_DIR)/$(1)_tmp
 endef
 
-define GITIGNORE
-# not track the html files in the webpages
-__webpages/*/*.html
-# Only track the download script in the data directory
-data/*
-!/$(PROJECT_NAME)_get_data.sh
-endef
-export GITIGNORE
 
-# Make the first rule to clean the project to avoid accidentially initialize the project again.
-.PHONY : clean
-clean :
-ifdef PROJECT_WEBPAGES_DIR
-	$(MAKE) -C $(PROJECT_WEBPAGES_DIR) clean
-endif
-
-# Initialize the project
-.PHONY : init init_files link_files prepare_git
-
-init: init_files link_files prepare_git
-
-init_files:
-	@find $(PROJECT_DIR) -type f \
-		\( -name "PROJECT_NAME_*.ipynb" -o -name "PROJECT_NAME_*.bib" -o \
-		   -name "PROJECT_NAME_*.jem*" -o -name "MENU" -o \
-		   -name "PROJECT_NAME_*.*sh" \) \
-		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
-	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
-
-	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
-		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME_/$(PROJECT_NAME)_}"' -- {} \;
-
-link_files:
-ifdef ZSH_CUSTOM
-	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "$(PROJECT_NAME)_*.zsh" \
-		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
-
-prepare_git:
-	@rm -rf $(PROJECT_DIR)/.git
-	@echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
-
-
+# Rules to generate documents {{{2
 .PHONY : build_materials
 build_materials:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),$(call gen_materials,$(DOC));)
 
 
+# Rules to publish the documents to webpages {{{2
 .PHONY : publish_materials
 publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
@@ -112,6 +93,31 @@ ifdef PUBLISH_MATERIALS_DIR
 endif
 
 
+# Rule to clean up the documents {{{2
+.PHONY : clean_materials
+clean_materials:
+	@$(foreach DOC,$(PROJECT_DOCS_READY),\
+		cd $(PROJECT_DOCS_DIR)/$(DOC); \
+		latexmk -silent -C; \
+		rm -rf *.run.xml *.synctex.gz *.d *.bll;)
+
+
+# Webpage Rules {{{1
+# Variables {{{2
+PROJECT_WEBPAGES_DIR        := $(PROJECT_DIR)/__webpages
+WEBPAGES_MAKEFILE           := $(PROJECT_WEBPAGES_DIR)/Makefile
+WEBPAGES_SRC_DIR            := $(PROJECT_WEBPAGES_DIR)/src
+WEBPAGES_DES_DIR            := $(PROJECT_WEBPAGES_DIR)/des
+WEBPAGES_SITECONF           := $(WEBPAGES_SRC_DIR)/site.conf
+WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
+WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
+WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
+
+PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
+# Rule to build and publish webpages {{{2
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_READY
@@ -133,14 +139,26 @@ endif
 endif
 endif
 
+# Rule to clean the webpages {{{2
+.PHONY : clean_webpages
+clean_webpages :
+ifdef PROJECT_WEBPAGES_DIR
+	@ echo "Cleaning webpages"
+	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR) clean
+endif
 
+# Git Operations {{{1
+# Variables {{{2
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
 GITHUB_USER                      := $(shell git config --global --includes github.user)
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/user/repos
 GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
+CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
 
+# Rule to create the remote github repo {{{2
 .PHONY : github_mk
 github_mk:
 ifdef GITHUB_USER
@@ -157,11 +175,8 @@ ifdef GITHUB_USER
 	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
 
-ifdef GITHUB_REPO
-CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
-endif
 
+# Rule to update the local and remote git repo {{{2
 .PHONY : github_update
 github_update:
 ifdef GITHUB_REPO
@@ -172,11 +187,19 @@ ifdef GITHUB_REPO
 endif
 
 
-# Data operation
-ARCHIVE_DATA_DIR                   := archive
-CURRENT_DATA_DIR                   := current
-S3_DATA_DIR                        := s3
+# Data Rules {{{1
+# Variables {{{2
+PROJECT_DATA_DIR            := $(PROJECT_DIR)/data
+ARCHIVE_DATA_DIR            := archive
+CURRENT_DATA_DIR            := current
+S3_DATA_DIR                 := s3
+# name of the archive
+ARCHIVE_TARGET              :=
+# name of the s3 object
+S3_TARGET                   :=
 
+
+# Rule to download the data and add sub directories {{{2
 .PHONY : data_init
 data_init:
 	@if [ ! -d $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) && ! -L $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) ]; then \
@@ -190,9 +213,8 @@ data_init:
 	fi
 	@sh $(PROJECT_DATA_DIR)/$(PROJECT_NAME)_get_data.sh
 
-# name of the archive
-ARCHIVE_TARGET                     :=
 
+# Rule to create archive {{{2
 .PHONY : archive_mk
 archive_mk:
 ifdef ARCHIVE_TARGET
@@ -213,9 +235,7 @@ ifdef ARCHIVE_TARGET
 endif
 
 
-# name of the s3 object
-S3_TARGET                         :=
-
+# Rule to list objects in S3 {{{2
 .PHONY : s3_ls
 s3_ls:
 ifdef S3_BUCKET
@@ -227,6 +247,7 @@ ifdef S3_BUCKET
 endif
 
 
+# Rule to put file or directory to S3 {{{2
 .PHONY : s3_put
 s3_put:
 ifdef S3_BUCKET
@@ -247,6 +268,7 @@ endif
 endif
 
 
+# Rule to download file from S3 {{{2
 .PHONY : s3_get
 s3_get:
 ifdef S3_BUCKET
@@ -263,6 +285,7 @@ else
 endif
 endif
 
-
+# Debug Rules {{{1
+# Rule to print makefile variables {{{2
 print-%:
 	@echo '$*:=$($*)'
