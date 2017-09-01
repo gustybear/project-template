@@ -51,6 +51,8 @@ prepare_git:
 
 # Document Rules {{{1
 # Variables {{{2
+PROJECT_BIB_DIR             := $(PROJECT_DIR)/bib
+PROJECT_FIGS_DIR            := $(PROJECT_DIR)/figures
 PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
 PROJECT_IPYNB_FILE          := $(PROJECT_DOCS_DIR)/$(PROJECT_NAME)_master.ipynb
 # Function to compile jupyter notebook to tex and pdf files, and create packages for submission {{{2
