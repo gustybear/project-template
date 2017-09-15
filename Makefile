@@ -92,7 +92,7 @@ ifdef PUBLISH_MATERIALS_DIR
 endif
 
 
-# Rule to clean up the documents {{{2
+# Rule to clean the documents {{{2
 .PHONY : clean_materials
 clean_materials:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
