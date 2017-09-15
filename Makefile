@@ -120,7 +120,6 @@ PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_READY
-ifdef PROJECT_WEBPAGES_DIR
 # uncomment if there are bib files to include into the webpage
 # find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	@jupyter nbconvert --to html --template basic $(PROJECT_IPYNB_FILE) --output-dir $(WEBPAGES_SRC_DIR)
@@ -136,12 +135,11 @@ ifdef PUBLISH_WEBPAGES_DIR
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 endif
-endif
 
 # Rule to clean the webpages {{{2
 .PHONY : clean_webpages
 clean_webpages :
-ifdef PROJECT_WEBPAGES_DIR
+ifdef PROJECT_WEBPAGES_READY
 	@ echo "Cleaning webpages"
 	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR) clean
 endif
