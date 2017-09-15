@@ -25,7 +25,7 @@ init_files:
 	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
 		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME_/$(PROJECT_NAME)_}"' -- {} \;
 
-# Rule to create ne cessary links {{{2
+# Rule to create necessary links {{{2
 .PHONY: link_files
 link_files:
 ifdef ZSH_CUSTOM
@@ -33,7 +33,7 @@ ifdef ZSH_CUSTOM
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
-# Rule to initializ e git repo {{{2
+# Rule to initialize git repo {{{2
 define GITIGNORE
 # not track the html files in the webpages
 __webpages/*/*.html
@@ -57,6 +57,7 @@ PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
 PROJECT_IPYNB_FILE          := $(PROJECT_DOCS_DIR)/$(PROJECT_NAME)_master.ipynb
 # Function to compile jupyter notebook to tex and pdf files, and create packages for submission {{{2
 define gen_materials
+	if [ ! -f $(PROJECT_IPYNB_FILE) ]; then exit 0; fi
 	if [ ! -d $(PROJECT_DOCS_DIR)/$(1) ]; then mkdir -p $(PROJECT_DOCS_DIR)/$(1); fi
 
 	jupyter nbconvert --to latex --tempate $(PROJECT_DOCS_DIR)/$(1).tplx \
@@ -78,15 +79,11 @@ define gen_materials
 endef
 
 
-# Rules to generate documents {{{2
+# Rules to build documents {{{2
 .PHONY : build_materials
 build_materials:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),$(call gen_materials,$(DOC));)
 
-
-# Rules to publish the documents to webpages {{{2
-.PHONY : publish_materials
-publish_materials:
 ifdef PUBLISH_MATERIALS_DIR
 	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
@@ -119,7 +116,7 @@ PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
 PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
 PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
 PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
-# Rule to build and publish webpages {{{2
+# Rule to build webpages {{{2
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_READY
