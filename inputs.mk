@@ -14,10 +14,5 @@ RSYNC_DATA_EXCLUDE            =
 ###### template are: "report conf jnl slides." ########
 PROJECT_DOCS_READY            :=
 
-###### The parameters passed via the make command #####
-###### specifying the folders to publish ##############
-###### the webpages and materials. ####################
-PUBLISH_WEBPAGES_DIR          :=
-PUBLISH_MATERIALS_DIR         :=
 ###### Set this flag when the webpage is ready. #######
 PROJECT_WEBPAGES_READY        :=
