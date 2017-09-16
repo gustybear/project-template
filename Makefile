@@ -55,6 +55,13 @@ PROJECT_BIB_DIR             := $(PROJECT_DIR)/bib
 PROJECT_FIGS_DIR            := $(PROJECT_DIR)/figures
 PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
 PROJECT_IPYNB_FILE          := $(PROJECT_DOCS_DIR)/$(PROJECT_NAME)_master.ipynb
+
+# The default folder to publish the materials
+PUBLISH_MATERIALS_DIR       := $(PROJECT_WEBPAGES_DIR)/des
+PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
 # Function to compile jupyter notebook to tex and pdf files, and create packages for submission {{{2
 define gen_materials
 	if [ ! -f $(PROJECT_IPYNB_FILE) ]; then exit 0; fi
@@ -83,13 +90,10 @@ endef
 .PHONY : build_materials
 build_materials:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),$(call gen_materials,$(DOC));)
-
-ifdef PUBLISH_MATERIALS_DIR
 	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
 		find $(PROJECT_DOCSDIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
 			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
-endif
 
 
 # Rule to clean the documents {{{2
@@ -112,10 +116,9 @@ WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
 WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
 WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
 
-PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
+# The default folder to publish the webpages
+PUBLISH_WEBPAGES_DIR        := $(PROJECT_WEBPAGES_DIR)/des
+
 # Rule to build webpages {{{2
 .PHONY : build_webpages
 build_webpages:
@@ -127,13 +130,11 @@ ifdef PROJECT_WEBPAGES_READY
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
 	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
 
-ifdef PUBLISH_WEBPAGES_DIR
 	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
 	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
-endif
 endif
 
 # Rule to clean the webpages {{{2
