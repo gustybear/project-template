@@ -1,10 +1,10 @@
 OS                          := $(shell uname)
+TIMESTAMP                   := $(shell date +"%Y%m%d_%H%M%S")
 COURSE_DIR                  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
 COURSE_NAME                 := $(subst course_,,$(notdir $(COURSE_DIR)))
+COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
-
-COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 
 COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
 COURSE_MATERIAL_BRANCH      := course_material
@@ -18,20 +18,6 @@ NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEX
 
 COURSE_BIB_DIR              := $(COURSE_DIR)/bib
 
-ifdef COURSE_WEBPAGES_READY
-COURSE_WEBPAGES_DIR         := $(shell find $(COURSE_DIR) -type d -name __webpages)
-endif
-
-ifdef COURSE_WEBPAGES_DIR
-WEBPAGES_MAKEFILE           := $(COURSE_WEBPAGES_DIR)/Makefile
-WEBPAGES_SRC_DIR            := $(COURSE_WEBPAGES_DIR)/src
-WEBPAGES_DES_DIR            := $(COURSE_WEBPAGES_DIR)/des
-
-WEBPAGES_SITECONF           := $(WEBPAGES_SRC_DIR)/site.conf
-WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
-WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
-WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
-endif
 
 .PHONY : clean
 clean :
@@ -39,13 +25,17 @@ ifdef COURSE_WEBPAGES_DIR
 	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
-.PHONY : init init_files link_files prepare_git
-
+# Initialization Rules {{{1
+# Rule to initialize the course {{{2
+.PHONY: init
 init: init_files link_files prepare_git
 
+# Rule to initialize files {{{2
+.PHONY: init_files
 init_files:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); \
+		do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@find $(COURSE_DIR) -type f \
 		\( -name "COURSE_NAME_*.bib" -o \
@@ -57,19 +47,25 @@ endif
 	@find $(COURSE_DIR) -type f -name 'COURSE_NAME_*.*' \
 		-exec bash -c 'mv "$$1" "$${1/COURSE_NAME_/$(COURSE_NAME)_}"' -- {} \;
 
+# Rule to create necessary links {{{2
+.PHONY: link_files
 link_files:
 ifdef ZSH_CUSTOM
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
+	@for dir in $(COURSE_MATERIALS); \
+		do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
 endif
-	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '[^_]*.zsh' \
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '$(COURSE_NAME)_*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
+# Rule to prepare for git {{{2
+.PHONY: prepare_git
 prepare_git:
 	@rm -rf $(COURSE_DIR)/.git
 
 
+# Material Rules {{{1
 .PHONY : add_curriculum
 add_curriculum:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
@@ -100,30 +96,99 @@ ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
 endif
 
+# Webpage Rules {{{1
+# Variables {{{2
+COURSE_WEBPAGES_DIR         := $(COURSE_DIR)/__webpages
+WEBPAGES_MAKEFILE           := $(COURSE_WEBPAGES_DIR)/Makefile
+WEBPAGES_SRC_DIR            := $(COURSE_WEBPAGES_DIR)/src
+WEBPAGES_DES_DIR            := $(COURSE_WEBPAGES_DIR)/des
+WEBPAGES_SITECONF           := $(WEBPAGES_SRC_DIR)/site.conf
+WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
+WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
+WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
+
+# The default folder to publish the webpages
+PUBLISH_WEBPAGES_DIR        := $(COURSE_WEBPAGES_DIR)/des
+
+# Rule to take course offline {{{2
+.PHONY : course_offline
+course_offline:
+ifneq ($(COURSE_MATERIALS),)
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_offline); done
+endif
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^\(COURSE_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\#\1/g' {} \;
+	@find $(COURSE_DIR) -name 'inputs.mk.bak' -exec rm -f {} \;
+
+# Rule to take course online {{{2
+.PHONY : course_online
+course_online:
+ifneq ($(COURSE_MATERIALS),)
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_online); done
+endif
+	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^#\(COURSE_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\1/g' {} \;
+	@find $(COURSE_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
+
+# Rule to build webpages {{{2
 .PHONY : build_webpages
 build_webpages:
-ifdef COURSE_WEBPAGES_DIR
+ifdef COURSE_WEBPAGES_READY
 	# uncomment if you need to publish the actual bib file
 	# @find $(COURSE_BIB_DIR) -type f -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	@find $(COURSE_BIB_DIR) -type f -exec ln -sf {} $(WEBPAGES_SRC_DIR) \;
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(COURSE_WEBPAGES_DIR)
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@$(MAKE) -C $(COURSE_WEBPAGES_DIR)
+endif
 
-ifdef PUBLISH_WEBPAGES_DIR
+# Rule to publish webpages {{{2
+.PHONY : publish_webpages
+publish_webpages:
 	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
 	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
-endif
+
+# Rule to clean the webpages {{{2
+.PHONY : clean_webpages
+clean_webpages :
+ifdef COURSE_WEBPAGES_READY
+	@ echo "Cleaning webpages"
+	@$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
 endif
 
 
-ifdef GITHUB_REPO
+# Git Rules {{{1
+# Variables {{{2
+# Run 'git config --global github.user <username>' to set username.
+# Run 'git config --global github.token <token>' to set security token.
+GITHUB_USER                      := $(shell git config --global --includes github.user)
+GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
+GITHUB_API_URL                   := https://api.github.com/user/repos
+GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
 CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
 CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
+
+# Rule to create the remote github repo {{{2
+.PHONY : github_mk
+github_mk:
+ifdef GITHUB_USER
+	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
+		$(GITHUB_API_URL) \
+		-d '{ "name" : "$(notdir $(COURSE_DIR))", "private" : true }'
+	@git init
+	@git add -A
+	@git commit -m "First commit"
+	@git remote add origin $(GITHUB_REPO_URL)
+	@git push -u origin master
+	@find $(COURSE_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
+
+# Rule to update the local and remote git repo {{{2
 .PHONY : github_update
 github_update:
 ifdef GITHUB_REPO
@@ -134,23 +199,7 @@ ifdef GITHUB_REPO
 endif
 
 
-.PHONY : course_offline
-course_offline:
-ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_offline); done
-endif
-	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^\(COURSE_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\#\1/g' {} \;
-	@find $(COURSE_DIR) -name 'inputs.mk.bak' -exec rm -f {} \;
-
-.PHONY : course_online
-course_online:
-ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir course_online); done
-endif
-	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^#\(COURSE_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\1/g' {} \;
-	@find $(COURSE_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
-
+# Debug Rules {{{1
+# Rule to print makefile variables {{{2
 print-%:
 	@echo '$*=$($*)'
