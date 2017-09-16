@@ -12,7 +12,7 @@ MKFILES                     := $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth
 .PHONY : init
 init: init_files link_files prepare_git
 
-# Rule to initialize  files {{{2
+# Rule to initialize files {{{2
 .PHONY: init_files
 init_files:
 	@find $(PROJECT_DIR) -type f \
@@ -87,7 +87,6 @@ build_tex: $(PROJECT_DOCS_TEX)
 clean_tex:
 	@rm -rf $(PROJECT_DOCS_TEX)
 
-
 # PDF
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
@@ -107,7 +106,8 @@ clean_pdf:
 		cd $(PROJECT_DOCS_DIR)/$(DOC); \
 		latexmk -silent -C; \
 		rm -rf *.run.xml *.synctex.gz *.d *.bll;)
-
+		
+# TAR
 define tar_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
 	@mkdir -p $$(PROJECT_DOCS_DIR)/tmp)
@@ -145,6 +145,7 @@ publish_materials:
 .PHONY: clean_materials
 clean_materials: clean_pdf
 
+
 # Webpage Rules {{{1
 # Variables {{{2
 PROJECT_WEBPAGES_DIR        := $(PROJECT_DIR)/__webpages
@@ -158,6 +159,20 @@ WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
 
 # The default folder to publish the webpages
 PUBLISH_WEBPAGES_DIR        := $(PROJECT_WEBPAGES_DIR)/des
+
+# Rule to take project offline {{{2
+.PHONY : project_offline
+project_offline:
+	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^\(PROJECT_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\#\1/g' {} \;
+	@find $(PROJECT_DIR) -name 'inputs.mk.bak' -exec rm -f {} \;
+
+# Rule to take project online {{{2
+.PHONY : project_online
+project_online:
+	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
+		   -exec sed -i.bak 's/^#\(PROJECT_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\1/g' {} \;
+	@find $(PROJECT_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
 
 # Rule to build webpages {{{2
 .PHONY : build_webpages
@@ -189,7 +204,8 @@ ifdef PROJECT_WEBPAGES_READY
 	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR) clean
 endif
 
-# Git Operations {{{1
+
+# Git Rules {{{1
 # Variables {{{2
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
@@ -217,7 +233,6 @@ ifdef GITHUB_USER
 	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
 
-
 # Rule to update the local and remote git repo {{{2
 .PHONY : github_update
 github_update:
@@ -240,7 +255,6 @@ ARCHIVE_TARGET              :=
 # name of the s3 object
 S3_TARGET                   :=
 
-
 # Rule to download the data and add sub directories {{{2
 .PHONY : data_init
 data_init:
@@ -254,7 +268,6 @@ data_init:
 		mkdir -p $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 	fi
 	@sh $(PROJECT_DATA_DIR)/$(PROJECT_NAME)_get_data.sh
-
 
 # Rule to create archive {{{2
 .PHONY : archive_mk
@@ -276,7 +289,6 @@ ifdef ARCHIVE_TARGET
 	fi
 endif
 
-
 # Rule to list objects in S3 {{{2
 .PHONY : s3_ls
 s3_ls:
@@ -287,7 +299,6 @@ ifdef S3_BUCKET
 	@echo "S3 data at $(S3_BUCKET)"
 	@aws s3 ls --recursive --human-readable $(S3_BUCKET)
 endif
-
 
 # Rule to put file or directory to S3 {{{2
 .PHONY : s3_put
@@ -309,7 +320,6 @@ else
 endif
 endif
 
-
 # Rule to download file from S3 {{{2
 .PHONY : s3_get
 s3_get:
@@ -326,6 +336,7 @@ else
 		$(RSYNC_DATA_EXCLUDE) # --dry-run
 endif
 endif
+
 
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
