@@ -72,7 +72,7 @@ endif
 # Rules to build materials {{{2
 # TEX
 define tex_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_doc.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@jupyter nbconvert --to latex $$(word 1,$$^) --tempate $$(word 2,$$^) \
 		--output-dir $$(@D) --output $$(@F)
