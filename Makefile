@@ -49,12 +49,11 @@ prepare_git:
 	@echo "$$GITIGNORE" > $(PROJECT_DIR)/.gitignore
 
 
-# Document Rules {{{1
+# Material Rules {{{1
 # Variables {{{2
 PROJECT_BIB_DIR             := $(PROJECT_DIR)/bib
 PROJECT_FIGS_DIR            := $(PROJECT_DIR)/figures
 PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
-PROJECT_IPYNB_FILE          := $(PROJECT_DOCS_DIR)/$(PROJECT_NAME)_master.ipynb
 
 # The default folder to publish the materials
 PUBLISH_MATERIALS_DIR       := $(PROJECT_WEBPAGES_DIR)/des
@@ -62,48 +61,89 @@ PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
 PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
 PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
 PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
-# Function to compile jupyter notebook to tex and pdf files, and create packages for submission {{{2
-define gen_materials
-	if [ ! -f $(PROJECT_IPYNB_FILE) ]; then exit 0; fi
-	if [ ! -d $(PROJECT_DOCS_DIR)/$(1) ]; then mkdir -p $(PROJECT_DOCS_DIR)/$(1); fi
 
-	jupyter nbconvert --to latex --tempate $(PROJECT_DOCS_DIR)/$(1).tplx \
-		--output-dir $(PROJECT_DOCS_DIR)/$(1) --output $(PROJECT_NAME)_$(1).tex
-	latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
-		-use-make $(PROJECT_DOCS_DIR)/$(1)/$(PROJECT_NAME)_$(1).tex
+# Materials to build
+ifdef PROJECT_DOCS_READY
+PROJECT_DOCS_TEX            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tex,$(PROJECT_DOCS_READY)))))
+PROJECT_DOCS_PDF            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .pdf,$(PROJECT_DOCS_READY)))))
+PROJECT_DOCS_TAR            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tar.gz,$(PROJECT_DOCS_READY)))))
+endif
 
-	if [ ! -d $(PROJECT_DOCS_DIR)/$(1)_tmp ]; then mkdir -p $(PROJECT_DOCS_DIR)/$(1)_tmp); fi
-
-	find $(PROJECT_DOCS_DIR)/$(1) \
-		 -not \( -path '*/\.*'  -o -path '*/draw' -prune \) \
-		 -not \( -name "*.zip" -o -name "*.gz" \) \
-		 -type f \
-		 -exec rsync -urzL {} $(PROJECT_DOCS_DIR)/$(1)_tmp \;
-
-	cd $(PROJECT_DOCS_DIR)/$(1)_tmp; \
-		tar -zcvf $(PROJECT_DOCS_DIR)/$(1)/$(PROJECT_NAME)_$(1).tar.gz *
-	rm -rf $(PROJECT_DOCS_DIR)/$(1)_tmp
+# Rules to build materials {{{2
+# TEX
+define tex_rules
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_doc.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
+	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
+	@jupyter nbconvert --to latex $$(word 1,$$^) --tempate $$(word 2,$$^) \
+		--output-dir $$(@D) --output $$(@F)
 endef
 
+$(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call tex_rules,$(DOC))))
 
-# Rules to build documents {{{2
-.PHONY : build_materials
-build_materials:
-	@$(foreach DOC,$(PROJECT_DOCS_READY),$(call gen_materials,$(DOC));)
-	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	@$(foreach DOC,$(PROJECT_DOCS_READY),\
-		find $(PROJECT_DOCSDIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
-			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+.PHONY: build_tex
+build_tex: $(PROJECT_DOCS_TEX)
+
+.PHONY: clean_tex
+clean_tex:
+	@rm -rf $(PROJECT_DOCS_TEX)
 
 
-# Rule to clean the documents {{{2
-.PHONY : clean_materials
-clean_materials:
+# PDF
+define pdf_rules
+$$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
+	@cd $$(@D) && ln -sf $$(PROJECT_FIGS_DIR)
+	@latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
+		-use-make $$<
+endef
+
+$(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call pdf_rules,$(DOC))))
+
+.PHONY: build_pdf
+build_pdf: $(PROJECT_DOCS_PDF)
+
+.PHONY : clean_pdf
+clean_pdf:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
 		cd $(PROJECT_DOCS_DIR)/$(DOC); \
 		latexmk -silent -C; \
 		rm -rf *.run.xml *.synctex.gz *.d *.bll;)
 
+define tar_rules
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
+	@mkdir -p $$(PROJECT_DOCS_DIR)/tmp)
+	@find $$< \
+		 -not \( -path '*/\.*'  -o -path '*/draw' -prune \) \
+		 -not \( -name "*.zip" -o -name "*.gz" \) \
+		 -type f \
+		 -exec rsync -urzL {} $$(PROJECT_DOCS_DIR)/tmp \;
+
+	@cd $$(PROJECT_DOCS_DIR)/tmp; tar -zcvf $$@ *
+	@rm -rf $(PROJECT_DOCS_DIR)/tmp
+endef
+
+$(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call tar_rules,$(DOC))))
+
+.PHONY: build_tar
+build_tar: $(PROJECT_DOCS_TAR)
+
+.PHONY : clean_tar
+clean_tar:
+	@rm -rf $(PROJECT_DOCS_TAR)
+
+.PHONY: build_materials
+build_materials: build_pdf
+
+# Rule to publish materials
+.PHONY : publish_materials
+publish_materials:
+	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
+	@$(foreach DOC,$(PROJECT_DOCS_READY),\
+		find $(PROJECT_DOCSDIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
+			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+
+# Rule to clean materials
+.PHONY: clean_materials
+clean_materials: clean_pdf
 
 # Webpage Rules {{{1
 # Variables {{{2
@@ -129,7 +169,11 @@ ifdef PROJECT_WEBPAGES_READY
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
 	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
+endif
 
+# Rule to publish webpages {{{2
+.PHONY : publish_webpages
+publish_webpages:
 	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
 	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
