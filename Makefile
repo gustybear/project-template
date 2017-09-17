@@ -178,8 +178,8 @@ project_online:
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_READY
-# uncomment if there are bib files to include into the webpage
-# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
+	# uncomment if there are bib files to include into the webpage
+	# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	@jupyter nbconvert --to html --template basic $(PROJECT_IPYNB_FILE) --output-dir $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
@@ -196,7 +196,7 @@ publish_webpages:
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 endif
 
-# Rule to clean the webpages {{{2
+# Rule to clean webpages {{{2
 .PHONY : clean_webpages
 clean_webpages :
 ifdef PROJECT_WEBPAGES_READY
