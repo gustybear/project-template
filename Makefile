@@ -106,7 +106,7 @@ clean_pdf:
 		cd $(PROJECT_DOCS_DIR)/$(DOC); \
 		latexmk -silent -C; \
 		rm -rf *.run.xml *.synctex.gz *.d *.bll;)
-		
+
 # TAR
 define tar_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
@@ -194,7 +194,6 @@ publish_webpages:
 	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
-endif
 
 # Rule to clean webpages {{{2
 .PHONY : clean_webpages
