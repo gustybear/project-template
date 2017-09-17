@@ -6,24 +6,6 @@ COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -n
 MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
-COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
-COURSE_MATERIAL_BRANCH      := course_material
-
-COURSE_CURRICULUM_DIR       := materials_curriculum
-COURSE_PROJECT_DIR          := materials_project
-
-NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
-NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
-NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
-
-COURSE_BIB_DIR              := $(COURSE_DIR)/bib
-
-
-.PHONY : clean
-clean :
-ifdef COURSE_WEBPAGES_DIR
-	$(MAKE) -C $(COURSE_WEBPAGES_DIR) clean
-endif
 
 # Initialization Rules {{{1
 # Rule to initialize the course {{{2
@@ -66,30 +48,57 @@ prepare_git:
 
 
 # Material Rules {{{1
+# Variables {{{2
+COURSE_BIB_DIR             := $(COURSE_DIR)/bib
+COURSE_FIGS_DIR            := $(COURSE_DIR)/figures
+COURSE_DOCS_DIR            := $(COURSE_DIR)/docs
+
+COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
+COURSE_MATERIAL_BRANCH      := course_material
+
+COURSE_CURRICULUM_DIR       := materials_curriculum
+COURSE_PROJECT_DIR          := materials_project
+
+NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
+NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
+NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
+
+# The default folder to publish the materials
+PUBLISH_MATERIALS_DIR       := $(COURSE_WEBPAGES_DIR)/des
+PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
+
+# Rule to add curriculum {{{2
 .PHONY : add_curriculum
 add_curriculum:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
 	@echo "Entering $(COURSE_CURRICULUM_DIR)."
 	@$(MAKE) -C $(COURSE_CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
 
+# Rule to add a new week {{{2
 .PHONY : add_a_week
 add_a_week:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(NEXT_WEEKS_DIR)
 	@echo "Entering $(NEXT_WEEKS_DIR)."
 	@$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
+# Rule to add a project {{{2
 .PHONY : add_project
 add_project:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
 	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
-.PHONY : pack_materials
+# Rule to build materials {{{2
+.PHONY : build_materials
 pack_materials:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir pack_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir build_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
 endif
 
+# Rule to publish materials {{{2
 .PHONY : publish_materials
 publish_materials:
 ifneq ($(COURSE_MATERIALS),)
@@ -151,7 +160,7 @@ publish_webpages:
 	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
 
-# Rule to clean the webpages {{{2
+# Rule to clean webpages {{{2
 .PHONY : clean_webpages
 clean_webpages :
 ifdef COURSE_WEBPAGES_READY
