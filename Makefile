@@ -226,14 +226,14 @@ ifdef GITHUB_USER
 	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(notdir $(PROJECT_DIR))", "private" : true }'
-	@git init
-	@git add -A
-	@git commit -m "First commit"
-	@git remote add origin $(GITHUB_REPO_URL)
-	@git push -u origin master
 	@find $(PROJECT_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@git init
+	@git remote add origin $(GITHUB_REPO_URL)
+	@git add -A
+	@git commit -m "First commit"
+	@git push -u origin master
 endif
 
 # Rule to update the local and remote git repo {{{2
