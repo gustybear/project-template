@@ -33,13 +33,17 @@ ifdef ZSH_CUSTOM
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
-# Rule to initialize git repo {{{2
+# Rule to prepare for git repo initialization {{{2
 define GITIGNORE
 # not track the html files in the webpages
 __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
+Makefile
+input.mk
+$(PROJECT_NAME)_config.zsh
 !/$(PROJECT_NAME)_get_data.sh
+
 endef
 export GITIGNORE
 
@@ -212,8 +216,8 @@ GITHUB_USER                      := $(shell git config --global --includes githu
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/user/repos
 GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
-CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
+CURRENT_BRANCH                   := $(shell test -d $(PROJECT_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   := $(shell test -d $(PROJECT_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
 # Rule to create the remote github repo {{{2
 .PHONY : github_mk
