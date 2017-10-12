@@ -49,7 +49,7 @@ __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 Makefile
-input.mk
+inputs.mk
 $(COURSE_NAME)_config.zsh
 !/$(COURSE_NAME)_get_data.sh
 
@@ -201,14 +201,14 @@ ifdef GITHUB_USER
 	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(notdir $(COURSE_DIR))", "private" : true }'
+	@find $(COURSE_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@git init
 	@git add -A
 	@git commit -m "First commit"
 	@git remote add origin $(GITHUB_REPO_URL)
 	@git push -u origin master
-	@find $(COURSE_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
-	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
 
 # Rule to update the local and remote git repo {{{2
