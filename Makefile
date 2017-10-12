@@ -40,7 +40,7 @@ __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 Makefile
-input.mk
+inputs.mk
 $(PROJECT_NAME)_config.zsh
 !/$(PROJECT_NAME)_get_data.sh
 
