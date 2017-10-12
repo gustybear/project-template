@@ -42,10 +42,24 @@ endif
 endif
 
 # Rule to prepare for git {{{2
+# Rule to prepare for git repo initialization {{{2
+define GITIGNORE
+# not track the html files in the webpages
+__webpages/*/*.html
+# Only track the download script in the data directory
+data/*
+Makefile
+input.mk
+$(COURSE_NAME)_config.zsh
+!/$(COURSE_NAME)_get_data.sh
+
+endef
+export GITIGNORE
+
 .PHONY: prepare_git
 prepare_git:
 	@rm -rf $(COURSE_DIR)/.git
-
+	@echo "$$GITIGNORE" > $(COURSE_DIR)/.gitignore
 
 # Material Rules {{{1
 # Variables {{{2
@@ -177,8 +191,8 @@ GITHUB_USER                      := $(shell git config --global --includes githu
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   := https://api.github.com/user/repos
 GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
-CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
+CURRENT_BRANCH                   := $(shell test -d $(COURSE_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   := $(shell test -d $(COURSE_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
 # Rule to create the remote github repo {{{2
 .PHONY : github_mk
