@@ -16,7 +16,7 @@ init: init_files link_files prepare_git
 .PHONY: init_files
 init_files:
 	@find $(PROJECT_DIR) -type f \
-		\( -name "PROJECT_NAME_*.ipynb" -o -name "PROJECT_NAME_*.bib" -o \
+		\( -name "PROJECT_NAME_*.ipynb" -o \
 		   -name "PROJECT_NAME_*.jem*" -o -name "MENU" -o \
 		   -name "PROJECT_NAME_*.*sh" \) \
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
@@ -39,11 +39,7 @@ define GITIGNORE
 __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
-Makefile
-inputs.mk
-$(PROJECT_NAME)_config.zsh
 !/$(PROJECT_NAME)_get_data.sh
-
 endef
 export GITIGNORE
 
@@ -55,8 +51,6 @@ prepare_git:
 
 # Material Rules {{{1
 # Variables {{{2
-PROJECT_BIB_DIR             := $(PROJECT_DIR)/bib
-PROJECT_FIGS_DIR            := $(PROJECT_DIR)/figures
 PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
 
 # The default folder to publish the materials
@@ -94,7 +88,6 @@ clean_tex:
 # PDF
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
-	@cd $$(@D) && ln -sf $$(PROJECT_FIGS_DIR)
 	@latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
 		-use-make $$<
 endef
@@ -116,7 +109,7 @@ define tar_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
 	@mkdir -p $$(PROJECT_DOCS_DIR)/tmp)
 	@find $$< \
-		 -not \( -path '*/\.*'  -o -path '*/draw' -prune \) \
+		 -not \( -path '*/\.*' -prune \) \
 		 -not \( -name "*.zip" -o -name "*.gz" \) \
 		 -type f \
 		 -exec rsync -urzL {} $$(PROJECT_DOCS_DIR)/tmp \;
@@ -164,7 +157,7 @@ WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
 # The default folder to publish the webpages
 PUBLISH_WEBPAGES_DIR        := $(PROJECT_WEBPAGES_DIR)/des
 
-# Rule to take project offline {{{2
+# Rule to take project offline {{ {2
 .PHONY : project_offline
 project_offline:
 	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
@@ -182,8 +175,6 @@ project_online:
 .PHONY : build_webpages
 build_webpages:
 ifdef PROJECT_WEBPAGES_READY
-	# uncomment if there are bib files to include into the webpage
-	# find $(PROJECT_BIB_DIR) -type f -name "*.bib" -exec rsync -urzL {} $(WEBPAGES_SRC_DIR) \;
 	@jupyter nbconvert --to html --template basic $(PROJECT_IPYNB_FILE) --output-dir $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
 	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
