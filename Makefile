@@ -1,10 +1,10 @@
 # Global Variables {{{1
-OS                          := $(shell uname)
-TIMESTAMP                   := $(shell date +"%Y%m%d_%H%M%S")
-PROJECT_DIR                 := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-PROJECT_NAME                := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^[^_]\{1,\}_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
-PROJECT_TYPE                := $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^\([^_]\{1,\}\).*/\1/g')
-MKFILES                     := $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
+OS                          = $(shell uname)
+TIMESTAMP                   = $(shell date +"%Y%m%d_%H%M%S")
+PROJECT_DIR                 = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+PROJECT_NAME                = $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^[^_]\{1,\}_[0-9]\{4\}_[0-9]\{2\}_[0-9]\{2\}_//g')
+PROJECT_TYPE                = $(shell echo $(notdir $(PROJECT_DIR)) | sed 's/^\([^_]\{1,\}\).*/\1/g')
+MKFILES                     = $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 # Initialization Rules {{{1
@@ -51,20 +51,20 @@ prepare_git:
 
 # Material Rules {{{1
 # Variables {{{2
-PROJECT_DOCS_DIR            := $(PROJECT_DIR)/docs
+PROJECT_DOCS_DIR            = $(PROJECT_DIR)/docs
 
 # The default folder to publish the materials
-PUBLISH_MATERIALS_DIR       := $(PROJECT_WEBPAGES_DIR)/des
-PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
+PUBLISH_MATERIALS_DIR       = $(PROJECT_WEBPAGES_DIR)/des
+PUBLISTH_DOCS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/pics
 
 # Materials to build
 ifdef PROJECT_DOCS_READY
-PROJECT_DOCS_TEX            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tex,$(PROJECT_DOCS_READY)))))
-PROJECT_DOCS_PDF            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .pdf,$(PROJECT_DOCS_READY)))))
-PROJECT_DOCS_TAR            := $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tar.gz,$(PROJECT_DOCS_READY)))))
+PROJECT_DOCS_TEX            = $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tex,$(PROJECT_DOCS_READY)))))
+PROJECT_DOCS_PDF            = $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .pdf,$(PROJECT_DOCS_READY)))))
+PROJECT_DOCS_TAR            = $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_DOCS_READY),$(addprefix /$(PROJECT_NAME)_,$(addsuffix .tar.gz,$(PROJECT_DOCS_READY)))))
 endif
 
 # Rules to build materials {{{2
@@ -73,10 +73,11 @@ define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
-		--NbConvertApp.output_files_dir='$$(@D)/asset' \
+		--NbConvertApp.output_files_dir='./asset' \
 		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
 		--to=latex $$(word 1,$$^) --template=$$(word 2,$$^) \
 		--output-dir=$$(@D) --output=$$(@F)
+	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
 $(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call tex_rules,$(DOC))))
@@ -91,7 +92,7 @@ clean_tex:
 # PDF
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
-	@latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
+	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
 		-use-make $$<
 endef
 
@@ -105,7 +106,7 @@ clean_pdf:
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
 		cd $(PROJECT_DOCS_DIR)/$(DOC); \
 		latexmk -silent -C; \
-		rm -rf *.run.xml *.synctex.gz *.d *.bll;)
+		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
 
 # TAR
 define tar_rules
@@ -148,17 +149,17 @@ clean_materials: clean_pdf
 
 # Webpage Rules {{{1
 # Variables {{{2
-PROJECT_WEBPAGES_DIR        := $(PROJECT_DIR)/__webpages
-WEBPAGES_MAKEFILE           := $(PROJECT_WEBPAGES_DIR)/Makefile
-WEBPAGES_SRC_DIR            := $(PROJECT_WEBPAGES_DIR)/src
-WEBPAGES_DES_DIR            := $(PROJECT_WEBPAGES_DIR)/des
-WEBPAGES_SITECONF           := $(WEBPAGES_SRC_DIR)/site.conf
-WEBPAGES_CSS_DIR            := $(WEBPAGES_SRC_DIR)/css
-WEBPAGES_FONTS_DIR          := $(WEBPAGES_SRC_DIR)/fonts
-WEBPAGES_PICS_DIR           := $(WEBPAGES_SRC_DIR)/pics
+PROJECT_WEBPAGES_DIR        = $(PROJECT_DIR)/__webpages
+WEBPAGES_MAKEFILE           = $(PROJECT_WEBPAGES_DIR)/Makefile
+WEBPAGES_SRC_DIR            = $(PROJECT_WEBPAGES_DIR)/src
+WEBPAGES_DES_DIR            = $(PROJECT_WEBPAGES_DIR)/des
+WEBPAGES_SITECONF           = $(WEBPAGES_SRC_DIR)/site.conf
+WEBPAGES_CSS_DIR            = $(WEBPAGES_SRC_DIR)/css
+WEBPAGES_FONTS_DIR          = $(WEBPAGES_SRC_DIR)/fonts
+WEBPAGES_PICS_DIR           = $(WEBPAGES_SRC_DIR)/pics
 
 # The default folder to publish the webpages
-PUBLISH_WEBPAGES_DIR        := $(PROJECT_WEBPAGES_DIR)/des
+PUBLISH_WEBPAGES_DIR        = $(PROJECT_WEBPAGES_DIR)/des
 
 # Rule to take project offline {{ {2
 .PHONY : project_offline
@@ -206,12 +207,12 @@ endif
 # Variables {{{2
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
-GITHUB_USER                      := $(shell git config --global --includes github.user)
-GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
-GITHUB_API_URL                   := https://api.github.com/user/repos
-GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
-CURRENT_BRANCH                   := $(shell test -d $(PROJECT_DIR)/.git && git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell test -d $(PROJECT_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+GITHUB_USER                      = $(shell git config --global --includes github.user)
+GITHUB_TOKEN                     = :$(shell git config --global --includes github.token)
+GITHUB_API_URL                   = https://api.github.com/user/repos
+GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(notdir $(PROJECT_DIR)).git
+CURRENT_BRANCH                   = $(shell test -d $(PROJECT_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   = $(shell test -d $(PROJECT_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
 # Rule to create the remote github repo {{{2
 .PHONY : github_mk
@@ -243,14 +244,14 @@ endif
 
 # Data Rules {{{1
 # Variables {{{2
-PROJECT_DATA_DIR            := $(PROJECT_DIR)/data
-ARCHIVE_DATA_DIR            := archive
-CURRENT_DATA_DIR            := current
-S3_DATA_DIR                 := s3
+PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
+ARCHIVE_DATA_DIR            = archive
+CURRENT_DATA_DIR            = current
+S3_DATA_DIR                 = s3
 # name of the archive
-ARCHIVE_TARGET              :=
+ARCHIVE_TARGET              =
 # name of the s3 object
-S3_TARGET                   :=
+S3_TARGET                   =
 
 # Rule to download the data and add sub directories {{{2
 .PHONY : data_init
@@ -335,6 +336,33 @@ endif
 endif
 
 
+# Dropbox Rules {{{1
+# Variables {{{2
+DROPBOX_UPLOADER              = /usr/local/bin/dropbox_uploader.sh
+REMOTE_DROPBOX_FOLDER         = $(shell echo $(notdir $(PROJECT_DIR)))
+# Rules to sync dropbox {{{2
+.PHONY: dropbox_init
+dropbox_init:
+ifdef LOCAL_DROPBOX_FOLDER
+	@if [ ! -d $(LOCAL_DROPBOX_FOLDER) && ! -L $(LOCAL_DROPBOX_FOLDER) ]; then \
+		mkdir -p $(LOCAL_DROPBOX_FOLDER)
+	$(DROPBOX_UPLOADER) -q mkdir $(REMOTE_DROPBOX_FOLDER)
+endif
+
+.PHONY: dropbox_get
+dropbox_get:
+ifdef LOCAL_DROPBOX_FOLDER
+	-@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/
+endif
+
+.PHONY: dropbox_put
+dropbox_put:
+ifdef LOCAL_DROPBOX_FOLDER
+ifdef DROPBOX_SYNC_LIST
+	@rsync -av --delete --copy-links $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) $(RSYNC_DATA_EXCLUDE) # --dry-run
+endif
+	-@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/
+endif
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
 print-%:

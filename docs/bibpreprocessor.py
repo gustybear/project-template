@@ -56,7 +56,7 @@ class BibTexPreprocessor(Preprocessor):
             if (reference["type"] == "article-journal"):
                 entry  = "@article{" + refkey + ",\n"
                 entry += "  author = {"
-                entry += " and ".join(map(lambda a: a["family"] + ", " + a["given"], reference["author"]))
+                entry += " and ".join(map(lambda a: "{" + a["family"] + "}, {" + a["given"] + "}", reference["author"]))
                 entry += "}, \n"
                 if ("title" in reference):
                     entry += "  title = {" + reference["title"] + "}, \n"
@@ -85,7 +85,7 @@ class BibTexPreprocessor(Preprocessor):
             if (reference["type"] == "paper-conference"):
                 entry  = "@conference{" + refkey + ",\n"
                 entry += "  author = {"
-                entry += " and ".join(map(lambda a: a["family"] + ", " + a["given"], reference["author"]))
+                entry += " and ".join(map(lambda a: "{" + a["family"] + "}, {" + a["given"] + "}", reference["author"]))
                 entry += "}, \n"
                 if ("title" in reference):
                     entry += "  title = {" + reference["title"] + "}, \n"
@@ -111,7 +111,7 @@ class BibTexPreprocessor(Preprocessor):
                 entry  = "@misc{" + refkey + ",\n"
                 if ("author" in reference):
                     entry += "  author = {"
-                    entry += " and ".join(map(lambda a: a["family"] + ", " + a["given"], reference["author"]))
+                    entry += " and ".join(map(lambda a: "{" + a["family"] + "}, {" + a["given"] + "}", reference["author"]))
                     entry += "}, \n"
                 if ("title" in reference):
                     entry += "  title = {" + reference["title"] + "}, \n"
