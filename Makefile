@@ -40,6 +40,7 @@ __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 !/$(PROJECT_NAME)_get_data.sh
+$(LOCAL_DROPBOX_FOLDER)/*
 endef
 export GITIGNORE
 
@@ -352,7 +353,7 @@ endif
 .PHONY: dropbox_get
 dropbox_get:
 ifdef LOCAL_DROPBOX_FOLDER
-	-@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/
+	@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/ ||:
 endif
 
 .PHONY: dropbox_put
@@ -361,7 +362,7 @@ ifdef LOCAL_DROPBOX_FOLDER
 ifdef DROPBOX_SYNC_LIST
 	@rsync -av --delete --copy-links $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) $(RSYNC_DATA_EXCLUDE) # --dry-run
 endif
-	-@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/
+	@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/ ||:
 endif
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
