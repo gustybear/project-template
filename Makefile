@@ -140,7 +140,7 @@ build_materials: build_pdf
 publish_materials:
 	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
 	@$(foreach DOC,$(PROJECT_DOCS_READY),\
-		find $(PROJECT_DOCSDIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
+		find $(PROJECT_DOCS_DIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
 			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 
 # Rule to clean materials
