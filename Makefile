@@ -168,11 +168,13 @@ endif
 # Rule to publish webpages {{{2
 .PHONY : publish_webpages
 publish_webpages:
+ifdef COURSE_WEBPAGES_READY
 	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
 	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
 	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
+endif
 
 # Rule to clean webpages {{{2
 .PHONY : clean_webpages
