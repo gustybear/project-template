@@ -342,30 +342,25 @@ endif
 # Dropbox Rules {{{1
 # Variables {{{2
 DROPBOX_UPLOADER              = /usr/local/bin/dropbox_uploader.sh
+LOCAL_DROPBOX_FOLDER          = $(PROJECT_DIR)/dropbox
 REMOTE_DROPBOX_FOLDER         = $(shell echo $(notdir $(PROJECT_DIR)))
 # Rules to sync dropbox {{{2
 .PHONY: dropbox_init
 dropbox_init:
-ifdef LOCAL_DROPBOX_FOLDER
 	@if [ ! -d $(LOCAL_DROPBOX_FOLDER) && ! -L $(LOCAL_DROPBOX_FOLDER) ]; then \
 		mkdir -p $(LOCAL_DROPBOX_FOLDER)
 	$(DROPBOX_UPLOADER) -q mkdir $(REMOTE_DROPBOX_FOLDER)
-endif
 
 .PHONY: dropbox_get
 dropbox_get:
-ifdef LOCAL_DROPBOX_FOLDER
 	@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/ ||:
-endif
 
 .PHONY: dropbox_put
 dropbox_put:
-ifdef LOCAL_DROPBOX_FOLDER
 ifdef DROPBOX_SYNC_LIST
 	@rsync -av --delete --copy-links $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) $(RSYNC_DATA_EXCLUDE) # --dry-run
 endif
 	@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/ ||:
-endif
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
 print-%:

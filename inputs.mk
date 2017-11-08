@@ -5,7 +5,6 @@ GITHUB_REPO                   =
 S3_BUCKET                     =
 
 ###### Set the list of files to sync with dropbox. ####
-LOCAL_DROPBOX_FOLDER          =
 DROPBOX_SYNC_LIST             =
 
 ###### Set the exclude folders for data sync ##########
