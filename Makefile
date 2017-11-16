@@ -361,6 +361,35 @@ ifdef DROPBOX_SYNC_LIST
 	@rsync -av --delete --copy-links $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) $(RSYNC_DATA_EXCLUDE) # --dry-run
 endif
 	@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/ ||:
+
+# Conda Rules {{{1
+# Variables {{{2
+SHELL                         = /bin/bash
+PROJECT_CODES_DIR             = $(PROJECT_DIR)/codes
+
+# Rules to manipulate conda environment {{{2
+.PHONY: conda_init
+conda_init:
+	conda create --name ${PROJECT_NAME} --clone essential
+	conda env update --name ${PROJECT_NAME} --file ${PROJECT_CODES_DIR}/environment.yml
+
+.PHONY: conda_activate
+conda_activate:
+	source activate ${PROJECT_NAME}
+
+.PHONY: conda_deactivate
+conda_deactivate:
+	conda env --name ${PROJECT_NAME} export > ${PROJECT_CODES_DIR}/environment.yml
+
+.PHONY: conda_export
+conda_export:
+	source export ${PROJECT_NAME}
+
+.PHONY: conda_remove
+conda_remove:
+	conda remove --name ${PROJECT_NAME} --all
+
+
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
 print-%:
