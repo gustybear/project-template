@@ -39,7 +39,7 @@ def uni2tex(text):
             acc = int(acc, 16)
             base = int(base, 16)
             if acc in accents:
-                out += "\\%s{%s}" %(accents[acc], unichr(base))
+                out += "\\%s{%s}" %(accents[acc], chr(base))
             else:
                 out += char
         else:
@@ -126,8 +126,8 @@ class BibTexPreprocessor(Preprocessor):
 
             entry = uni2tex(entry)
         except Exception as e:
-            print reference
-            print e
+            print(reference)
+            print(e)
 
         return entry
 
@@ -147,7 +147,7 @@ class BibTexPreprocessor(Preprocessor):
           self.references = nb["metadata"]["cite2c"]["citations"]
           self.create_bibfile(resources["output_files_dir"]+"/"+resources["unique_key"]+".bib")
         except:
-          print "error while generating bib file"
+          print("error while generating bib file")
         for index, cell in enumerate(nb.cells):
             nb.cells[index], resources = self.preprocess_cell(cell, resources, index)
         return nb, resources
