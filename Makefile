@@ -370,8 +370,7 @@ PROJECT_CODES_DIR             = $(PROJECT_DIR)/codes
 # Rules to manipulate conda environment {{{2
 .PHONY: conda_init
 conda_init:
-	conda create --name ${PROJECT_NAME} --clone essential
-	conda env update --name ${PROJECT_NAME} --file ${PROJECT_CODES_DIR}/environment.yml
+	conda create --name ${PROJECT_NAME}
 
 .PHONY: conda_activate
 conda_activate:
@@ -379,11 +378,12 @@ conda_activate:
 
 .PHONY: conda_deactivate
 conda_deactivate:
-	conda env --name ${PROJECT_NAME} export > ${PROJECT_CODES_DIR}/environment.yml
+	source deactivate ${PRJOECT_NAME}
 
 .PHONY: conda_export
 conda_export:
-	source export ${PROJECT_NAME}
+	source activate ${PROJECT_NAME}
+	conda env export > ${PROJECT_NAME}_environment.yml
 
 .PHONY: conda_remove
 conda_remove:
