@@ -234,24 +234,6 @@ ifdef GITHUB_USER
 	@git push -u origin master
 endif
 
-# Rule to update the local and remote git repo {{{2
-.PHONY : github_update
-github_update:
-ifdef GITHUB_REPO
-#fast commit and push to git repository
-	@cd $(PROJECT_DIR) && git pull
-	@cd $(PROJECT_DIR) && git add -A \
-                && git diff-index --quiet HEAD \
-                || ( LANG=C git -c color.status=false status \
-                    | sed -n -r -e '1,/Changes to be committed:/ d' \
-                     -e '1,1 d' \
-                     -e '/^Untracked files:/,$$ d' \
-                     -e 's/^\s*//' \
-                     -e '/./p' \
-                    | git commit -F - );
-	@cd $(PROJECT_DIR) && git push
-endif
-
 
 # Data Rules {{{1
 # Variables {{{2
