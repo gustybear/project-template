@@ -40,7 +40,7 @@ __webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 !/$(PROJECT_NAME)_get_data.sh
-$(LOCAL_DROPBOX_FOLDER)/*
+dropbox/*
 endef
 export GITIGNORE
 
@@ -341,7 +341,6 @@ endif
 
 # Dropbox Rules {{{1
 # Variables {{{2
-DROPBOX_UPLOADER              = /usr/local/bin/dropbox_uploader.sh
 LOCAL_DROPBOX_FOLDER          = $(PROJECT_DIR)/dropbox
 REMOTE_DROPBOX_FOLDER         = $(shell echo $(notdir $(PROJECT_DIR)))
 # Rules to sync dropbox {{{2
