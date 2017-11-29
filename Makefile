@@ -213,16 +213,6 @@ ifdef GITHUB_USER
 	@git push -u origin master
 endif
 
-# Rule to update the local and remote git repo {{{2
-.PHONY : github_update
-github_update:
-ifdef GITHUB_REPO
-#fast commit and push to git repository
-	@cd $(COURSE_DIR) && git pull
-	@cd $(COURSE_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
-	@cd $(COURSE_DIR) && git push
-endif
-
 
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
