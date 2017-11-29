@@ -240,8 +240,8 @@ github_update:
 ifdef GITHUB_REPO
 #fast commit and push to git repository
 	@cd $(PROJECT_DIR) && git pull
-	@cd $(PROJECT_DIR) && git add . \
-                && git diff --quiet --exit-code --cached \
+	@cd $(PROJECT_DIR) && git add -A \
+                && git diff-index --quiet HEAD \
                 || ( LANG=C git -c color.status=false status \
                     | sed -n -r -e '1,/Changes to be committed:/ d' \
                      -e '1,1 d' \
