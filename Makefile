@@ -240,7 +240,15 @@ github_update:
 ifdef GITHUB_REPO
 #fast commit and push to git repository
 	@cd $(PROJECT_DIR) && git pull
-	@cd $(PROJECT_DIR) && git add . && git diff --quiet --exit-code --cached || git commit -m "Publish on $$(date)" -a
+	@cd $(PROJECT_DIR) && git add . \
+                && git diff --quiet --exit-code --cached \
+                || ( LANG=C git -c color.status=false status \
+                    | sed -n -r -e '1,/Changes to be committed:/ d' \
+                     -e '1,1 d' \
+                     -e '/^Untracked files:/,$$ d' \
+                     -e 's/^\s*//' \
+                     -e '/./p' \
+                    | git commit -F - );
 	@cd $(PROJECT_DIR) && git push
 endif
 
