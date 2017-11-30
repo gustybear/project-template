@@ -33,10 +33,10 @@ endif
 .PHONY: link_files
 link_files:
 ifdef ZSH_CUSTOM
-ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); \
-		do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
-endif
+# ifneq ($(COURSE_MATERIALS),)
+# 	@for dir in $(COURSE_MATERIALS); \
+# 		do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
+# endif
 	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '$(COURSE_NAME)_*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
