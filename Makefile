@@ -92,11 +92,37 @@ ifdef PUBLISH_MATERIALS_DIR
 endif
 
 
-ifdef GITHUB_REPO
-CURRENT_BRANCH                   := $(shell git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell git log -n1 | head -n1 | cut -c8-)
-endif
+# Git Rules {{{1
+# Variables {{{2
+# Run 'git config --global github.user <username>' to set username.
+# Run 'git config --global github.token <token>' to set security token.
+GITHUB_DIR                       := $(COURSE_MATERIAL_DIR)/github
+GITHUB_USER                       := $(shell git config --global --includes github.user)
+GITHUB_ORG                       := $(shell git config --global --includes github.org)
+GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
+GITHUB_API_URL                   := https://api.github.com/orgs/$(GITHUB_ORG)/repos
+GITHUB_REPO_URL                  := git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
 
+CURRENT_BRANCH                   := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+
+# Rule to create the remote github repo {{{2
+.PHONY : github_mk
+github_mk:
+ifdef GITHUB_ORG
+ifdef GITHUB_USER
+	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
+		$(GITHUB_API_URL) \
+		-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'
+	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
+	@if [ ! -d $(GITHUB_DIR) ]; then mkdir -p $(GITHUB_DIR); fi
+	@echo 'github/*' > $(COURSE_MATERIAL_DIR)/.gitignore
+	@cd $(GITHUB_DIR) && git init
+	@cd $(GITHUB_DIR) && git remote add origin $(GITHUB_REPO_URL)
+endif
+endif
 
 .PHONY : course_offline
 course_offline:

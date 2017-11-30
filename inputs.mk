@@ -2,7 +2,7 @@
 ###### specifying the name of the course and ##########
 ###### the location of the bib files. #################
 COURSE_NAME            :=
-COURSE_BIB_DIR         :=
+COURSE_MATERIAL_REPO   :=
 
 ###### The parameters passed via the make command #####
 ###### specifying the folders to publish ##############
