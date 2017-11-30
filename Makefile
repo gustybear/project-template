@@ -42,8 +42,8 @@ endef
 .PHONY : clear
 clear: ;
 
-.PHONY : init init_files prepare_git link_files
-init: init_files prepare_git link_files
+.PHONY : init init_files prepare_git
+init: init_files prepare_git
 
 init_files:
 ifdef COURSE_NAME
