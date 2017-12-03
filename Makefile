@@ -4,47 +4,12 @@ COURSE_MATERIAL_NAME                := $(notdir $(COURSE_MATERIAL_DIR))
 MKFILES                             := $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
-COURSE_MATERIAL_DOCS_DIR            := $(COURSE_MATERIAL_DIR)/docs
-
-ifdef COURSE_MATERIAL_DOCS_READY
-COURSE_MATERIAL_DOCS_SUBDIRS        := $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(COURSE_MATERIAL_DOCS_READY))
-endif
-
-ifdef COURSE_MATERIAL_DOCPACS_READY
-COURSE_MATERIAL_DOCPACS_SUBDIRS     := $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(COURSE_MATERIAL_DOCPACS_READY))
-endif
-
-ifdef PUBLISH_MATERIALS_DIR
-PUBLISTH_DOCS_SUBDIR                := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR                := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR                := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR                := $(PUBLISH_MATERIALS_DIR)/pics
-endif
-
-TMP_DIR_PREFIX                      := $(COURSE_MATERIAL_DIR)/tmp
-
-gen_tmp_dir_name         = $(addprefix $(TMP_DIR_PREFIX)_, $(notdir $(1)))
-gen_package_name         = $(addprefix $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addprefix $(notdir $(1)),.tar.gz))
-
-define gen_package
-	mkdir -p $(call gen_tmp_dir_name, $(1))
-	find $(1) $(COURSE_BIB_DIR)  \
-		-not \( -path '*/\.*' -prune \) \
-		-not \( -name "*.zip" -o -name "*.gz"  \) \
-		-type f \
-		-exec rsync -urzL {} $(call gen_tmp_dir_name, $(1)) \;
-
-	cd $(call gen_tmp_dir_name, $(1)); \
-		tar -zcvf $(addprefix $(1)/,$(call gen_package_name,$(1))) *
-	rm -rf $(call gen_tmp_dir_name, $(1))
-endef
-
-.PHONY : clear
-clear: ;
-
-.PHONY : init init_files prepare_git
+# Initialization Rules {{{1
+# Rule to initialize the coursematerial {{{2
+.PHONY: init
 init: init_files prepare_git
 
+# Rule to initialize files {{{2
 init_files:
 ifdef COURSE_NAME
 	@find $(COURSE_MATERIAL_DIR) -type f \
@@ -64,49 +29,122 @@ ifdef COURSE_NAME
 		   -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
 endif
 
-
+# Rule to create necessary links {{{2
 link_files:
 ifdef ZSH_CUSTOM
 	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name '[^_]*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
+# Rule to prepare for git repo initialization {{{2
+.PHONY: prepare_git
 prepare_git:
 	@rm -rf $(COURSE_MATERIAL_DIR)/.git
 
-.PHONY : pack_materials
-pack_materials:
-	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),$(call gen_package,$(SUBDIR));)
+# Material Rules {{{1
+# Variables {{{2
+COURSE_MATERIAL_DOCS_DIR            = $(COURSE_MATERIAL_DIR)/docs
 
+# The default folder to publish the materials
+PUBLISH_MATERIALS_DIR       = $(COURSE_MATERIAL_DOCS_DIR)/web
+PUBLISTH_DOCS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/docs
+PUBLISTH_CODE_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/codes
+PUBLISTH_DATA_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/data
+PUBLISTH_PICS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/pics
 
-.PHONY : publish_materials
-publish_materials:
-ifdef PUBLISH_MATERIALS_DIR
-	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCS_SUBDIRS),\
-		find $(SUBDIR) -maxdepth 1 -type f -name "*.pdf" \
-			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
-	@$(foreach SUBDIR,$(COURSE_MATERIAL_DOCPACS_SUBDIRS),\
-		find $(SUBDIR) -maxdepth 1 -type f -name "*.tar.gz" \
-			 -exec rsync -urz {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+# Materials to build
+ifdef COURSE_MATERIAL_DOCS_READY
+COURSE_MATERIAL_DOCS_TEX            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .tex,$(COURSE_MATERIAL_DOCS_READY)))))
+COURSE_MATERIAL_DOCS_PDF            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .pdf,$(COURSE_MATERIAL_DOCS_READY)))))
+COURSE_MATERIAL_DOCS_TAR            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .tar.gz,$(COURSE_MATERIAL_DOCS_READY)))))
 endif
 
+# Rules to build materials {{{2
 
-.PHONY : course_offline
-course_offline:
-	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/^\(COURSE_MATERIAL_DOCS_READY[ ]\{1,\}:=.*\)$$/#\1/g' {} \;
-	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/^\(COURSE_MATERIAL_DOCPACS_READY[ ]\{1,\}:=.*\)$$/#\1/g' {} \;
-	@find $(COURSE_MATERIAL_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
+# TEX {{{3
+define tex_rules
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
+	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
+	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
+		--NbConvertApp.output_files_dir='./asset' \
+		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
+		--to=latex $$(word 1,$$^) --template=$$(word 2,$$^) \
+		--output-dir=$$(@D) --output=$$(@F)
+	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
+endef
 
-.PHONY : course_online
-course_online:
-	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/^#\(COURSE_MATERIAL_DOCS_READY[ ]\{1,\}:=.*\)$$/\1/g' {} \;
-	@find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/^#\(COURSE_MATERIAL_DOCPACS_READY[ ]\{1,\}:=.*\)$$/\1/g' {} \;
-	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
+$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call tex_rules,$(DOC))))
+
+.PHONY: build_tex
+build_tex: $(COURSE_MATERIAL_DOCS_TEX)
+
+# PDF {{{3
+define pdf_rules
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.pdf: $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex
+	@cd $$(COURSE_MATERIAL_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
+		-use-make $$<
+endef
+
+$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call pdf_rules,$(DOC))))
+
+.PHONY: build_pdf
+build_pdf: $(COURSE_MATERIAL_DOCS_PDF)
+
+# TAR {{{3
+define tar_rules
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tar.gz: $$(COURSE_MATERIAL_DOCS_DIR)/$1
+	@mkdir -p $$(COURSE_MATERIAL_DOCS_DIR)/tmp)
+	@find $$< \
+		 -not \( -path '*/\.*' -prune \) \
+		 -not \( -name "*.zip" -o -name "*.gz" \) \
+		 -type f \
+		 -exec rsync -urzL {} $$(COURSE_MATERIAL_DOCS_DIR)/tmp \;
+
+	@cd $$(COURSE_MATERIAL_DOCS_DIR)/tmp; tar -zcvf $$@ *
+	@rm -rf $(COURSE_MATERIAL_DOCS_DIR)/tmp
+endef
+
+$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call tar_rules,$(DOC))))
+
+.PHONY: build_tar
+build_tar: $(COURSE_MATERIAL_DOCS_TAR)
+
+# ALL {{{3
+.PHONY: build_materials
+build_materials: build_pdf
+
+# Rule to clean materials {{{2
+
+# TEX {{{3
+.PHONY: clean_tex
+clean_tex:
+	@rm -rf $(COURSE_MATERIAL_DOCS_TEX)
+
+# PDF {{{3
+.PHONY : clean_pdf
+clean_pdf:
+	@$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),\
+		cd $(COURSE_MATERIAL_DOCS_DIR)/$(DOC); \
+		latexmk -silent -C; \
+		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
+
+# TAR {{{3
+.PHONY : clean_tar
+clean_tar:
+	@rm -rf $(COURSE_MATERIAL_DOCS_TAR)
+
+# ALL {{{3
+.PHONY: clean_materials
+clean_materials: clean_pdf
+
+# Rule to publish materials {{{2
+.PHONY : publish_materials
+publish_materials:
+	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
+	@$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),\
+		find $(COURSE_MATERIAL_DOCS_DIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
+			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+
 
 # Git Rules {{{1
 # Variables {{{2
