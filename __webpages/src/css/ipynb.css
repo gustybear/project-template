@@ -1,9 +1,0 @@
-div.input { /* box with code */
-}
-
-div.prompt { /* remove In/Out prompt */
-    display: none;
-}
-
-div.CodeMirror { /* code font */
-}
