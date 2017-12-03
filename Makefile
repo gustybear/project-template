@@ -214,8 +214,7 @@ ifdef ARCHIVE_TARGET
 		echo "Creating archive file: $(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz."; \
 		mkdir -p $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
 		rsync -av --copy-links  $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ \
-			$(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET) \
-			$(RSYNC_DATA_EXCLUDE); \
+			$(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
 		tar -zcvf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET).tar.gz \
 			-C $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)_$(ARCHIVE_TARGET); \
 		rm -rf $(PROJECT_DATA_DIR)/$(ARCHIVE_DATA_DIR)/$(TIMESTAMP)_$(ARCHIVE_TARGET); \
@@ -247,8 +246,7 @@ ifdef S3_TARGET
 else
 	@echo "Syncing current data folder to s3."
 # backward sync will copy the actual files
-	@rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) \
-		$(RSYNC_DATA_EXCLUDE) # --dry-run
+	@rsync -av --delete --copy-links $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) # --dry-run
 	@aws s3 sync --delete $(PROJECT_DATA_DIR)/$(S3_DATA_DIR) $(S3_BUCKET)/$(CURRENT_DATA_DIR)
 endif
 endif
@@ -265,8 +263,7 @@ else
 	@echo "Syncing current data folder from s3."
 	@aws s3 sync --delete $(S3_BUCKET)/$(CURRENT_DATA_DIR) $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)
 # forward sync will follow the symbolinks
-	@rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) \
-		$(RSYNC_DATA_EXCLUDE) # --dry-run
+	@rsync -av --delete --keep-dirlinks $(PROJECT_DATA_DIR)/$(S3_DATA_DIR)/ $(PROJECT_DATA_DIR)/$(CURRENT_DATA_DIR) # --dry-run
 endif
 endif
 
@@ -284,14 +281,14 @@ dropbox_init:
 
 .PHONY: dropbox_get
 dropbox_get:
-	@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/ ||:
+	@$(DROPBOX_UPLOADER) download $(REMOTE_DROPBOX_FOLDER)/* $(LOCAL_DROPBOX_FOLDER)/
 
 .PHONY: dropbox_put
 dropbox_put:
 ifdef DROPBOX_SYNC_LIST
-	@rsync -av --delete --copy-links $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) $(RSYNC_DATA_EXCLUDE) # --dry-run
+	@rsync -av --delete --copy-links --relative $(DROPBOX_SYNC_LIST) $(LOCAL_DROPBOX_FOLDER) # --dry-run
 endif
-	@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/ ||:
+	@$(DROPBOX_UPLOADER) upload $(LOCAL_DROPBOX_FOLDER)/* $(REMOTE_DROPBOX_FOLDER)/
 
 # Conda Rules {{{1
 # Variables {{{2
