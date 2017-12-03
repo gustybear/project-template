@@ -41,7 +41,6 @@ ifdef ZSH_CUSTOM
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
-# Rule to prepare for git {{{2
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
 # not track the html files in the webpages
