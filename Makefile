@@ -35,8 +35,6 @@ endif
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
-# not track the html files in the webpages
-__webpages/*/*.html
 # Only track the download script in the data directory
 data/*
 !/$(PROJECT_NAME)_get_data.sh
