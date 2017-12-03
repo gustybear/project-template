@@ -148,64 +148,6 @@ publish_materials:
 clean_materials: clean_pdf
 
 
-# Webpage Rules {{{1
-# Variables {{{2
-PROJECT_WEBPAGES_DIR        = $(PROJECT_DIR)/__webpages
-WEBPAGES_MAKEFILE           = $(PROJECT_WEBPAGES_DIR)/Makefile
-WEBPAGES_SRC_DIR            = $(PROJECT_WEBPAGES_DIR)/src
-WEBPAGES_DES_DIR            = $(PROJECT_WEBPAGES_DIR)/des
-WEBPAGES_SITECONF           = $(WEBPAGES_SRC_DIR)/site.conf
-WEBPAGES_CSS_DIR            = $(WEBPAGES_SRC_DIR)/css
-WEBPAGES_FONTS_DIR          = $(WEBPAGES_SRC_DIR)/fonts
-WEBPAGES_PICS_DIR           = $(WEBPAGES_SRC_DIR)/pics
-
-# The default folder to publish the webpages
-PUBLISH_WEBPAGES_DIR        = $(PROJECT_WEBPAGES_DIR)/des
-
-# Rule to take project offline {{ {2
-.PHONY : project_offline
-project_offline:
-	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^\(PROJECT_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\#\1/g' {} \;
-	@find $(PROJECT_DIR) -name 'inputs.mk.bak' -exec rm -f {} \;
-
-# Rule to take project online {{{2
-.PHONY : project_online
-project_online:
-	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "inputs.mk" \
-		   -exec sed -i.bak 's/^#\(PROJECT_WEBPAGES_READY[ ]\{1,\}:=.*$$\)/\1/g' {} \;
-	@find $(PROJECT_DIR) -type f -name 'inputs.mk.bak' -exec rm -f {} \;
-
-# Rule to build webpages {{{2
-.PHONY : build_webpages
-build_webpages:
-ifdef PROJECT_WEBPAGES_READY
-	@jupyter nbconvert --to html --template basic $(PROJECT_IPYNB_FILE) --output-dir $(WEBPAGES_SRC_DIR)
-	@rsync -rzL $(WEBPAGES_SITECONF) $(WEBPAGES_SRC_DIR)
-	@rsync -rzL $(WEBPAGES_MAKEFILE) $(PROJECT_WEBPAGES_DIR)
-	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR)
-endif
-
-# Rule to publish webpages {{{2
-.PHONY : publish_webpages
-publish_webpages:
-ifdef PROJECT_WEBPAGES_READY
-	@if [ ! -d $(PUBLISH_WEBPAGES_DIR) ]; then mkdir -p $(PUBLISH_WEBPAGES_DIR); fi
-	@rsync -urzL $(WEBPAGES_DES_DIR)/ $(PUBLISH_WEBPAGES_DIR)
-	@rsync -urzL $(WEBPAGES_PICS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	@rsync -urzL $(WEBPAGES_CSS_DIR) $(PUBLISH_WEBPAGES_DIR)
-	@rsync -urzL $(WEBPAGES_FONTS_DIR) $(PUBLISH_WEBPAGES_DIR)
-endif
-
-# Rule to clean webpages {{{2
-.PHONY : clean_webpages
-clean_webpages :
-ifdef PROJECT_WEBPAGES_READY
-	@ echo "Cleaning webpages"
-	@$(MAKE) -C $(PROJECT_WEBPAGES_DIR) clean
-endif
-
-
 # Git Rules {{{1
 # Variables {{{2
 # Run 'git config --global github.user <username>' to set username.

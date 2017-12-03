@@ -1,5 +1,0 @@
-# jemdoc: menu{src/MENU}{index.html} toptitle, title{PROJECT_TITLE}, notime
-# jmedoc: addcss{css/ipynb.css}
-
-#includeraw{src/PROJECT_NAME_report.html}
-
