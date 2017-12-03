@@ -99,18 +99,11 @@ add_a_week:
 	@$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 # Rule to add a project {{{2
-.PHONY : add_project
+.PHONY : add_a_project
 add_project:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
 	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
-
-# Rule to build materials {{{2
-.PHONY : build_materials
-pack_materials:
-ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir build_materials COURSE_BIB_DIR=$(COURSE_BIB_DIR) COURSE_NAME=$(COURSE_NAME)); done
-endif
 
 # Rule to publish materials {{{2
 .PHONY : publish_materials
