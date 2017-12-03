@@ -53,7 +53,7 @@ prepare_git:
 PROJECT_DOCS_DIR            = $(PROJECT_DIR)/docs
 
 # The default folder to publish the materials
-PUBLISH_MATERIALS_DIR       = $(PROJECT_WEBPAGES_DIR)/des
+PUBLISH_MATERIALS_DIR       = $(PROJECT_DOCS_DIR)/web
 PUBLISTH_DOCS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/docs
 PUBLISTH_CODE_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/codes
 PUBLISTH_DATA_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/data
@@ -67,7 +67,8 @@ PROJECT_DOCS_TAR            = $(addprefix $(PROJECT_DOCS_DIR)/,$(join $(PROJECT_
 endif
 
 # Rules to build materials {{{2
-# TEX
+
+# TEX {{{3
 define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
@@ -84,11 +85,7 @@ $(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call tex_rules,$(DOC))))
 .PHONY: build_tex
 build_tex: $(PROJECT_DOCS_TEX)
 
-.PHONY: clean_tex
-clean_tex:
-	@rm -rf $(PROJECT_DOCS_TEX)
-
-# PDF
+# PDF {{{3
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
 	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
@@ -100,14 +97,7 @@ $(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call pdf_rules,$(DOC))))
 .PHONY: build_pdf
 build_pdf: $(PROJECT_DOCS_PDF)
 
-.PHONY : clean_pdf
-clean_pdf:
-	@$(foreach DOC,$(PROJECT_DOCS_READY),\
-		cd $(PROJECT_DOCS_DIR)/$(DOC); \
-		latexmk -silent -C; \
-		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
-
-# TAR
+# TAR {{{3
 define tar_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
 	@mkdir -p $$(PROJECT_DOCS_DIR)/tmp)
@@ -126,14 +116,11 @@ $(foreach DOC,$(PROJECT_DOCS_READY),$(eval $(call tar_rules,$(DOC))))
 .PHONY: build_tar
 build_tar: $(PROJECT_DOCS_TAR)
 
-.PHONY : clean_tar
-clean_tar:
-	@rm -rf $(PROJECT_DOCS_TAR)
-
+# ALL {{{3
 .PHONY: build_materials
 build_materials: build_pdf
 
-# Rule to publish materials
+# Rule to publish materials {{{2
 .PHONY : publish_materials
 publish_materials:
 	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
@@ -141,7 +128,27 @@ publish_materials:
 		find $(PROJECT_DOCS_DIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
 			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 
-# Rule to clean materials
+# Rule to clean materials {{{2
+
+# TEX {{{3
+.PHONY: clean_tex
+clean_tex:
+	@rm -rf $(PROJECT_DOCS_TEX)
+
+# PDF {{{3
+.PHONY : clean_pdf
+clean_pdf:
+	@$(foreach DOC,$(PROJECT_DOCS_READY),\
+		cd $(PROJECT_DOCS_DIR)/$(DOC); \
+		latexmk -silent -C; \
+		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
+
+# TAR {{{3
+.PHONY : clean_tar
+clean_tar:
+	@rm -rf $(PROJECT_DOCS_TAR)
+
+# ALL {{{3
 .PHONY: clean_materials
 clean_materials: clean_pdf
 
