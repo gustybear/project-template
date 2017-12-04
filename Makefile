@@ -130,7 +130,7 @@ build_documents: build_tex build_pdf build_tar
 publish_s3:
 ifdef DOCS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@rm -rf $(SRC_PUBLISH_SRC)/*
+	@rm -rf $(SR3_PUBLISH_SRC)/*
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
 	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
 endif
