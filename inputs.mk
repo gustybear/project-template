@@ -2,13 +2,10 @@
 GITHUB_REPO                   =
 
 ###### Set the remote aws s3 bucket for data. #########
-S3_BUCKET                     =
+S3_DATA_BUCKET                =
 
-###### Set the list of files to sync with dropbox. ####
-###### Use relative path to the project directory. ####
-DROPBOX_SYNC_LIST             =
-
-###### Add the folders ready to be published to #######
-###### the list. The default folders in the ###########
-###### template are: "report conf jnl slides." ########
-PROJECT_DOCS_READY            =
+###### Add documents to compiled and published ########
+###### Examples: report conf jnl slides        ########
+DOCS_TO_COMPILE               =
+DOCS_TO_PUB_VIA_S3            =
+DOCS_TO_PUB_VIA_DR            =
