@@ -211,6 +211,7 @@ clean_documents: clean_tex clean_pdf clean_tar
 
 
 # Debug Rules {{{1
+
 # Rule to print makefile variables {{{2
 print-%:
 	@echo '$*:=$($*)'
