@@ -5,7 +5,7 @@ MKFILES                             := $(shell find $(COURSE_MATERIAL_DIR) -maxd
 -include $(MKFILES)
 
 # Initialization Rules {{{1
-# Rule to initialize the coursematerial {{{2
+# Rule to initialize the course material {{{2
 .PHONY: init
 init: init_files prepare_git
 
@@ -41,25 +41,32 @@ endif
 prepare_git:
 	@rm -rf $(COURSE_MATERIAL_DIR)/.git
 
-# Material Rules {{{1
+# Documents Rules {{{1
 # Variables {{{2
 COURSE_MATERIAL_DOCS_DIR            = $(COURSE_MATERIAL_DIR)/docs
 
-# The default folder to publish the materials
-PUBLISH_MATERIALS_DIR       = $(COURSE_MATERIAL_DOCS_DIR)/web
-PUBLISTH_DOCS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR        = $(PUBLISH_MATERIALS_DIR)/pics
+# s3 parameters
+S3_PUBLISH_SRC              = $(COURSE_MATERIAL_DIR)/public/s3
+S3_PUBLISH_DES              = s3://gustybear-websites
 
-# Materials to build
-ifdef COURSE_MATERIAL_DOCS_READY
-COURSE_MATERIAL_DOCS_TEX            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .tex,$(COURSE_MATERIAL_DOCS_READY)))))
-COURSE_MATERIAL_DOCS_PDF            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .pdf,$(COURSE_MATERIAL_DOCS_READY)))))
-COURSE_MATERIAL_DOCS_TAR            = $(addprefix $(COURSE_MATERIAL_DOCS_DIR)/,$(join $(COURSE_MATERIAL_DOCS_READY),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix .tar.gz,$(COURSE_MATERIAL_DOCS_READY)))))
+# dropbox parameters
+DROPBOX_UPLOADER            = dropbox_uploader.sh
+DR_PUBLISH_SRC              = $(COURSE_MATERIAL_DIR)/public/dropbox
+DR_PUBLISH_DES              = $(shell echo $(notdir $(COURSE_MATERIAL_DIR)))
+
+# github parameters
+GIT_PUBLISH_SRC            = $(COURSE_MATERIAL_DIR)/public/github
+
+doc_path                    = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
+
+# Documents to build
+ifdef DOCS_TO_COMPILE
+TEX_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tex)
+PDF_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.pdf)
+TAR_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tar.gz)
 endif
 
-# Rules to build materials {{{2
+# Rules to build Documents {{{2
 
 # TEX {{{3
 define tex_rules
@@ -73,10 +80,10 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
 
-$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call tex_rules,$(DOC))))
+$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call tex_rules,$(DOC))))
 
 .PHONY: build_tex
-build_tex: $(COURSE_MATERIAL_DOCS_TEX)
+build_tex: $(TEX_TO_COMPILE)
 
 # PDF {{{3
 define pdf_rules
@@ -85,10 +92,10 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.pdf: $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.t
 		-use-make $$<
 endef
 
-$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call pdf_rules,$(DOC))))
+$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call pdf_rules,$(DOC))))
 
 .PHONY: build_pdf
-build_pdf: $(COURSE_MATERIAL_DOCS_PDF)
+build_pdf: $(PDF_TO_COMPILE)
 
 # TAR {{{3
 define tar_rules
@@ -104,46 +111,61 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tar.gz: $$(COURSE_MATERIAL_DOCS_DIR)/$1
 	@rm -rf $(COURSE_MATERIAL_DOCS_DIR)/tmp
 endef
 
-$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),$(eval $(call tar_rules,$(DOC))))
+$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call tar_rules,$(DOC))))
 
 .PHONY: build_tar
-build_tar: $(COURSE_MATERIAL_DOCS_TAR)
+build_tar: $(TAR_TO_COMPILE)
 
 # ALL {{{3
-.PHONY: build_materials
-build_materials: build_pdf
+.PHONY: build_documents
+build_documents: build_tex build_pdf build_tar
 
-# Rule to publish materials {{{2
+# Rule to publish documents {{{2
 
-# TEX {{{3
-.PHONY: publish_tex
-publish_tex: $(COURSE_MATERIAL_DOCS_TEX)
-	@rsync -urzL $(COURSE_MATERIAL_DOCS_TEX) $(COURSE_MATERIAL_DOCS_SUBDIR)
+# S3 {{{3
+.PHONY: publish_s3
+publish_s3:
+ifdef DOCS_TO_PUB_VIA_S3
+	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_S3),.pdf) $(S3_PUBLISH_SRC)
+	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
+endif
 
-# PDF {{{3
-.PHONY: publish_pdf
-publish_pdf: $(COURSE_MATERIAL_DOCS_PDF)
-	@rsync -urzL $(COURSE_MATERIAL_DOCS_PDF) $(COURSE_MATERIAL_DOCS_SUBDIR)
+# DROPBOX {{{3
+.PHONY: publish_dropbox
+publish_dropbox:
+ifdef DOCS_TO_PUB_VIA_DR
+	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_DR),.tex) $(DR_PUBLISH_SRC)
+	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
+endif
 
-# TAR {{{3
-.PHONY: publish_tar
-publish_tar: $(COURSE_MATERIAL_DOCS_TAR)
-	@rsync -urzL $(COURSE_MATERIAL_DOCS_TAR) $(COURSE_MATERIAL_DOCS_SUBDIR)
+# DROPBOX {{{3
+.PHONY: publish_github
+publish_github:
+ifdef DOCS_TO_PUB_VIA_GIT
+	@if [ -d $(GIT_PUBLISH_SRC)/.git ]; then \
+		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_DR),.ipynb) $(GIT_PUBLISH_SRC); \
+	else \
+		echo "create the git submodule with 'make github_mk' first"; \
+	fi
+endif
 
-.PHONY : publish_materials
-publish_materials: publish_pdf
+# ALL {{{3
+.PHONY : publish_documents
+publish_documents: publish_s3 publish_dropbox publish_github
 
-# Rule to clean materials {{{2
+# Rule to clean documents {{{2
 
 # TEX {{{3
 .PHONY: clean_tex
 clean_tex:
-	@rm -rf $(COURSE_MATERIAL_DOCS_TEX)
+	@rm -rf $(TEX_TO_COMPILE)
 
 # PDF {{{3
 .PHONY : clean_pdf
 clean_pdf:
-	@$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),\
+	@$(foreach DOC,$(DOCS_TO_COMPILE),\
 		cd $(COURSE_MATERIAL_DOCS_DIR)/$(DOC); \
 		latexmk -silent -C; \
 		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
@@ -151,18 +173,17 @@ clean_pdf:
 # TAR {{{3
 .PHONY : clean_tar
 clean_tar:
-	@rm -rf $(COURSE_MATERIAL_DOCS_TAR)
+	@rm -rf $(TAR_TO_COMPILE)
 
 # ALL {{{3
-.PHONY: clean_materials
-clean_materials: clean_pdf
+.PHONY: clean_documents
+clean_documents: clean_tex clean_pdf clean_tar
 
 
 # Git Rules {{{1
 # Variables {{{2
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
-GITHUB_DIR                       := $(COURSE_MATERIAL_DIR)/github
 GITHUB_USER                       := $(shell git config --global --includes github.user)
 GITHUB_ORG                       := $(shell git config --global --includes github.org)
 GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
@@ -183,7 +204,7 @@ ifdef GITHUB_USER
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
-	@git submodule add $(GITHUB_REPO_URL) $(GITHUB_DIR)
+	@git submodule add $(GITHUB_REPO_URL) $(GIT_PUBLISH_SRC)
 	@git submodule update --init
 endif
 endif

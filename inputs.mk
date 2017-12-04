@@ -4,14 +4,9 @@
 COURSE_NAME            :=
 COURSE_MATERIAL_REPO   :=
 
-###### The parameters passed via the make command #####
-###### specifying the folders to publish ##############
-###### the materials. #################################
-PUBLISH_MATERIALS_DIR  :=
-
-###### Add the folders ready to be published to #######
-###### the list. The default folders in the ###########
-###### template are: ##################################
-#### "assg assg_sol quiz quiz_sol notes slides ########
-####  syllabus" #######################################
-COURSE_MATERIAL_DOCS_READY    :=
+###### Add documents to compiled and published ########
+###### Examples: report conf jnl slides        ########
+DOCS_TO_COMPILE               =
+DOCS_TO_PUB_VIA_S3            =
+DOCS_TO_PUB_VIA_DR            =
+DOCS_TO_PUB_VIA_GIT           =
