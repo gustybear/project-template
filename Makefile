@@ -76,9 +76,6 @@ NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -t
 NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
-# s3 parameters
-S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
 
 # Rule to add curriculum {{{2
 .PHONY : add_curriculum
@@ -100,6 +97,13 @@ add_project:
 	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
 	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
+
+# Document Rules {{{1
+
+# Variables {{{2
+# s3 parameters
+S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
+S3_PUBLISH_DES              = s3://gustybear-websites
 
 # Rule to publish documents {{{2
 
