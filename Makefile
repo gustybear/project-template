@@ -132,7 +132,7 @@ publish_tex: $(PROJECT_DOCS_TEX)
 publish_pdf: $(PROJECT_DOCS_PDF)
 	@rsync -urzL $(PROJECT_DOCS_PDF) $(PUBLISH_DOCS_SUBDIR)
 
-# PDF {{{3
+# TAR {{{3
 .PHONY: publish_tar
 publish_tar: $(PROJECT_DOCS_TAR)
 	@rsync -urzL $(PROJECT_DOCS_TAR) $(PUBLISH_DOCS_SUBDIR)
