@@ -46,18 +46,23 @@ prepare_git:
 COURSE_MATERIAL_DOCS_DIR            = $(COURSE_MATERIAL_DIR)/docs
 
 # s3 parameters
-S3_PUBLISH_SRC              = $(COURSE_MATERIAL_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
-
-# dropbox parameters
-DROPBOX_UPLOADER            = dropbox_uploader.sh
-DR_PUBLISH_SRC              = $(COURSE_MATERIAL_DIR)/public/dropbox
-DR_PUBLISH_DES              = $(shell echo $(notdir $(COURSE_MATERIAL_DIR)))
+# S3_PUBLISH_SRC will be set by course makefile to speed up upload
+S3_PUBLISH_SRC             =
 
 # github parameters
+# Run 'git config --global github.user <username>' to set username.
+# Run 'git config --global github.token <token>' to set security token.
 GIT_PUBLISH_SRC            = $(COURSE_MATERIAL_DIR)/public/github
+GITHUB_USER               := $(shell git config --global --includes github.user)
+GITHUB_ORG                := $(shell git config --global --includes github.org)
+GITHUB_TOKEN              := :$(shell git config --global --includes github.token)
+GITHUB_API_URL            := https://api.github.com/orgs/$(GITHUB_ORG)/repos
+GITHUB_REPO_URL           := git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
 
-doc_path                    = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
+CURRENT_BRANCH            := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT            := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+
+doc_path                   = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -125,35 +130,59 @@ build_documents: build_tex build_pdf build_tar
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
+ifdef S3_PUBLISH_SRC
 ifdef DOCS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
-	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
 endif
-
-# DROPBOX {{{3
-.PHONY: publish_dropbox
-publish_dropbox:
-ifdef DOCS_TO_PUB_VIA_DR
-	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.tex) $(DR_PUBLISH_SRC)
-	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 endif
 
 # GITHUB {{{3
+#
+# Rule to create the github repo for couse assignment
+.PHONY : github_mk
+github_mk:
+ifdef GITHUB_ORG
+ifdef GITHUB_USER
+	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
+		$(GITHUB_API_URL) \
+		-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'
+	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
+		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
+endif
+endif
+
+# Rule to publish via github
 .PHONY: publish_github
 publish_github:
 ifdef DOCS_TO_PUB_VIA_GIT
-	@if [ -d $(GIT_PUBLISH_SRC)/.git ]; then \
-		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
+	@git ls-remote -h "$(GITHUB_REPO_URL)" &>-
+	@if [ "$?" -ne 0 ]; then \
+		echo "run github_mk to generate the github repo first"; \
+		exit 1; \
+	fi
+	@if [ ! -d $(GIT_PUBLISH_SRC) ]; then \
+		git submodule add $(GITHUB_REPO_URL) $(GIT_PUBLISH_SRC); \
+		git submodule update --init; \
 	else \
-		echo "create the git submodule with 'make github_mk' first"; \
+		cd $(GIT_PUBLISH_SRC) && git pull; \
+		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
+		cd $(GIT_PUBLISH_SRC) && git add -A && git diff-index --quiet HEAD \
+                                      || LANG=C git -c color.status=false status \
+                                      | sed -n -e '1,/Changes to be committed:/ d' \
+				      -e '1,1 d' \
+				      -e '/^Untracked files:/,$ d' \
+				      -e 's/^\s*//' \
+				      -e '/./p' \
+				      | git commit -F - ;\
+		cd $(GIT_PUBLISH_SRC) && git push; \
 	fi
 endif
 
 # ALL {{{3
 .PHONY : publish_documents
-publish_documents: publish_s3 publish_dropbox publish_github
+publish_documents: publish_s3 publish_github
 
 # Rule to clean documents {{{2
 
@@ -179,35 +208,6 @@ clean_tar:
 .PHONY: clean_documents
 clean_documents: clean_tex clean_pdf clean_tar
 
-
-# Git Rules {{{1
-# Variables {{{2
-# Run 'git config --global github.user <username>' to set username.
-# Run 'git config --global github.token <token>' to set security token.
-GITHUB_USER                       := $(shell git config --global --includes github.user)
-GITHUB_ORG                       := $(shell git config --global --includes github.org)
-GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
-GITHUB_API_URL                   := https://api.github.com/orgs/$(GITHUB_ORG)/repos
-GITHUB_REPO_URL                  := git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
-
-CURRENT_BRANCH                   := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
-
-# Rule to create the github repo for couse assignment {{{2
-.PHONY : github_mk
-github_mk:
-ifdef GITHUB_ORG
-ifdef GITHUB_USER
-	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
-		$(GITHUB_API_URL) \
-		-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'
-	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
-	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
-	@git submodule add $(GITHUB_REPO_URL) $(GIT_PUBLISH_SRC)
-	@git submodule update --init
-endif
-endif
 
 # Debug Rules {{{1
 # Rule to print makefile variables {{{2
