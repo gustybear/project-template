@@ -57,7 +57,7 @@ DR_PUBLISH_DES              = $(shell echo $(notdir $(COURSE_MATERIAL_DIR)))
 # github parameters
 GIT_PUBLISH_SRC            = $(COURSE_MATERIAL_DIR)/public/github
 
-doc_path                    = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
+doc_path                    = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -127,7 +127,7 @@ build_documents: build_tex build_pdf build_tar
 publish_s3:
 ifdef DOCS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_S3),.pdf) $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
 	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
 endif
 
@@ -136,16 +136,16 @@ endif
 publish_dropbox:
 ifdef DOCS_TO_PUB_VIA_DR
 	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_DR),.tex) $(DR_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.tex) $(DR_PUBLISH_SRC)
 	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 endif
 
-# DROPBOX {{{3
+# GITHUB {{{3
 .PHONY: publish_github
 publish_github:
 ifdef DOCS_TO_PUB_VIA_GIT
 	@if [ -d $(GIT_PUBLISH_SRC)/.git ]; then \
-		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,./docs/,$(DOCS_TO_PUB_VIA_DR),.ipynb) $(GIT_PUBLISH_SRC); \
+		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative --delete $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
 	else \
 		echo "create the git submodule with 'make github_mk' first"; \
 	fi
