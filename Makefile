@@ -113,6 +113,26 @@ build_tar: $(COURSE_MATERIAL_DOCS_TAR)
 .PHONY: build_materials
 build_materials: build_pdf
 
+# Rule to publish materials {{{2
+
+# TEX {{{3
+.PHONY: publish_tex
+publish_tex: $(COURSE_MATERIAL_DOCS_TEX)
+	@rsync -urzL $(COURSE_MATERIAL_DOCS_TEX) $(COURSE_MATERIAL_DOCS_SUBDIR)
+
+# PDF {{{3
+.PHONY: publish_pdf
+publish_pdf: $(COURSE_MATERIAL_DOCS_PDF)
+	@rsync -urzL $(COURSE_MATERIAL_DOCS_PDF) $(COURSE_MATERIAL_DOCS_SUBDIR)
+
+# TAR {{{3
+.PHONY: publish_tar
+publish_tar: $(COURSE_MATERIAL_DOCS_TAR)
+	@rsync -urzL $(COURSE_MATERIAL_DOCS_TAR) $(COURSE_MATERIAL_DOCS_SUBDIR)
+
+.PHONY : publish_materials
+publish_materials: publish_pdf
+
 # Rule to clean materials {{{2
 
 # TEX {{{3
@@ -136,14 +156,6 @@ clean_tar:
 # ALL {{{3
 .PHONY: clean_materials
 clean_materials: clean_pdf
-
-# Rule to publish materials {{{2
-.PHONY : publish_materials
-publish_materials:
-	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	@$(foreach DOC,$(COURSE_MATERIAL_DOCS_READY),\
-		find $(COURSE_MATERIAL_DOCS_DIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
-			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
 
 
 # Git Rules {{{1
