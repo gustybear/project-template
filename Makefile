@@ -102,14 +102,28 @@ add_project:
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 # Rule to publish documents {{{2
-.PHONY : publish_documents
-publish_documents:
+
+# S3 {{{3
+.PHONY : publish_s3
+publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_documents S3_PUBLISH_SRC=$(S3_PUBLISH_SRC)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC)); done
 endif
 	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
+
+# GITHUB {{{3
+.PHONY : publish_github
+publish_github:
+ifneq ($(COURSE_MATERIALS),)
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_github); done
+endif
+
+# ALL {{{3
+.PHONY : publish_documents
+publish_documents: publish_s3 publish_github
+
 
 # Git Rules {{{1
 # Variables {{{2
