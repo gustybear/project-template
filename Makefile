@@ -104,11 +104,11 @@ add_project:
 	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
-# Rule to publish materials {{{2
-.PHONY : publish_materials
-publish_materials:
+# Rule to publish documents {{{2
+.PHONY : publish_documents
+publish_documents:
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_materials PUBLISH_MATERIALS_DIR=$(PUBLISH_MATERIALS_DIR)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_documents); done
 endif
 
 # Git Rules {{{1
