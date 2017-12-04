@@ -76,12 +76,9 @@ NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -t
 NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
 NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
 
-# The default folder to publish the materials
-PUBLISH_MATERIALS_DIR       := $(COURSE_WEBPAGES_DIR)/des
-PUBLISTH_DOCS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/docs
-PUBLISTH_CODE_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/codes
-PUBLISTH_DATA_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/data
-PUBLISTH_PICS_SUBDIR        := $(PUBLISH_MATERIALS_DIR)/pics
+# s3 parameters
+S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
+S3_PUBLISH_DES              = s3://gustybear-websites
 
 # Rule to add curriculum {{{2
 .PHONY : add_curriculum
@@ -107,9 +104,12 @@ add_project:
 # Rule to publish documents {{{2
 .PHONY : publish_documents
 publish_documents:
+	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
+	@rm -rf $(S3_PUBLISH_SRC)/*
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_documents); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_documents S3_PUBLISH_SRC=$(S3_PUBLISH_SRC)); done
 endif
+	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
 
 # Git Rules {{{1
 # Variables {{{2
