@@ -121,12 +121,25 @@ build_tar: $(PROJECT_DOCS_TAR)
 build_materials: build_pdf
 
 # Rule to publish materials {{{2
+
+# TEX {{{3
+.PHONY: publish_tex
+publish_tex: $(PROJECT_DOCS_TEX)
+	@rsync -urzL $(PROJECT_DOCS_TEX) $(PUBLISH_DOCS_SUBDIR)
+
+# PDF {{{3
+.PHONY: publish_pdf
+publish_pdf: $(PROJECT_DOCS_PDF)
+	@rsync -urzL $(PROJECT_DOCS_PDF) $(PUBLISH_DOCS_SUBDIR)
+
+# PDF {{{3
+.PHONY: publish_tar
+publish_tar: $(PROJECT_DOCS_TAR)
+	@rsync -urzL $(PROJECT_DOCS_TAR) $(PUBLISH_DOCS_SUBDIR)
+
 .PHONY : publish_materials
-publish_materials:
-	@if [ ! -d $(PUBLISTH_DOCS_SUBDIR) ]; then mkdir -p $(PUBLISTH_DOCS_SUBDIR); fi
-	@$(foreach DOC,$(PROJECT_DOCS_READY),\
-		find $(PROJECT_DOCS_DIR)/$(DOC) -maxdepth 1 -type f -name "*.pdf" \
-			 -exec rsync -urzL {} $(PUBLISTH_DOCS_SUBDIR) \; ;)
+publish_materials: publish_pdf
+
 
 # Rule to clean materials {{{2
 
