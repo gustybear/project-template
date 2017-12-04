@@ -288,6 +288,7 @@ endif
 
 # Dropbox Rules {{{1
 # Variables {{{2
+DROPBOX_UPLOADER              = dropbox_uploader
 LOCAL_DROPBOX_FOLDER          = $(PROJECT_DIR)/dropbox
 REMOTE_DROPBOX_FOLDER         = $(shell echo $(notdir $(PROJECT_DIR)))
 # Rules to sync dropbox {{{2
