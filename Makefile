@@ -168,7 +168,8 @@ ifdef DOCS_TO_PUB_VIA_GIT
 	else \
 		cd $(GIT_PUBLISH_SRC) && git pull; \
 		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
-		cd $(GIT_PUBLISH_SRC) && git add -A && git diff-index --quiet HEAD \
+		cd $(GIT_PUBLISH_SRC) && git add -A ; \
+		cd $(GIT_PUBLISH_SRC) && git diff-index --quiet HEAD \
                                       || LANG=C git -c color.status=false status \
                                       | sed -n -e '1,/Changes to be committed:/ d' \
 				      -e '1,1 d' \
