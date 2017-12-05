@@ -70,7 +70,6 @@ TAR_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COM
 endif
 
 # Rules to build Documents {{{2
-
 # TEX {{{3
 define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
@@ -124,7 +123,6 @@ build_tar: $(TAR_TO_COMPILE)
 build_documents: build_tex build_pdf build_tar
 
 # Rule to publish documents {{{2
-
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
@@ -150,7 +148,6 @@ endif
 publish_documents: publish_s3 publish_dropbox
 
 # Rule to clean documents {{{2
-
 # TEX {{{3
 .PHONY: clean_tex
 clean_tex:
@@ -209,7 +206,7 @@ PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
 ARCHIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/archive
 CURRENT_DATA_DIR            = $(PROJECT_DATA_DIR)/current
 
-# Rule to download the data and add sub directories {{{2
+# Rule to initialize the data directory {{{2
 .PHONY : data_init
 data_init:
 	@if [ ! -d $(CURRENT_DATA_DIR) && ! -L $(CURRENT_DATA_DIR) ]; then \
