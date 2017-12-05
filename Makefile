@@ -182,7 +182,9 @@ ifdef DOCS_TO_PUB_VIA_GIT
 				      -e '/^Untracked files:/,$ d' \
 				      -e 's/^\s*//' \
 				      -e '/./p' \
-			| git commit -F - ;\
+				      > msg.txt; \
+			git commit -F msg.txt ;\
+			rm -rf msg.txt; \
 			git push; \
 		fi \
 	fi
