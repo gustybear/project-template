@@ -173,7 +173,9 @@ ifdef DOCS_TO_PUB_VIA_GIT
 	else \
 		cd $(GIT_PUBLISH_SRC); \
 		git pull; \
-		rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
+		cd $(COURSE_MATERIAL_DIR); \
+		rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_GIT),*.ipynb) $(GIT_PUBLISH_SRC); \
+		cd $(GIT_PUBLISH_SRC); \
       		if ! git diff-index --quiet HEAD --; then \
 			git add -A ; \
                         LANG=C git -c color.status=false status \
