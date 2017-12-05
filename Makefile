@@ -39,7 +39,7 @@ endif
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
 # Default gitignore for course
-public/*
+public/s3/*
 endef
 export GITIGNORE
 
@@ -52,7 +52,6 @@ prepare_git:
 # Documents Rules {{{1
 # Variables {{{2
 COURSE_MATERIAL_DOCS_DIR   = $(COURSE_MATERIAL_DIR)/docs
-
 # s3 parameters
 # S3_PUBLISH_SRC will be set by course makefile to speed up upload
 S3_PUBLISH_SRC             =
@@ -163,27 +162,29 @@ endif
 .PHONY: publish_github
 publish_github:
 ifdef DOCS_TO_PUB_VIA_GIT
-	@git ls-remote -h "$(GITHUB_REPO_URL)" &>-
-	@if [ "$?" -ne 0 ]; then \
+	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" &>-; then \
 		echo "run github_mk to generate the github repo first"; \
 		exit 1; \
 	fi
 	@if [ ! -d $(GIT_PUBLISH_SRC) ]; then \
-		git submodule add $(GITHUB_REPO_URL) $(GIT_PUBLISH_SRC); \
+		cd $(COURSE_MATERIAL_DIR); \
+		git submodule add $(GITHUB_REPO_URL) public/github; \
 		git submodule update --init; \
 	else \
-		cd $(GIT_PUBLISH_SRC) && git pull; \
-		cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
-		cd $(GIT_PUBLISH_SRC) && git add -A ; \
-		cd $(GIT_PUBLISH_SRC) && git diff-index --quiet HEAD \
-                                      || LANG=C git -c color.status=false status \
-                                      | sed -n -e '1,/Changes to be committed:/ d' \
+		cd $(GIT_PUBLISH_SRC); \
+		git pull; \
+		rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.ipynb) $(GIT_PUBLISH_SRC); \
+      		if ! git diff-index --quiet HEAD --; then \
+			git add -A ; \
+                        LANG=C git -c color.status=false status \
+                        | sed -n -e '1,/Changes to be committed:/ d' \
 				      -e '1,1 d' \
 				      -e '/^Untracked files:/,$ d' \
 				      -e 's/^\s*//' \
 				      -e '/./p' \
-				      | git commit -F - ;\
-		cd $(GIT_PUBLISH_SRC) && git push; \
+			| git commit -F - ;\
+			git push; \
+		fi \
 	fi
 endif
 
