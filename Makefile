@@ -39,6 +39,7 @@ endif
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
 # Default gitignore for course
+public/*
 endef
 export GITIGNORE
 
