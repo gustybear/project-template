@@ -6,7 +6,6 @@ COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -n
 MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
-
 # Initialization Rules {{{1
 # Rule to initialize the course {{{2
 .PHONY: init
@@ -33,25 +32,13 @@ endif
 .PHONY: link_files
 link_files:
 ifdef ZSH_CUSTOM
-# ifneq ($(COURSE_MATERIALS),)
-# 	@for dir in $(COURSE_MATERIALS); \
-# 		do (echo "Entering $$dir."; $(MAKE) -C $$dir link_files); done
-# endif
 	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '$(COURSE_NAME)_*.zsh' \
 		-exec ln -sf {} $(ZSH_CUSTOM) \;
 endif
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
-# not track the html files in the webpages
-__webpages/*/*.html
-# Only track the download script in the data directory
-data/*
-Makefile
-inputs.mk
-$(COURSE_NAME)_config.zsh
-!/$(COURSE_NAME)_get_data.sh
-
+# Default gitignore for course
 endef
 export GITIGNORE
 
@@ -62,10 +49,6 @@ prepare_git:
 
 # Material Rules {{{1
 # Variables {{{2
-COURSE_BIB_DIR             := $(COURSE_DIR)/bib
-COURSE_FIGS_DIR            := $(COURSE_DIR)/figures
-COURSE_DOCS_DIR            := $(COURSE_DIR)/docs
-
 COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
 COURSE_MATERIAL_BRANCH      := course_material
 
@@ -98,15 +81,14 @@ add_project:
 	@echo "Entering $(COURSE_PROJECT_DIR)."
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
-# Document Rules {{{1
 
+# Document Rules {{{1
 # Variables {{{2
 # s3 parameters
 S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
 
 # Rule to publish documents {{{2
-
 # S3 {{{3
 .PHONY : publish_s3
 publish_s3:
