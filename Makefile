@@ -37,13 +37,21 @@ ifdef ZSH_CUSTOM
 endif
 
 # Rule to prepare for git repo initialization {{{2
+define GITIGNORE
+# Default gitignore for course
+public/*
+endef
+export GITIGNORE
+
 .PHONY: prepare_git
 prepare_git:
-	@rm -rf $(COURSE_MATERIAL_DIR)/.git
+	@rm -rf $(COURSE_DIR)/.git
+	@echo "$$GITIGNORE" > $(COURSE_DIR)/.gitignore
+
 
 # Documents Rules {{{1
 # Variables {{{2
-COURSE_MATERIAL_DOCS_DIR            = $(COURSE_MATERIAL_DIR)/docs
+COURSE_MATERIAL_DOCS_DIR   = $(COURSE_MATERIAL_DIR)/docs
 
 # s3 parameters
 # S3_PUBLISH_SRC will be set by course makefile to speed up upload
@@ -72,7 +80,6 @@ TAR_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOC
 endif
 
 # Rules to build Documents {{{2
-
 # TEX {{{3
 define tex_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
@@ -126,7 +133,6 @@ build_tar: $(TAR_TO_COMPILE)
 build_documents: build_tex build_pdf build_tar
 
 # Rule to publish documents {{{2
-
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
@@ -186,7 +192,6 @@ endif
 publish_documents: publish_s3 publish_github
 
 # Rule to clean documents {{{2
-
 # TEX {{{3
 .PHONY: clean_tex
 clean_tex:
@@ -211,7 +216,6 @@ clean_documents: clean_tex clean_pdf clean_tar
 
 
 # Debug Rules {{{1
-
 # Rule to print makefile variables {{{2
 print-%:
 	@echo '$*:=$($*)'
