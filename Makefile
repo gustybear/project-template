@@ -89,6 +89,8 @@ add_project:
 S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
 
+# github orgnization is set in the input.mk
+
 # Rule to publish documents {{{2
 # S3 {{{3
 .PHONY : publish_s3
@@ -103,8 +105,10 @@ endif
 # GITHUB {{{3
 .PHONY : publish_github
 publish_github:
+ifdef GITHUB_ORG
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_github); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_github GITHUB_ORG=$(GITHUB_ORG)); done
+endif
 endif
 
 # ALL {{{3
@@ -116,12 +120,12 @@ publish_documents: publish_s3 publish_github
 # Variables {{{2
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
-GITHUB_USER                      := $(shell git config --global --includes github.user)
-GITHUB_TOKEN                     := :$(shell git config --global --includes github.token)
-GITHUB_API_URL                   := https://api.github.com/user/repos
-GITHUB_REPO_URL                  := git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
-CURRENT_BRANCH                   := $(shell test -d $(COURSE_DIR)/.git && git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   := $(shell test -d $(COURSE_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+GITHUB_USER                      = $(shell git config --global --includes github.user)
+GITHUB_TOKEN                     = :$(shell git config --global --includes github.token)
+GITHUB_API_URL                   = https://api.github.com/user/repos
+GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
+CURRENT_BRANCH                   = $(shell test -d $(COURSE_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   = $(shell test -d $(COURSE_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
 # Rule to create the remote github repo {{{2
 .PHONY : github_mk
@@ -131,7 +135,7 @@ ifdef GITHUB_USER
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(notdir $(COURSE_DIR))", "private" : true }'
 	@find $(COURSE_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@git init
 	@git add -A
