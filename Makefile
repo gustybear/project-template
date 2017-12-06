@@ -190,7 +190,7 @@ ifdef GITHUB_USER
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(notdir $(PROJECT_DIR))", "private" : true }'
 	@find $(PROJECT_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@git init
 	@git remote add origin $(GITHUB_REPO_URL)
