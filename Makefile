@@ -1,7 +1,7 @@
-OS                                  = $(shell uname)
-COURSE_MATERIAL_DIR                 = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_MATERIAL_NAME                = $(notdir $(COURSE_MATERIAL_DIR))
-MKFILES                             = $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
+OS                                 := $(shell uname)
+COURSE_MATERIAL_DIR                := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+COURSE_MATERIAL_NAME               := $(notdir $(COURSE_MATERIAL_DIR))
+MKFILES                            := $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 # Initialization Rules {{{1
@@ -154,7 +154,7 @@ ifdef GITHUB_USER
 		$(GITHUB_API_URL) \
 		-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}:=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
+		-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 endif
 endif
