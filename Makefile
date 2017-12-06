@@ -1,7 +1,7 @@
-OS                                  := $(shell uname)
-COURSE_MATERIAL_DIR                 := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_MATERIAL_NAME                := $(notdir $(COURSE_MATERIAL_DIR))
-MKFILES                             := $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
+OS                                  = $(shell uname)
+COURSE_MATERIAL_DIR                 = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+COURSE_MATERIAL_NAME                = $(notdir $(COURSE_MATERIAL_DIR))
+MKFILES                             = $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 # Initialization Rules {{{1
@@ -60,22 +60,23 @@ S3_PUBLISH_SRC             =
 # Run 'git config --global github.user <username>' to set username.
 # Run 'git config --global github.token <token>' to set security token.
 GIT_PUBLISH_SRC            = $(COURSE_MATERIAL_DIR)/public/github
-GITHUB_USER               := $(shell git config --global --includes github.user)
-GITHUB_ORG                := $(shell git config --global --includes github.org)
-GITHUB_TOKEN              := :$(shell git config --global --includes github.token)
-GITHUB_API_URL            := https://api.github.com/orgs/$(GITHUB_ORG)/repos
-GITHUB_REPO_URL           := git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
+GITHUB_ORG                 =
 
-CURRENT_BRANCH            := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT            := $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+GITHUB_USER                = $(shell git config --global --includes github.user)
+GITHUB_TOKEN               = :$(shell git config --global --includes github.token)
+GITHUB_API_URL             = https://api.github.com/orgs/$(GITHUB_ORG)/repos
+GITHUB_REPO_URL            = git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
 
-doc_path                   = $(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(addsuffix $(3),$(2)))))
+CURRENT_BRANCH             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE).*$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
-TEX_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tex)
-PDF_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.pdf)
-TAR_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tar.gz)
+TEX_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),tex ipynb)
+PDF_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),pdf)
+TAR_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),tar.gz)
 endif
 
 # Rules to build Documents {{{2
@@ -136,9 +137,9 @@ build_documents: build_tex build_pdf build_tar
 .PHONY: publish_s3
 publish_s3:
 ifdef S3_PUBLISH_SRC
-ifdef DOCS_TO_PUB_VIA_S3
+ifdef EXTS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCTYPES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 endif
 
@@ -161,7 +162,7 @@ endif
 # Rule to publish via github
 .PHONY: publish_github
 publish_github:
-ifdef DOCS_TO_PUB_VIA_GIT
+ifdef EXTS_TO_PUB_VIA_GIT
 	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" &>-; then \
 		echo "run github_mk to generate the github repo first"; \
 		exit 1; \
@@ -174,7 +175,7 @@ ifdef DOCS_TO_PUB_VIA_GIT
 		cd $(GIT_PUBLISH_SRC); \
 		git pull; \
 		cd $(COURSE_MATERIAL_DIR); \
-		rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_GIT),*.ipynb) $(GIT_PUBLISH_SRC); \
+		rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_GIT)) $(GIT_PUBLISH_SRC); \
 		cd $(GIT_PUBLISH_SRC); \
       		if ! git diff-index --quiet HEAD --; then \
 			git add -A ; \
