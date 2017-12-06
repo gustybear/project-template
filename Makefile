@@ -1,7 +1,7 @@
-OS                                 := $(shell uname)
-COURSE_MATERIAL_DIR                := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_MATERIAL_NAME               := $(notdir $(COURSE_MATERIAL_DIR))
-MKFILES                            := $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
+OS                                 = $(shell uname)
+COURSE_MATERIAL_DIR                = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+COURSE_MATERIAL_NAME               = $(notdir $(COURSE_MATERIAL_DIR))
+MKFILES                            = $(shell find $(COURSE_MATERIAL_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 # Initialization Rules {{{1
@@ -21,7 +21,7 @@ ifdef COURSE_NAME
 		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.*sh" \) \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
-		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}:=\).*$$/\1 $(COURSE_NAME)/g' {} \;
+		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}=\).*$$/\1 $(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f \
 		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
