@@ -70,7 +70,7 @@ GITHUB_REPO_URL            = git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURS
 CURRENT_BRANCH             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
 CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
-doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE).*$(EXT)))
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE)*.$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -139,7 +139,7 @@ publish_s3:
 ifdef S3_PUBLISH_SRC
 ifdef EXTS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCTYPES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 endif
 
