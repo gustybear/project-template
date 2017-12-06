@@ -60,7 +60,7 @@ DROPBOX_UPLOADER            = dropbox_uploader.sh
 DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
 DR_PUBLISH_DES              = $(shell echo $(notdir $(PROJECT_DIR)))
 
-doc_path                    = $(addprefix $(1),$(join $(2),$(addprefix /$(PROJECT_NAME)_,$(addsuffix $(3),$(2)))))
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE)*.$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -126,20 +126,20 @@ build_documents: build_tex build_pdf build_tar
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
-ifdef DOCS_TO_PUB_VIA_S3
+ifdef EXTS_TO_PUB_VIA_S3
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_S3),*.pdf) $(S3_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
 endif
 
 # DROPBOX {{{3
 .PHONY: publish_dropbox
 publish_dropbox:
-ifdef DOCS_TO_PUB_VIA_DR
+ifdef EXTS_TO_PUB_VIA_DR
 	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
 	@rm -rf $(DR_PUBLISH_SRC)/*
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_PUB_VIA_DR),*.tex) $(DR_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 endif
 
