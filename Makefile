@@ -121,7 +121,7 @@ publish_documents: publish_s3 publish_github
 GITHUB_USER                      = $(shell git config --global --includes github.user)
 GITHUB_TOKEN                     = :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   = https://api.github.com/user/repos
-GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(COURSE_NAME).git
+GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
 CURRENT_BRANCH                   = $(shell test -d $(COURSE_DIR)/.git && git rev-parse --abbrev-ref HEAD)
 CURRENT_COMMIT                   = $(shell test -d $(COURSE_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
@@ -131,7 +131,7 @@ github_mk:
 ifdef GITHUB_USER
 	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
-		-d '{ "name" : "$(COURSE_NAME)", "private" : true }'
+		-d '{ "name" : "$(notdir $(COURSE_DIR))", "private" : true }'
 	@find $(COURSE_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
