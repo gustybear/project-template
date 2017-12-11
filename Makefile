@@ -1,7 +1,7 @@
 OS                          := $(shell uname)
 TIMESTAMP                   := $(shell date +"%Y%m%d_%H%M%S")
-COURSE_DIR                  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_NAME                 := $(subst course_,,$(notdir $(COURSE_DIR)))
+COURSE_DIR                  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))/
+COURSE_NAME                 := $(subst course_,,$(notdir $(patsubst %/,%,$(COURSE_DIR))))
 COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
 MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
@@ -19,9 +19,7 @@ ifneq ($(COURSE_MATERIALS),)
 		do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@find $(COURSE_DIR) -type f \
-		\( -name "COURSE_NAME_*.bib" -o \
-		   -name "COURSE_NAME_*.jem*" -o -name "MENU" -o \
-		   -name "COURSE_NAME_*.*sh" \) \
+		-name "COURSE_NAME_*.zsh" \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
@@ -45,20 +43,20 @@ export GITIGNORE
 
 .PHONY: prepare_git
 prepare_git:
-	@rm -rf $(COURSE_DIR)/.git
-	@echo "$$GITIGNORE" > $(COURSE_DIR)/.gitignore
+	@rm -rf $(COURSE_DIR).git/
+	@echo "$$GITIGNORE" > $(COURSE_DIR).gitignore
 
 # Material Rules {{{1
 # Variables {{{2
 COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
 COURSE_MATERIAL_BRANCH      := course_material
 
-COURSE_CURRICULUM_DIR       := materials_curriculum
-COURSE_PROJECT_DIR          := materials_project
+COURSE_CURRICULUM_DIR       := materials_curriculum/
+COURSE_PROJECT_DIR          := materials_project/
 
 NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
 NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
-NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
+NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))/
 
 
 # Rule to add curriculum {{{2
@@ -86,8 +84,8 @@ add_project:
 # Document Rules {{{1
 # Variables {{{2
 # s3 parameters
-S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
+S3_PUBLISH_SRC              = $(COURSE_DIR)public/s3/
+S3_PUBLISH_DES              = s3://gustybear-websites/
 
 # github orgnization is set in the input.mk
 
@@ -96,11 +94,11 @@ S3_PUBLISH_DES              = s3://gustybear-websites
 .PHONY : publish_s3
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@rm -rf $(S3_PUBLISH_SRC)/*
+	@rm -rf $(S3_PUBLISH_SRC)*
 ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC)); done
 endif
-	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
+	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES) # --dryrun
 
 # GITHUB {{{3
 .PHONY : publish_github
@@ -123,17 +121,21 @@ publish_documents: publish_s3 publish_github
 GITHUB_USER                      = $(shell git config --global --includes github.user)
 GITHUB_TOKEN                     = :$(shell git config --global --includes github.token)
 GITHUB_API_URL                   = https://api.github.com/user/repos
-GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(notdir $(COURSE_DIR)).git
-CURRENT_BRANCH                   = $(shell test -d $(COURSE_DIR)/.git && git rev-parse --abbrev-ref HEAD)
-CURRENT_COMMIT                   = $(shell test -d $(COURSE_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
+GITHUB_REPO_URL                  = git@github.com:$(GITHUB_USER)/$(COURSE_NAME).git
+CURRENT_BRANCH                   = $(shell test -d $(COURSE_DIR).git && git rev-parse --abbrev-ref HEAD)
+CURRENT_COMMIT                   = $(shell test -d $(COURSE_DIR).git && git log -n1 | head -n1 | cut -c8-)
 
 # Rule to create the remote github repo {{{2
 .PHONY : github_mk
 github_mk:
 ifdef GITHUB_USER
+	@if git ls-remote -h "$(GITHUB_REPO_URL)" &>-; then \
+		echo "github repo aleady exist, try update."; \
+		exit 1; \
+	fi
 	@curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 		$(GITHUB_API_URL) \
-		-d '{ "name" : "$(notdir $(COURSE_DIR))", "private" : true }'
+		-d '{ "name" : "$(COURSE_NAME)", "private" : true }'
 	@find $(COURSE_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
