@@ -19,7 +19,7 @@ ifneq ($(COURSE_MATERIALS),)
 		do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@find $(COURSE_DIR) -type f \
-		   -name "COURSE_NAME_*.*sh" \
+		   -name "COURSE_NAME_*.zsh" \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_DIR) -type f -name '*.bak' -exec rm -f {} \;
 
