@@ -8,7 +8,17 @@ S3_DATA_BUCKET                =
 ###### Examples: slides conf jnl prpsl ################
 DOCS_TO_COMPILE               =
 
-###### Add extensions to publish ######################
+###### Add document extensions to publish #############
 ###### Examples: pdf ipynb md #########################
-EXTS_TO_PUB_VIA_S3            =
-EXTS_TO_PUB_VIA_GIT           =
+DOCS_TO_PUB_VIA_S3            =
+DOCS_TO_PUB_VIA_GIT           =
+
+###### Add codes to publish ###########################
+###### Examples: docs/*.py ############################
+CODES_TO_PUB_VIA_S3           =
+CODES_TO_PUB_VIA_GIT          =
+
+###### Add data to publish (assume already in s3) #####
+###### Examples: xxx.tar.gz############################
+CODES_TO_PUB_VIA_S3           =
+CODES_TO_PUB_VIA_GIT          =

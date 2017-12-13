@@ -51,15 +51,6 @@ prepare_git:
 # Variables {{{2
 PROJECT_DOCS_DIR            = $(PROJECT_DIR)/docs
 
-# s3 parameters
-S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
-
-# dropbox parameters
-DROPBOX_UPLOADER            = dropbox_uploader.sh
-DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
-DR_PUBLISH_DES              = $(shell echo $(notdir $(PROJECT_DIR)))
-
 doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE)*.$(EXT)))
 
 # Documents to build
@@ -122,31 +113,6 @@ build_tar: $(TAR_TO_COMPILE)
 .PHONY: build_documents
 build_documents: build_tex build_pdf build_tar
 
-# Rule to publish documents {{{2
-# S3 {{{3
-.PHONY: publish_s3
-publish_s3:
-ifdef EXTS_TO_PUB_VIA_S3
-	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
-	@rm -rf $(S3_PUBLISH_SRC)/*
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
-	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
-endif
-
-# DROPBOX {{{3
-.PHONY: publish_dropbox
-publish_dropbox:
-ifdef EXTS_TO_PUB_VIA_DR
-	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
-	@rm -rf $(DR_PUBLISH_SRC)/*
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(EXTS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
-	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
-endif
-
-# ALL {{{3
-.PHONY : publish_documents
-publish_documents: publish_s3 publish_dropbox
-
 # Rule to clean documents {{{2
 # TEX {{{3
 .PHONY: clean_tex
@@ -169,6 +135,92 @@ clean_tar:
 # ALL {{{3
 .PHONY: clean_documents
 clean_documents: clean_tex clean_pdf clean_tar
+
+# Codes Rules {{{1
+# Variables {{{2
+PROJECT_CODES_DIR            = $(PROJECT_DIR)/codes
+
+# Data Rules {{{1
+# Variables {{{2
+PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
+ARCHIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/archive
+CURRENT_DATA_DIR            = $(PROJECT_DATA_DIR)/current
+
+S3_DATA_BUCKET              = s3://gustybear-research
+
+# Rule to initialize the data directory {{{2
+.PHONY : data_init
+data_init:
+	@if [ ! -d $(CURRENT_DATA_DIR) && ! -L $(CURRENT_DATA_DIR) ]; then \
+		mkdir -p $(CURRENT_DATA_DIR)
+	fi
+	@if [ ! -d $(ARCHIVE_DATA_DIR) && ! -L $(ARCHIVE_DATA_DIR) ]; then \
+		mkdir -p $(ARCHIVE_DATA_DIR)
+	fi
+
+# Rule to create archive {{{2
+.PHONY : archive_mk
+archive_mk:
+	@echo "Creating archive file: $(TIMESTAMP).tar.gz."
+	@mkdir -p $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@rsync -av --copy-links  $(CURRENT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
+	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(TIMESTAMP).tar.gz
+
+# Rule to list objects in S3 {{{2
+.PHONY : s3_ls
+s3_ls:
+	@aws s3 ls --recursive --human-readable $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/
+
+# Publish Rules {{{1
+# Variables {{{2
+# s3 parameters
+S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
+S3_PUBLISH_DES              = s3://gustybear-websites
+
+# dropbox parameters
+DROPBOX_UPLOADER            = dropbox_uploader.sh
+DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
+DR_PUBLISH_DES              = $(notdir $(PROJECT_DIR))
+
+# Rules to publish {{{2
+# S3 {{{3
+.PHONY: publish_s3
+publish_s3:
+	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
+	@rm -rf $(S3_PUBLISH_SRC)/*
+ifdef DOCS_TO_PUB_VIA_S3
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+endif
+ifdef CODES_TO_PUB_VIA_S3
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(CODES_TO_PUB_VIA_S3) $(S3_PUBLISH_SRC)
+endif
+	@aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/ --recursive # --dryrun
+
+ifdef DATA_TO_PUB_VIA_S3
+	@aws s3 cp $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_S3) $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_S3)
+endif
+
+# DROPBOX {{{3
+.PHONY: publish_dropbox
+publish_dropbox:
+	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
+	@rm -rf $(DR_PUBLISH_SRC)/*
+ifdef DOCS_TO_PUB_VIA_DR
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
+endif
+ifdef CODES_TO_PUB_VIA_DR
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(CODES_TO_PUB_VIA_DR) $(DR_PUBLISH_SRC)
+endif
+ifdef DATA_TO_PUB_VIA_DR
+	@aws s3 cp $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_DR) $(DR_PUBLISH_SRC)/data/$(DATA_TO_PUB_VIA_DR)
+endif
+	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
+
+# ALL {{{3
+.PHONY : publish_documents
+publish_documents: publish_s3 publish_dropbox
 
 
 # Git Rules {{{1
@@ -199,38 +251,6 @@ ifdef GITHUB_USER
 	@git push -u origin master
 endif
 
-
-# Data Rules {{{1
-# Variables {{{2
-PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
-ARCHIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/archive
-CURRENT_DATA_DIR            = $(PROJECT_DATA_DIR)/current
-
-# Rule to initialize the data directory {{{2
-.PHONY : data_init
-data_init:
-	@if [ ! -d $(CURRENT_DATA_DIR) && ! -L $(CURRENT_DATA_DIR) ]; then \
-		mkdir -p $(CURRENT_DATA_DIR)
-	fi
-	@if [ ! -d $(ARCHIVE_DATA_DIR) && ! -L $(ARCHIVE_DATA_DIR) ]; then \
-		mkdir -p $(ARCHIVE_DATA_DIR)
-	fi
-
-# Rule to create archive {{{2
-.PHONY : archive_mk
-archive_mk:
-	@echo "Creating archive file: $(TIMESTAMP).tar.gz."
-	@mkdir -p $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@rsync -av --copy-links  $(CURRENT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
-	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-
-# Rule to list objects in S3 {{{2
-.PHONY : s3_ls
-s3_ls:
-ifdef S3_DATA_BUCKET
-	@aws s3 ls --recursive --human-readable $(S3_DATA_BUCKET)
-endif
 
 # Debug Rules {{{1
 # Rule to print Makefile variables {{{2
