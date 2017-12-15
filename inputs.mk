@@ -14,7 +14,7 @@ DOCS_TO_PUB_VIA_S3            =
 DOCS_TO_PUB_VIA_DR            =
 
 ###### Add codes to publish ###########################
-###### Examples: docs/*.py ############################
+###### Examples: *.py #################################
 CODES_TO_PUB_VIA_S3           =
 CODES_TO_PUB_VIA_DR           =
 
