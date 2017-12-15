@@ -81,22 +81,21 @@ add_project:
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 
-# Document Rules {{{1
+# Publish Rules {{{1
 # Variables {{{2
 # s3 parameters
 S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
 
+# github parameters
 # github orgnization is set in the input.mk
-
-# Rule to publish documents {{{2
 # S3 {{{3
 .PHONY : publish_s3
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC) COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
 
@@ -105,12 +104,12 @@ endif
 publish_github:
 ifdef GITHUB_ORG
 ifneq ($(COURSE_MATERIALS),)
-	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_github GITHUB_ORG=$(GITHUB_ORG)); done
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_github GITHUB_ORG=$(GITHUB_ORG) COURSE_NAME=$(COURSE_NAME)); done
 endif
 endif
 
 # ALL {{{3
-.PHONY : publish_documents
+.PHONY : publish
 publish_documents: publish_s3 publish_github
 
 
