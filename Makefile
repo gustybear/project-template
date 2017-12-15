@@ -169,7 +169,7 @@ archive_mk:
 	@rsync -av --copy-links  $(CURRENT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
 	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
 	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/$(TIMESTAMP).tar.gz
+	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/$(TIMESTAMP).tar.gz
 
 # Rule to list objects in S3 {{{2
 .PHONY : s3_ls
@@ -201,22 +201,20 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
-	@test -d $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME) \
-		|| mkdir -p $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
-	@rm -rf $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)/*
+	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
 	@cd $(COURSE_MATERIAL_DIR) \
-		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
+		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
 	@for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
-		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data)) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
+		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/data/,$$data)) \
 	done
 endif
 
@@ -252,7 +250,7 @@ endif
 ifdef DATA_TO_PUB_VIA_GIT
 	@for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
 		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
