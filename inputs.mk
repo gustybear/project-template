@@ -6,11 +6,11 @@ COURSE_MATERIAL_REPO          =
 
 ###### Add documents to compiled ######################
 ###### Examples: slides assg exam #####################
-DOCS_TO_COMPILE               =
+DOCS_TO_COMPILE               = slides
 
 ###### Add document extensions to publish #############
 ###### Examples: pdf ipynb md #########################
-DOCS_TO_PUB_VIA_S3            =
+DOCS_TO_PUB_VIA_S3            = pdf
 DOCS_TO_PUB_VIA_GIT           =
 
 ###### Add codes to publish ###########################
