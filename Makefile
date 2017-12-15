@@ -219,8 +219,8 @@ endif
 	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 
 # ALL {{{3
-.PHONY : publish_documents
-publish_documents: publish_s3 publish_dropbox
+.PHONY : publish
+publish: publish_s3 publish_dropbox
 
 
 # Git Rules {{{1
