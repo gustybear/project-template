@@ -51,13 +51,13 @@ prepare_git:
 # Variables {{{2
 PROJECT_DOCS_DIR            = $(PROJECT_DIR)/docs
 
-doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(PROJECT_NAME)_,$(2)))),$(FILE)*.$(EXT)))
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(PROJECT_NAME)_,$(2)))),$(FILE).$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
-TEX_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tex)
-PDF_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),.pdf)
-TAR_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),.tar.gz)
+TEX_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),tex)
+PDF_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),pdf)
+TAR_TO_COMPILE              = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(DOCS_TO_COMPILE),tar.gz)
 endif
 
 # Rules to build Documents {{{2
@@ -65,6 +65,7 @@ endif
 define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
+	@if [ -d $$(PROJECT_DOCS_DIR)/asset ]; then rm -rf $$(PROJECT_DOCS_DIR)/asset/*; fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
 		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
@@ -192,7 +193,7 @@ publish_s3:
 	@rm -rf $(S3_PUBLISH_SRC)/*
 	@aws s3 rm $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) --recursive # --dryrun
 ifdef DOCS_TO_PUB_VIA_S3
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
@@ -213,7 +214,7 @@ publish_dropbox:
 	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
 	@rm -rf $(DR_PUBLISH_SRC)/*
 ifdef DOCS_TO_PUB_VIA_DR
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_DR
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(DR_PUBLISH_SRC)
