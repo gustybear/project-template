@@ -190,13 +190,14 @@ DR_PUBLISH_DES              = $(notdir $(PROJECT_DIR))
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
+	@aws s3 rm $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) --recursive # --dryrun
 ifdef DOCS_TO_PUB_VIA_S3
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
-	@aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/ --recursive # --dryrun
+	@aws s3 cp $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) --recursive # --dryrun
 
 ifdef DATA_TO_PUB_VIA_S3
 	@for data in $(DATA_TO_PUB_VIA_S3); \
@@ -215,10 +216,10 @@ ifdef DOCS_TO_PUB_VIA_DR
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_DR
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(DR_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_DR
-	@for data in $(DATA_TO_PUB_VIA_DR); 
+	@for data in $(DATA_TO_PUB_VIA_DR);
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$data) \
 		$(addprefix $(DR_PUBLISH_SRC)/data/,$$data)) \
