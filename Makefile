@@ -94,10 +94,11 @@ S3_PUBLISH_DES              = s3://gustybear-websites
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
+	@aws s3 rm $(S3_PUBLISH_DES)/$(notdir $(COURSE_DIR)) --recursive
 ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC) COURSE_NAME=$(COURSE_NAME)); done
 endif
-	@aws s3 sync $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/ # --dryrun
+	@aws s3 cp $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/$(notdir $(COURSE_DIR)) --recursive # --dryrun
 
 # GITHUB {{{3
 .PHONY : publish_github
