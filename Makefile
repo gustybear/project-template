@@ -185,8 +185,7 @@ DROPBOX_UPLOADER            = dropbox_uploader.sh
 DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
 DR_PUBLISH_DES              = $(notdir $(PROJECT_DIR))
 
-# Rules to publish {{{2
-# S3 {{{3
+# Rule to publish via S3 {{{2
 .PHONY: publish_s3
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
@@ -208,7 +207,7 @@ ifdef DATA_TO_PUB_VIA_S3
 	done
 endif
 
-# DROPBOX {{{3
+# Rule to publish via dropbox {{{2
 .PHONY: publish_dropbox
 publish_dropbox:
 	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
@@ -228,7 +227,7 @@ ifdef DATA_TO_PUB_VIA_DR
 endif
 	-@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 
-# ALL {{{3
+# Rule to publish all {{{2
 .PHONY : publish
 publish: publish_s3 publish_dropbox
 
