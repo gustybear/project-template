@@ -214,10 +214,10 @@ endif
 	# @aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/ --recursive # --dryrun
 
 ifdef DATA_TO_PUB_VIA_S3
-	@for DATA in $(DATA_TO_PUB_VIA_S3); \
+	@for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$DATA) \
-		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$DATA)) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
+		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data)) \
 	done
 endif
 
@@ -251,10 +251,10 @@ ifdef CODES_TO_PUB_VIA_GIT
 	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GIT_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
-	@for DATA in $(DATA_TO_PUB_VIA_GIT); \
+	@for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$DATA) \
-		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$DATA)) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
+		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data)) \
 	done
 endif
 	@if [ -f $(GIT_PUBLISH_SRC)/.git ]; then \
