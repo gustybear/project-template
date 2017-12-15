@@ -89,7 +89,7 @@ S3_PUBLISH_DES              = s3://gustybear-websites
 
 # github parameters
 # github orgnization is set in the input.mk
-# S3 {{{3
+# Rule to publish via S3 {{{2
 .PHONY : publish_s3
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
@@ -100,7 +100,7 @@ ifneq ($(COURSE_MATERIALS),)
 endif
 	@aws s3 cp $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/$(notdir $(COURSE_DIR)) --recursive # --dryrun
 
-# GITHUB {{{3
+# Rule to publish via github {{{2
 .PHONY : publish_github
 publish_github:
 ifdef GITHUB_ORG
@@ -109,7 +109,7 @@ ifneq ($(COURSE_MATERIALS),)
 endif
 endif
 
-# ALL {{{3
+# Rule to publish all {{{2
 .PHONY : publish
 publish_documents: publish_s3 publish_github
 
