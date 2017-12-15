@@ -199,7 +199,8 @@ endif
 	@aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/ --recursive # --dryrun
 
 ifdef DATA_TO_PUB_VIA_S3
-	@for DATA in $(DATA_TO_PUB_VIA_S3) do \
+	@for DATA in $(DATA_TO_PUB_VIA_S3); \
+	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$DATA) \
 		$(addprefix $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/data/,$$DATA)) \
 	done
@@ -217,7 +218,8 @@ ifdef CODES_TO_PUB_VIA_DR
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_DR
-	@for DATA in $(DATA_TO_PUB_VIA_DR) do \
+	@for DATA in $(DATA_TO_PUB_VIA_DR); 
+	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$DATA) \
 		$(addprefix $(DR_PUBLISH_SRC)/data/,$$DATA)) \
 	done
