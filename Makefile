@@ -52,7 +52,7 @@ prepare_git:
 # Variables {{{2
 COURSE_MATERIAL_DOCS_DIR   = $(COURSE_MATERIAL_DIR)/docs
 
-doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE)*.$(EXT)))
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE).$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -66,6 +66,7 @@ endif
 define tex_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
+	@if [ -d $$(COURSE_MATERIAL_DOCS_DIR)/asset ]; then rm -rf $$(COURSE_MATERIAL_DOCS_DIR)/asset/*; fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
 		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
@@ -203,8 +204,7 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
-	@cd $(COURSE_MATERIAL_DIR) \
-		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
 	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
@@ -241,8 +241,7 @@ ifdef GITHUB_ORG
 		git pull; \
 	fi
 ifdef DOCS_TO_PUB_VIA_GIT
-	@cd $(COURSE_MATERIAL_DIR) \
-		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
 	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
