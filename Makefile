@@ -51,7 +51,7 @@ prepare_git:
 # Variables {{{2
 PROJECT_DOCS_DIR            = $(PROJECT_DIR)/docs
 
-doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE)*.$(EXT)))
+doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(PROJECT_NAME)_,$(2)))),$(FILE)*.$(EXT)))
 
 # Documents to build
 ifdef DOCS_TO_COMPILE
@@ -225,7 +225,7 @@ ifdef DATA_TO_PUB_VIA_DR
 		$(addprefix $(DR_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
-	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
+	-@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 
 # ALL {{{3
 .PHONY : publish
