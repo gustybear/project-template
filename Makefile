@@ -198,28 +198,26 @@ GITHUB_TOKEN               = :$(shell git config --global --includes github.toke
 CURRENT_BRANCH             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git rev-parse --abbrev-ref HEAD)
 CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git log -n1 | head -n1 | cut -c8-)
 
-# Rule to publish documents {{{2
-# S3 {{{3
+# Rule to publish via S3 {{{2
 .PHONY: publish_s3
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
-	@for data in $(DATA_TO_PUB_VIA_S3); \
+	-@for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
 		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/data/,$$data)) \
 	done
 endif
 
-# GITHUB {{{3
-# Rule to publish via github
+# Rule to publish via GITHUB {{{2
 .PHONY: publish_github
 publish_github:
 ifdef GITHUB_USER
@@ -241,13 +239,13 @@ ifdef GITHUB_ORG
 		git pull; \
 	fi
 ifdef DOCS_TO_PUB_VIA_GIT
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
-	@for data in $(DATA_TO_PUB_VIA_GIT); \
+	-@for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
 		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
@@ -279,7 +277,7 @@ endif
 endif
 endif
 
-# ALL {{{3
+# Rule to publish all {{{2
 .PHONY : publish
 publish_documents: publish_s3 publish_github
 

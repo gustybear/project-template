@@ -11,7 +11,7 @@ DOCS_TO_COMPILE               =
 ###### Add documents to publish  ######################
 ###### Use the relative path in docs sub folder #######
 ###### Examples: slides/*.pdf #########################
-DOCS_TO_PUB_VIA_S3            = slides/*.pdf
+DOCS_TO_PUB_VIA_S3            =
 DOCS_TO_PUB_VIA_GIT           =
 
 ###### Add codes to publish ###########################
