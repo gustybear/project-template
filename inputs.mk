@@ -11,14 +11,14 @@ DOCS_TO_COMPILE               =
 ###### Add document extensions to publish #############
 ###### Examples: pdf ipynb md #########################
 DOCS_TO_PUB_VIA_S3            =
-DOCS_TO_PUB_VIA_GIT           =
+DOCS_TO_PUB_VIA_DR            =
 
 ###### Add codes to publish ###########################
 ###### Examples: docs/*.py ############################
 CODES_TO_PUB_VIA_S3           =
-CODES_TO_PUB_VIA_GIT          =
+CODES_TO_PUB_VIA_DR           =
 
 ###### Add data to publish (assume already in s3) #####
-###### Examples: xxx.tar.gz############################
+###### Examples: xxx.tar.gz ###########################
 CODES_TO_PUB_VIA_S3           =
-CODES_TO_PUB_VIA_GIT          =
+CODES_TO_PUB_VIA_DR           =
