@@ -184,7 +184,7 @@ S3_PUBLISH_SRC             = $(COURSE_MATERIAL_DIR)/public/s3
 S3_PUBLISH_DES             = s3://gustybear-websites
 
 # github parameters
-GIT_PUBLISH_SRC            = $(COURSE_MATERIAL_DIR)/public/github
+GITHUB_PUBLISH_SRC         = $(COURSE_MATERIAL_DIR)/public/github
 
 GITHUB_ORG                 =
 GITHUB_API_URL             = https://api.github.com/orgs/$(GITHUB_ORG)/repos
@@ -201,17 +201,16 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 # S3 {{{3
 .PHONY: publish_s3
 publish_s3:
-	@test -d $(S3_PUBLISH_SRC)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME) \
-		|| mkdir -p $(S3_PUBLISH_SRC)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)
-	@rm -rf $(S3_PUBLISH_SRC)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/*
+	@test -d $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME) \
+		|| mkdir -p $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
+	@rm -rf $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)/*
 ifdef DOCS_TO_PUB_VIA_S3
 	@cd $(COURSE_MATERIAL_DIR) \
-		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)
+		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
 endif
-	# @aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/ --recursive # --dryrun
 
 ifdef DATA_TO_PUB_VIA_S3
 	@for data in $(DATA_TO_PUB_VIA_S3); \
@@ -234,31 +233,31 @@ ifdef GITHUB_ORG
 		find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 			-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \; ; \
 		find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \; ; \
-	elif [ ! -f $(GIT_PUBLISH_SRC)/.git ]; then \
+	elif [ ! -f $(GITHUB_PUBLISH_SRC)/.git ]; then \
 		cd $(COURSE_MATERIAL_DIR); \
-		rm -rf $(GIT_PUBLISH_SRC); \
+		rm -rf $(GITHUB_PUBLISH_SRC); \
 		git submodule add $(GITHUB_REPO_URL) public/github; \
 		git submodule update --init; \
 	else \
-		cd $(GIT_PUBLISH_SRC); \
+		cd $(GITHUB_PUBLISH_SRC); \
 		git pull; \
 	fi
 ifdef DOCS_TO_PUB_VIA_GIT
 	@cd $(COURSE_MATERIAL_DIR) \
-		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_GIT)) $(GIT_PUBLISH_SRC)
+		&& rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GIT_PUBLISH_SRC)
+	@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
 	@for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
-		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data)) \
+		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
-	@if [ -f $(GIT_PUBLISH_SRC)/.git ]; then \
-		cd $(GIT_PUBLISH_SRC); \
+	@if [ -f $(GITHUB_PUBLISH_SRC)/.git ]; then \
+		cd $(GITHUB_PUBLISH_SRC); \
 		if ! git diff-index --quiet HEAD --; then \
 			git add -A ; \
 			LANG=C git -c color.status=false status \
