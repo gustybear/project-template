@@ -194,12 +194,15 @@ ifdef DOCS_TO_PUB_VIA_S3
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(CODES_TO_PUB_VIA_S3) $(S3_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 	@aws s3 cp $(S3_PUBLISH_SRC)/ $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/ --recursive # --dryrun
 
 ifdef DATA_TO_PUB_VIA_S3
-	@aws s3 cp $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_S3) $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_S3)
+	@for DATA in $(DATA_TO_PUB_VIA_S3) do \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$DATA) \
+		$(addprefix $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/data/,$$DATA)) \
+	done
 endif
 
 # DROPBOX {{{3
@@ -211,10 +214,13 @@ ifdef DOCS_TO_PUB_VIA_DR
 	@cd $(PROJECT_DIR) && rsync -urzL --relative $(call doc_path,docs/,$(DOCS_TO_COMPILE),$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_DR
-	@cd $(PROJECT_DIR) && rsync -urzL --relative $(CODES_TO_PUB_VIA_DR) $(DR_PUBLISH_SRC)
+	@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_DR
-	@aws s3 cp $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(DATA_TO_PUB_VIA_DR) $(DR_PUBLISH_SRC)/data/$(DATA_TO_PUB_VIA_DR)
+	@for DATA in $(DATA_TO_PUB_VIA_DR) do \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$DATA) \
+		$(addprefix $(DR_PUBLISH_SRC)/data/,$$DATA)) \
+	done
 endif
 	@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
 
