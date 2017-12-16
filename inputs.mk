@@ -6,7 +6,10 @@ S3_DATA_BUCKET                =
 
 ###### Add documents to compile #######################
 ###### Examples: slides conf jnl prpsl ################
-DOCS_TO_COMPILE               =
+TEX_TO_COMPILE                =
+PDF_TO_COMPILE                =
+TAR_TO_COMPILE                =
+MD_TO_COMPILE                 =
 
 ###### Add documents to publish  ######################
 ###### Use the relative path in docs sub folder #######

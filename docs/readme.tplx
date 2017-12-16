@@ -1,0 +1,12 @@
+% Markdown readme template {{{1
+
+% Extend template {{{2
+{% extends 'markdown.tpl' %}
+
+% Any_cell block: only compile the cells marked as readme {{{1
+{% block any_cell %}
+{%- if cell['metadata'].get('readme', {}) -%}
+{{ super() }}
+{%- else -%}
+{%- endif -%}
+{% endblock any_cell %}
