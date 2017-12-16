@@ -54,15 +54,13 @@ COURSE_MATERIAL_DOCS_DIR   = $(COURSE_MATERIAL_DIR)/docs
 
 doc_path                   = $(foreach EXT,$(3),$(foreach FILE,$(addprefix $(1),$(join $(2),$(addprefix /$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_,$(2)))),$(FILE).$(EXT)))
 
-# Documents to build
-ifdef DOCS_TO_COMPILE
-TEX_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),tex)
-PDF_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),pdf)
-TAR_TO_COMPILE              = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(DOCS_TO_COMPILE),tar.gz)
-endif
 
 # Rules to build Documents {{{2
 # TEX {{{3
+ifdef TEX_TO_COMPILE
+TEX_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(TEX_TO_COMPILE),tex)
+endif
+
 define tex_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
@@ -75,24 +73,33 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
 
-$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call tex_rules,$(DOC))))
+$(foreach DOC,$(TEX_TO_COMPILE),$(eval $(call tex_rules,$(DOC))))
 
 .PHONY: build_tex
-build_tex: $(TEX_TO_COMPILE)
+build_tex: $(TEX_FILES)
 
 # PDF {{{3
+ifdef PDF_TO_COMPILE
+PDF_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(PDF_TO_COMPILE),pdf)
+endif
+
 define pdf_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.pdf: $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex
 	@cd $$(COURSE_MATERIAL_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
 		-use-make $$<
+	@cd $$(COURSE_MATERIAL_DOCS_DIR)/$1 && latexmk -c
 endef
 
-$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call pdf_rules,$(DOC))))
+$(foreach DOC,$(PDF_TO_COMPILE),$(eval $(call pdf_rules,$(DOC))))
 
 .PHONY: build_pdf
-build_pdf: $(PDF_TO_COMPILE)
+build_pdf: $(PDF_FILES)
 
 # TAR {{{3
+ifdef TAR_TO_COMPILE
+TAR_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(TAR_TO_COMPILE),tar.gz)
+endif
+
 define tar_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tar.gz: $$(COURSE_MATERIAL_DOCS_DIR)/$1
 	@mkdir -p $$(COURSE_MATERIAL_DOCS_DIR)/tmp)
@@ -103,13 +110,34 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tar.gz: $$(COURSE_MATERIAL_DOCS_DIR)/$1
 		 -exec rsync -urzL {} $$(COURSE_MATERIAL_DOCS_DIR)/tmp \;
 
 	@cd $$(COURSE_MATERIAL_DOCS_DIR)/tmp; tar -zcvf $$@ *
-	@rm -rf $(COURSE_MATERIAL_DOCS_DIR)/tmp
+	@rm -rf $$(COURSE_MATERIAL_DOCS_DIR)/tmp
 endef
 
-$(foreach DOC,$(DOCS_TO_COMPILE),$(eval $(call tar_rules,$(DOC))))
+$(foreach DOC,$(TAR_TO_COMPILE),$(eval $(call tar_rules,$(DOC))))
 
 .PHONY: build_tar
-build_tar: $(TAR_TO_COMPILE)
+build_tar: $(TAR_FILES)
+
+# MARAKDOWN {{{3
+ifdef MD_TO_COMPILE
+MD_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(MD_TO_COMPILE),md)
+endif
+
+define md_rules
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
+	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
+	@if [ -d $$(COURSE_MATERIAL_DOCS_DIR)/asset ]; then rm -rf $$(COURSE_MATERIAL_DOCS_DIR)/asset/*; fi
+	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
+		--NbConvertApp.output_files_dir='./asset' \
+		--to=markdown $$(word 1,$$^) --template=$$(word 2,$$^) \
+		--output-dir=$$(@D) --output=$$(@F)
+	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
+endef
+
+$(foreach DOC,$(MD_TO_COMPILE),$(eval $(call md_rules,$(DOC))))
+
+.PHONY: build_md
+build_md: $(MD_FILES)
 
 # ALL {{{3
 .PHONY: build_documents
@@ -119,24 +147,35 @@ build_documents: build_tex build_pdf build_tar
 # TEX {{{3
 .PHONY: clean_tex
 clean_tex:
-	@rm -rf $(TEX_TO_COMPILE)
+ifdef TEX_FILES
+	@rm -rf $(TEX_FILES)
+	@rm -rf $(addsuffix asset/*,$(dir $(TEX_FILES)))
+endif
 
 # PDF {{{3
 .PHONY : clean_pdf
 clean_pdf:
-	@$(foreach DOC,$(DOCS_TO_COMPILE),\
-		cd $(COURSE_MATERIAL_DOCS_DIR)/$(DOC); \
-		latexmk -silent -C; \
-		rm -rf *.run.xml *.synctex.gz *.d *.bbl;)
+ifdef PDF_FILES
+	@rm -rf $(PDF_FILES)
+endif
 
 # TAR {{{3
 .PHONY : clean_tar
 clean_tar:
-	@rm -rf $(TAR_TO_COMPILE)
+ifdef TAR_FILES
+	@rm -rf $(TAR_FILES)
+endif
 
+# MARKDOWN {{{3
+.PHONY: clean_md
+clean_md:
+ifdef MD_FILES
+	@rm -rf $(MD_FILES)
+	@rm -rf $(addsuffix asset/*,$(dir $(MD_FILES)))
+endif
 # ALL {{{3
 .PHONY: clean_documents
-clean_documents: clean_tex clean_pdf clean_tar
+clean_documents: clean_tex clean_pdf clean_tar clean_md
 
 
 # Codes Rules {{{1
