@@ -81,6 +81,21 @@ add_project:
 	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
 
 
+# Documents Rules {{{1
+# Rules to build Documents {{{2
+.PHONY : build_documents
+build_documents:
+ifneq ($(COURSE_MATERIALS),)
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir build_documents COURSE_NAME=$(COURSE_NAME)); done
+endif
+
+# Rule to clean documents {{{2
+.PHONY : clean_documents
+clean_documents:
+ifneq ($(COURSE_MATERIALS),)
+	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir clean_documents); done
+endif
+
 # Publish Rules {{{1
 # Variables {{{2
 # s3 parameters
