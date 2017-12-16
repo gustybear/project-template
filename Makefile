@@ -108,7 +108,7 @@ $$(PROJECT_DOCS_DIR)/$1/%_$1.tar.gz: $$(PROJECT_DOCS_DIR)/$1
 		 -exec rsync -urzL {} $$(PROJECT_DOCS_DIR)/tmp \;
 
 	@cd $$(PROJECT_DOCS_DIR)/tmp; tar -zcvf $$@ *
-	@rm -rf $(PROJECT_DOCS_DIR)/tmp
+	@rm -rf $$(PROJECT_DOCS_DIR)/tmp
 endef
 
 $(foreach DOC,$(TAR_TO_COMPILE),$(eval $(call tar_rules,$(DOC))))
