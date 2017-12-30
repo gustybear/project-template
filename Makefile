@@ -183,15 +183,15 @@ PROJECT_CODES_DIR            = $(PROJECT_DIR)/codes
 # Variables {{{2
 PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
 ARCHIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/archive
-CURRENT_DATA_DIR            = $(PROJECT_DATA_DIR)/current
+ACTIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/active
 
 S3_DATA_BUCKET              = s3://gustybear-research
 
 # Rule to initialize the data directory {{{2
 .PHONY : data_init
 data_init:
-	@if [ ! -d $(CURRENT_DATA_DIR) && ! -L $(CURRENT_DATA_DIR) ]; then \
-		mkdir -p $(CURRENT_DATA_DIR)
+	@if [ ! -d $(ACTIVE_DATA_DIR) && ! -L $(ACTIVE_DATA_DIR) ]; then \
+		mkdir -p $(ACTIVE_DATA_DIR)
 	fi
 	@if [ ! -d $(ARCHIVE_DATA_DIR) && ! -L $(ARCHIVE_DATA_DIR) ]; then \
 		mkdir -p $(ARCHIVE_DATA_DIR)
