@@ -44,8 +44,8 @@ export GITIGNORE
 
 .PHONY: prepare_git
 prepare_git:
-	@rm -rf $(COURSE_DIR)/.git
-	@echo "$$GITIGNORE" > $(COURSE_DIR)/.gitignore
+	@rm -rf $(COURSE_MATERIAL_DIR)/.git
+	@echo "$$GITIGNORE" > $(COURSE_MATERIAL_DIR)/.gitignore
 
 
 # Documents Rules {{{1
