@@ -1,9 +1,9 @@
-OS                          := $(shell uname)
+OS                          = $(shell uname)
 TIMESTAMP                   := $(shell date +"%Y%m%d_%H%M%S")
-COURSE_DIR                  := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-COURSE_NAME                 := $(subst course_,,$(notdir $(COURSE_DIR)))
-COURSE_MATERIALS            := $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
-MKFILES                     := $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
+COURSE_DIR                  = $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
+COURSE_NAME                 = $(subst course_,,$(notdir $(COURSE_DIR)))
+COURSE_MATERIALS            = $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name 'materials_*')
+MKFILES                     = $(shell find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name "*.mk" | sort)
 -include $(MKFILES)
 
 # Initialization Rules {{{1
@@ -48,38 +48,25 @@ prepare_git:
 
 # Material Rules {{{1
 # Variables {{{2
-COURSE_MATERIAL_REPO        := git@github.com:gustybear/templates.git
-COURSE_MATERIAL_BRANCH      := course_material
+COURSE_MATERIAL_REPO        = git@github.com:gustybear/templates.git
+COURSE_MATERIAL_BRANCH      = course_material
 
-COURSE_CURRICULUM_DIR       := materials_curriculum
-COURSE_PROJECT_DIR          := materials_project
+name_of_dir                 = materials_$(1)_$(shell printf "%02d" \
+			      $$(( $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*$(1)*')) + 1 )))
 
-NUM_OF_WEEKS                := $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*week*'))
-NUM_OF_NEXT_WEEKS           := $(shell echo $$(( $(NUM_OF_WEEKS) + 1 )))
-NEXT_WEEKS_DIR              := materials_week_$(shell printf "%02d" $(NUM_OF_NEXT_WEEKS))
+# Rule to add materials {{{2
+MATERIAL_NAMES              = curriculum week project lab
 
+define material_rules
+.PHONY : add_$1
+add_$1:
+	$$(eval $$@_DIR := $$(call name_of_dir,$1))
+	@git clone -b $$(COURSE_MATERIAL_BRANCH) $$(COURSE_MATERIAL_REPO) $$($$@_DIR)
+	@echo "Entering $$($@_DIR)."
+	@$(MAKE) -C $$($$@_DIR) init COURSE_NAME=$$(COURSE_NAME)
+endef
 
-# Rule to add curriculum {{{2
-.PHONY : add_curriculum
-add_curriculum:
-	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_CURRICULUM_DIR)
-	@echo "Entering $(COURSE_CURRICULUM_DIR)."
-	@$(MAKE) -C $(COURSE_CURRICULUM_DIR) init COURSE_NAME=$(COURSE_NAME)
-
-# Rule to add a new week {{{2
-.PHONY : add_a_week
-add_a_week:
-	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(NEXT_WEEKS_DIR)
-	@echo "Entering $(NEXT_WEEKS_DIR)."
-	@$(MAKE) -C $(NEXT_WEEKS_DIR) init COURSE_NAME=$(COURSE_NAME)
-
-# Rule to add a project {{{2
-.PHONY : add_a_project
-add_project:
-	@git clone -b $(COURSE_MATERIAL_BRANCH) $(COURSE_MATERIAL_REPO) $(COURSE_PROJECT_DIR)
-	@echo "Entering $(COURSE_PROJECT_DIR)."
-	@$(MAKE) -C $(COURSE_PROJECT_DIR) init COURSE_NAME=$(COURSE_NAME)
-
+$(foreach NAME,$(MATERIAL_NAMES),$(eval $(call material_rules,$(NAME))))
 
 # Documents Rules {{{1
 # Rules to build Documents {{{2
