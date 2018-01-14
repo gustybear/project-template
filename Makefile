@@ -37,8 +37,8 @@ endif
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
-# Default gitignore for course
-public/s3/*
+# Default gitignore for course materials
+public/*
 endef
 export GITIGNORE
 
@@ -242,10 +242,10 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
@@ -261,27 +261,32 @@ endif
 publish_github:
 ifdef GITHUB_USER
 ifdef GITHUB_ORG
-	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" &>-; then \
+ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DOCS_TO_PUB_VIA_GIT),)
+	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" >&-; then \
 		curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 			$(GITHUB_API_URL) \
 			-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'; \
 		find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 			-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \; ; \
 		find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \; ; \
-	elif [ ! -f $(GITHUB_PUBLISH_SRC)/.git ]; then \
-		cd $(COURSE_MATERIAL_DIR); \
-		rm -rf $(GITHUB_PUBLISH_SRC); \
-		git submodule add $(GITHUB_REPO_URL) public/github; \
-		git submodule update --init; \
-	else \
+		mkdir -p $(GITHUB_PUBLISH_SRC); \
 		cd $(GITHUB_PUBLISH_SRC); \
-		git pull; \
+		echo "# $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo" >> README.md; \
+		git init; \
+		git add README.md; \
+		git commit -m "first commit"; \
+		git remote add origin $(GITHUB_REPO_URL); \
+		git push -u origin master; \
+		rm -rf $(GITHUB_PUBLISH_SRC); \
+	else \
+		git clone $(GITHUB_REPO_URL) $(GITHUB_PUBLISH_SRC); \
 	fi
+endif
 ifdef DOCS_TO_PUB_VIA_GIT
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
+	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
 	-@for data in $(DATA_TO_PUB_VIA_GIT); \
@@ -290,29 +295,23 @@ ifdef DATA_TO_PUB_VIA_GIT
 		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
-	@if [ -f $(GITHUB_PUBLISH_SRC)/.git ]; then \
+	@if [ -d $(GITHUB_PUBLISH_SRC)/.git ]; then \
 		cd $(GITHUB_PUBLISH_SRC); \
 		if ! git diff-index --quiet HEAD --; then \
 			git add -A ; \
 			LANG=C git -c color.status=false status \
 			| sed -n -e '1,/Changes to be committed:/ d' \
 				      -e '1,1 d' \
-				      -e '/^Untracked files:/,$ d' \
+				      -e '/^Untracked files:/,$$ d' \
 				      -e 's/^\s*//' \
 				      -e '/./p' \
 				      > msg.txt; \
 			git commit -F msg.txt ;\
 			rm -rf msg.txt; \
 			git push; \
-		fi
+		fi; \
 	fi
-	# to remove the submodule run:
-	# git submodule deinit <asubmodule>
-        # git rm <asubmodule>
-        # Note: asubmodule (no trailing slash)
-        # or, if you want to leave it in your working tree
-        # git rm --cached <asubmodule>
-        # rm -rf .git/modules/<asubmodule>
+	@rm -rf $(GITHUB_PUBLISH_SRC)
 endif
 endif
 
