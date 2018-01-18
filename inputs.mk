@@ -26,5 +26,5 @@ CODES_TO_PUB_VIA_DR           =
 ###### Add data to publish (assume already in s3) #####
 ###### Use the relative path in s3 data sub folder ####
 ###### Examples: xxx.tar.gz ###########################
-CODES_TO_PUB_VIA_S3           =
-CODES_TO_PUB_VIA_DR           =
+DATA_TO_PUB_VIA_S3           =
+DATA_TO_PUB_VIA_DR           =
