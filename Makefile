@@ -243,14 +243,14 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
-	-@for data in $(DATA_TO_PUB_VIA_S3); \
+	-for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
 		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/data/,$$data)) \
