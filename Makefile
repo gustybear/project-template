@@ -227,7 +227,6 @@ S3_PUBLISH_DES             = s3://gustybear-websites
 # github parameters
 GITHUB_PUBLISH_SRC         = $(COURSE_MATERIAL_PUB_DIR)/github
 
-GITHUB_ORG                 =
 GITHUB_API_URL             = https://api.github.com/orgs/$(GITHUB_ORG)/repos
 GITHUB_REPO_URL            = git@github.com:$(GITHUB_ORG)/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo.git
 # # Run 'git config --global github.user <username>' to set username.
@@ -264,6 +263,7 @@ ifdef GITHUB_USER
 ifdef GITHUB_ORG
 ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DOCS_TO_PUB_VIA_GIT),)
 	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" >&-; then \
+		echo "Creating $(GITHUB_REPO_URL)"; \
 		curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
 			$(GITHUB_API_URL) \
 			-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'; \
@@ -278,7 +278,6 @@ ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DOCS_TO_PUB_VIA_GIT),)
 		git commit -m "first commit"; \
 		git remote add origin $(GITHUB_REPO_URL); \
 		git push -u origin master; \
-		rm -rf $(GITHUB_PUBLISH_SRC); \
 	else \
 		git clone $(GITHUB_REPO_URL) $(GITHUB_PUBLISH_SRC); \
 	fi
