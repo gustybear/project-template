@@ -218,13 +218,14 @@ s3_ls:
 
 # Publish Rules {{{1
 # Variables {{{2
+COURSE_MATERIAL_PUB_DIR    = $(COURSE_MATERIAL_DIR)/public
 # s3 parameters
 # S3_PUBLISH_SRC will be set by course makefile to speed up upload
-S3_PUBLISH_SRC             = $(COURSE_MATERIAL_DIR)/public/s3
+S3_PUBLISH_SRC             = $(COURSE_MATERIAL_PUB_DIR)/s3
 S3_PUBLISH_DES             = s3://gustybear-websites
 
 # github parameters
-GITHUB_PUBLISH_SRC         = $(COURSE_MATERIAL_DIR)/public/github
+GITHUB_PUBLISH_SRC         = $(COURSE_MATERIAL_PUB_DIR)/github
 
 GITHUB_ORG                 =
 GITHUB_API_URL             = https://api.github.com/orgs/$(GITHUB_ORG)/repos
@@ -283,13 +284,13 @@ ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DOCS_TO_PUB_VIA_GIT),)
 	fi
 endif
 ifdef DOCS_TO_PUB_VIA_GIT
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	-@cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
-	-@for data in $(DATA_TO_PUB_VIA_GIT); \
+	-for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
 		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
@@ -305,9 +306,9 @@ endif
 				      -e '/^Untracked files:/,$$ d' \
 				      -e 's/^\s*//' \
 				      -e '/./p' \
-				      > msg.txt; \
-			git commit -F msg.txt ;\
-			rm -rf msg.txt; \
+				      > $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
+			git commit -F $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
+			rm -rf $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
 			git push; \
 		fi; \
 	fi
