@@ -297,7 +297,7 @@ ifdef DATA_TO_PUB_VIA_GIT
 endif
 	@if [ -d $(GITHUB_PUBLISH_SRC)/.git ]; then \
 		cd $(GITHUB_PUBLISH_SRC); \
-		if [ -n "$$(git status --porcelain)" ]; then \
+		if ! git diff-index --quiet $(git write-tree) -- || [ -n "$$(git status --porcelain)" ]; then \
 			git add -A ; \
 			LANG=C git -c color.status=false status \
 			| sed -n -e '1,/Changes to be committed:/ d' \
