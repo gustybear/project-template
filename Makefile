@@ -261,7 +261,7 @@ endif
 publish_github:
 ifdef GITHUB_USER
 ifdef GITHUB_ORG
-ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DOCS_TO_PUB_VIA_GIT),)
+ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DATA_TO_PUB_VIA_GIT),)
 	@if ! git ls-remote -h "$(GITHUB_REPO_URL)" >&-; then \
 		echo "Creating $(GITHUB_REPO_URL)"; \
 		curl -i -u "$(GITHUB_USER)$(GITHUB_TOKEN)" \
