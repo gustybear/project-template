@@ -292,9 +292,9 @@ ifdef GITHUB_USER
 		-exec sed -i.bak 's|\(^GITHUB_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \;
 	@find $(PROJECT_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@git init
-	@git remote add origin $(GITHUB_REPO_URL)
 	@git add -A
 	@git commit -m "First commit"
+	@git remote add origin $(GITHUB_REPO_URL)
 	@git push -u origin master
 endif
 
