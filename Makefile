@@ -59,7 +59,7 @@ define material_rules
 add_$1:
 	$$(eval $$@_DIR := $$(call name_of_dir,$1))
 	@git clone -b $$(COURSE_MATERIAL_BRANCH) $$(COURSE_MATERIAL_REPO) $$($$@_DIR)
-	@echo "Entering $$($@_DIR)."
+	@echo "Entering $$($$@_DIR)."
 	@$(MAKE) -C $$($$@_DIR) init COURSE_NAME=$$(COURSE_NAME)
 endef
 
