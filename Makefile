@@ -16,7 +16,8 @@ init: init_files link_files prepare_git
 .PHONY: init_files
 init_files:
 	@find $(PROJECT_DIR) -type f \
-		-name "PROJECT_NAME_*.ipynb" \
+		\( -name "PROJECT_NAME_*.ipynb" \
+		   -name "PROJECT_NAME_*.*sh" \) \
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
@@ -32,6 +33,7 @@ link_files:
 define GITIGNORE
 public/*
 data/*
+!data/$(PROJECT_NAME)_get_data.sh
 endef
 export GITIGNORE
 
