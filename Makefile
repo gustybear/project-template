@@ -299,15 +299,8 @@ endif
 		cd $(GITHUB_PUBLISH_SRC); \
 		if ! git diff-index --quiet $$(git write-tree) -- || [ -n "$$(git status --porcelain)" ]; then \
 			git add -A ; \
-			LANG=C git -c color.status=false status \
-			| sed -n -e '1,/Changes to be committed:/ d' \
-				      -e '1,1 d' \
-				      -e '/^Untracked files:/,$$ d' \
-				      -e 's/^\s*//' \
-				      -e '/./p' \
-				      > $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
-			git commit -F $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
-			rm -rf $(GITHUB_PUBLISH_SRC)/.git/msg.txt; \
+			commit_message=$$(LANG=C git -c color.status=false status -s); \
+			echo "$${commit_message}" | git commit -F -; \
 			git push; \
 		fi; \
 	fi
