@@ -29,10 +29,7 @@ endif
 # Rule to create necessary links {{{2
 .PHONY: link_files
 link_files:
-ifdef ZSH_CUSTOM
-	@find $(COURSE_DIR) -maxdepth 1 -mindepth 1 -type f -name '$(COURSE_NAME)_*.zsh' \
-		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
+	pass
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
