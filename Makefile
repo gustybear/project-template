@@ -17,8 +17,6 @@ init: init_files link_files prepare_git
 init_files:
 	@find $(PROJECT_DIR) -type f \
 		\( -name "PROJECT_NAME_*.ipynb" -o \
-		   -name "PROJECT_NAME_*.jem*" -o -name "MENU" -o \
-		   -name "PROJECT_NAME_*.*sh" \) \
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
@@ -28,16 +26,12 @@ init_files:
 # Rule to create necessary links {{{2
 .PHONY: link_files
 link_files:
-ifdef ZSH_CUSTOM
-	@find $(PROJECT_DIR) -maxdepth 1 -mindepth 1 -type f -name "$(PROJECT_NAME)_*.zsh" \
-		-exec ln -sf {} $(ZSH_CUSTOM) \;
-endif
+	pass
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
 public/*
 data/*
-!data/$(PROJECT_NAME)_get_data.sh
 endef
 export GITIGNORE
 
