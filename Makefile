@@ -13,17 +13,20 @@ init: init_files prepare_git
 # Rule to initialize files {{{2
 init_files:
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		-name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		-name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}=\).*$$/\1 $(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		-name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" \
-	  -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.ipynb" -o \
+-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
+			 -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
 
 # Rule to create necessary links {{{2
 link_files:
@@ -33,6 +36,8 @@ link_files:
 define GITIGNORE
 # Default gitignore for course materials
 public/*
+data/*
+!data/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_get_data.sh
 endef
 export GITIGNORE
 
