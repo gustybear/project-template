@@ -16,7 +16,7 @@ init: init_files link_files prepare_git
 .PHONY: init_files
 init_files:
 	@find $(PROJECT_DIR) -type f \
-		\( -name "PROJECT_NAME_*.ipynb" -o \
+		-name "PROJECT_NAME_*.ipynb" \
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
