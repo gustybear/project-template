@@ -285,7 +285,7 @@ ifdef DOCS_TO_PUB_VIA_GIT
 	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(GITHUB_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
 	-for data in $(DATA_TO_PUB_VIA_GIT); \
