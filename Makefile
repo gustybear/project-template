@@ -29,8 +29,7 @@ init_files:
 			 -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
 
 # Rule to create necessary links {{{2
-link_files:
-	pass
+link_files: ;
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
