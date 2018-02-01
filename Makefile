@@ -23,8 +23,7 @@ endif
 
 # Rule to create necessary links {{{2
 .PHONY: link_files
-link_files:
-	pass
+link_files: ;
 
 # Rule to prepare for git repo initialization {{{2
 define GITIGNORE
