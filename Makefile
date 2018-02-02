@@ -215,7 +215,7 @@ S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
 
 # dropbox parameters
-DROPBOX_UPLOADER            = dropbox_uploader.sh
+DR_PUBLISH_DES              = $(HOME)/Cloud/Dropbox
 DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
 DR_PUBLISH_DES              = $(notdir $(PROJECT_DIR))
 
@@ -259,7 +259,9 @@ ifdef DATA_TO_PUB_VIA_DR
 		$(addprefix $(DR_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
-	-@$(DROPBOX_UPLOADER) upload $(DR_PUBLISH_SRC)/* $(DR_PUBLISH_DES)/
+	-@if [ ! -L  $(DR_PUBLISH_DES)/$(PROJECT_NAME) ]; then \
+		ln -sf $(DR_PUBLISH_SRC) $(DR_PUBLISH_DES)/$(PROJECT_NAME); \
+	fi
 
 # Rule to publish all {{{2
 .PHONY : publish
