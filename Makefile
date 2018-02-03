@@ -55,13 +55,13 @@ TEX_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(TEX_TO_COMP
 endif
 
 define tex_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb $$(PROJECT_DOCS_DIR)/$1.tplx
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@if [ -d $$(PROJECT_DOCS_DIR)/asset ]; then rm -rf $$(PROJECT_DOCS_DIR)/asset/*; fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
-		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
-		--to=latex $$(word 1,$$^) --template=$$(word 2,$$^) \
+		--Exporter.preprocessors=[\"nbconvert.preprocessors.BibTexPreprocessor\"\,\"nbconvert.preprocessors.PyMarkdownPreprocessor\"] \
+		--to=latex $$(word 1,$$^) --template=$1.tplx \
 		--output-dir=$$(@D) --output=$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
