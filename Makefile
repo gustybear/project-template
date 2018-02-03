@@ -213,9 +213,8 @@ S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
 
 # dropbox parameters
-DR_PUBLISH_DES              = $(HOME)/Cloud/Dropbox/$(PROJECT_NAME)
 DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
-DR_PUBLISH_DES              = $(notdir $(PROJECT_DIR))
+DR_PUBLISH_DES              = $(shell find $(HOME) -maxdepth 2 -type d -name "Dropbox" 2>/dev/null)
 
 # Rule to publish via S3 {{{2
 .PHONY: publish_s3
@@ -242,13 +241,14 @@ endif
 # Rule to publish via dropbox {{{2
 .PHONY: publish_dropbox
 publish_dropbox:
+ifdef DR_PUBLISH_DES
 	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
 	@rm -rf $(DR_PUBLISH_SRC)/*
 ifdef DOCS_TO_PUB_VIA_DR
 	-@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_DR
-	-@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(DR_PUBLISH_SRC)
+	-@cd $(PROJECT_DIR) && rsync -urzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_DR
 	-@for data in $(DATA_TO_PUB_VIA_DR);
@@ -257,11 +257,12 @@ ifdef DATA_TO_PUB_VIA_DR
 		$(addprefix $(DR_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
-	-@if [ -d $(DR_PUBLISH_DES) ]; then \
-		rsync -av $(DR_PUBLISH_SRC)/ $(DR_PUBLISH_SRC)
+	-@if [ -d $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) ]; then \
+		rsync -av $(DR_PUBLISH_SRC)/ $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)); \
 	else \
-		ln -sf $(DR_PUBLISH_SRC) $(DR_PUBLISH_DES)
+		ln -sf $(DR_PUBLISH_SRC) $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)); \
 	fi
+endif
 
 # Rule to publish all {{{2
 .PHONY : publish
