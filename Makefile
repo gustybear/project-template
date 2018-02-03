@@ -60,13 +60,12 @@ TEX_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(TEX
 endif
 
 define tex_rules
-$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@if [ -d $$(COURSE_MATERIAL_DOCS_DIR)/asset ]; then rm -rf $$(COURSE_MATERIAL_DOCS_DIR)/asset/*; fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
-		--Exporter.preprocessors=[\"bibpreprocessor.BibTexPreprocessor\"\,\"pymdpreprocessor.PyMarkdownPreprocessor\"] \
-		--to=latex $$(word 1,$$^) --template=$$(word 2,$$^) \
+		--Exporter.preprocessors=[\"nbconvert.preprocessors.BibTexPreprocessor\"\,\"nbconvert.preprocessors.PyMarkdownPreprocessor\"] \
+		--to=latex $$(word 1,$$^) --template=$1.tplx \
 		--output-dir=$$(@D) --output=$$(@F)
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
@@ -124,10 +123,9 @@ endif
 define md_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@if [ -d $$(COURSE_MATERIAL_DOCS_DIR)/asset ]; then rm -rf $$(COURSE_MATERIAL_DOCS_DIR)/asset/*; fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
-		--to=markdown $$(word 1,$$^) --template=$$(word 2,$$^) \
+		--to=markdown $$(word 1,$$^) --template=$1.tplx \
 		--output-dir=$$(@D) --output=$$(@F)
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
@@ -240,10 +238,10 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 ifdef DOCS_TO_PUB_VIA_S3
-	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
@@ -281,10 +279,10 @@ ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DATA_TO_PUB_VIA_GIT),)
 	fi
 endif
 ifdef DOCS_TO_PUB_VIA_GIT
-	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef CODES_TO_PUB_VIA_GIT
-	-cd $(COURSE_MATERIAL_DIR) && rsync -rzL --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_GIT)) $(GITHUB_PUBLISH_SRC)
 endif
 ifdef DATA_TO_PUB_VIA_GIT
 	-for data in $(DATA_TO_PUB_VIA_GIT); \
