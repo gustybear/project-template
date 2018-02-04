@@ -10,7 +10,7 @@ MKFILES                     = $(shell find $(PROJECT_DIR) -maxdepth 1 -mindepth 
 # Initialization Rules {{{1
 # Rule to initialize the project {{{2
 .PHONY : init
-init: init_files link_files prepare_git
+init: init_files init_data link_files prepare_git
 
 # Rule to initialize files {{{2
 .PHONY: init_files
@@ -32,7 +32,6 @@ link_files: ;
 define GITIGNORE
 public/*
 data/*
-!data/$(PROJECT_NAME)_get_data.sh
 endef
 export GITIGNORE
 
@@ -182,8 +181,8 @@ ACTIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/active
 S3_DATA_BUCKET              = s3://gustybear-research
 
 # Rule to initialize the data directory {{{2
-.PHONY : data_init
-data_init:
+.PHONY : init_data
+init_data:
 	@if [ ! -d $(ACTIVE_DATA_DIR) && ! -L $(ACTIVE_DATA_DIR) ]; then \
 		mkdir -p $(ACTIVE_DATA_DIR)
 	fi
