@@ -286,7 +286,7 @@ endif
 ifdef DATA_TO_PUB_VIA_GIT
 	-for data in $(DATA_TO_PUB_VIA_GIT); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
 		$(addprefix $(GITHUB_PUBLISH_SRC)/data/,$$data)) \
 	done
 endif
