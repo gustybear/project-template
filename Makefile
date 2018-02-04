@@ -121,7 +121,7 @@ $$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_DOCS_DIR)/%_master.ipynb
 	@if [ -d $$(PROJECT_DOCS_DIR)/asset ]; then rm -rf $$(PROJECT_DOCS_DIR)/asset/*; fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
-		--to=markdown $$(word 1,$$^) --template=$1.tplx \
+		--to=markdown $$(word 1,$$^) --template=$1.tpl \
 		--output-dir=$$(@D) --output=$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
