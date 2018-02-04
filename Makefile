@@ -8,7 +8,7 @@ MKFILES                            = $(shell find $(COURSE_MATERIAL_DIR) -maxdep
 # Initialization Rules {{{1
 # Rule to initialize the course material {{{2
 .PHONY: init
-init: init_files prepare_git
+init: init_files init_data prepare_git
 
 # Rule to initialize files {{{2
 init_files:
@@ -36,7 +36,6 @@ define GITIGNORE
 # Default gitignore for course materials
 public/*
 data/*
-!data/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_get_data.sh
 endef
 export GITIGNORE
 
@@ -125,7 +124,7 @@ $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.i
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
-		--to=markdown $$(word 1,$$^) --template=$1.tplx \
+		--to=markdown $$(word 1,$$^) --template=$1.tpl \
 		--output-dir=$$(@D) --output=$$(@F)
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
@@ -183,15 +182,15 @@ COURSE_MATERIAL_CODES_DIR   = $(COURSE_MATERIAL_DIR)/codes
 # Variables {{{2
 COURSE_MATERIAL_DATA_DIR    = $(COURSE_MATERIAL_DIR)/data
 ARCHIVE_DATA_DIR            = $(COURSE_MATERIAL_DATA_DIR)/archive
-CURRENT_DATA_DIR            = $(COURSE_MATERIAL_DATA_DIR)/current
+ACTIVE_DATA_DIR            = $(COURSE_MATERIAL_DATA_DIR)/active
 
 S3_DATA_BUCKET              = s3://gustybear-teaching
 
 # Rule to initialize the data directory {{{2
-.PHONY : data_init
-data_init:
-	@if [ ! -d $(CURRENT_DATA_DIR) && ! -L $(CURRENT_DATA_DIR) ]; then \
-		mkdir -p $(CURRENT_DATA_DIR)
+.PHONY : init_data
+init_data:
+	@if [ ! -d $(ACTIVE_DATA_DIR) && ! -L $(ACTIVE_DATA_DIR) ]; then \
+		mkdir -p $(ACTIVE_DATA_DIR)
 	fi
 	@if [ ! -d $(ARCHIVE_DATA_DIR) && ! -L $(ARCHIVE_DATA_DIR) ]; then \
 		mkdir -p $(ARCHIVE_DATA_DIR)
@@ -202,10 +201,10 @@ data_init:
 archive_mk:
 	@echo "Creating archive file: $(TIMESTAMP).tar.gz."
 	@mkdir -p $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@rsync -av --copy-links  $(CURRENT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@rsync -av --copy-links  $(ACTIVE_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
 	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
 	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/$(TIMESTAMP).tar.gz
+	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/$(TIMESTAMP).tar.gz
 
 # Rule to list objects in S3 {{{2
 .PHONY : s3_ls
@@ -247,7 +246,7 @@ endif
 ifdef DATA_TO_PUB_VIA_S3
 	-for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/data/,$$data) \
+	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/,$$data) \
 		$(addprefix $(S3_PUBLISH_DES)/$(COURSE_NAME)/data/,$$data)) \
 	done
 endif
