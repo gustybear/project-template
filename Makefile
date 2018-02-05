@@ -183,11 +183,11 @@ S3_DATA_BUCKET              = s3://gustybear-research
 # Rule to initialize the data directory {{{2
 .PHONY : init_data
 init_data:
-	@if [ ! -d $(ACTIVE_DATA_DIR) && ! -L $(ACTIVE_DATA_DIR) ]; then \
-		mkdir -p $(ACTIVE_DATA_DIR)
+	@if [ ! -d $(ACTIVE_DATA_DIR) ] && [ ! -L $(ACTIVE_DATA_DIR) ]; then \
+		mkdir -p $(ACTIVE_DATA_DIR); \
 	fi
-	@if [ ! -d $(ARCHIVE_DATA_DIR) && ! -L $(ARCHIVE_DATA_DIR) ]; then \
-		mkdir -p $(ARCHIVE_DATA_DIR)
+	@if [ ! -d $(ARCHIVE_DATA_DIR) ] && [ ! -L $(ARCHIVE_DATA_DIR) ]; then \
+		mkdir -p $(ARCHIVE_DATA_DIR); \
 	fi
 
 # Rule to create archive {{{2
