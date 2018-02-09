@@ -46,7 +46,7 @@ name_of_dir                 = materials_$(1)_$(shell printf "%02d" \
 			      $$(( $(words $(shell find $(COURSE_DIR) -maxdepth 1 -type d -name '*$(1)*')) + 1 )))
 
 # Rule to add materials {{{2
-MATERIAL_NAMES              = curriculum week project laboratory
+MATERIAL_NAMES              = curriculum week project laboratory exam
 
 define material_rules
 .PHONY : add_$1
