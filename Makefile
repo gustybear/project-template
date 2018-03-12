@@ -264,6 +264,8 @@ ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DATA_TO_PUB_VIA_GIT),)
 			-d '{ "name" : "$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo", "private" : false }'; \
 		find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 			-exec sed -i.bak 's|\(^COURSE_MATERIAL_REPO[ ]\{1,\}=$$\)|\1 $(GITHUB_REPO_URL)|g' {} \; ; \
+		find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
+			-exec sed -i.bak 's|\(^GITHUB_ORG[ ]\{1,\}=$$\)|\1 $(GITHUB_ORG)|g' {} \; ; \
 		find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \; ; \
 		mkdir -p $(GITHUB_PUBLISH_SRC); \
 		cd $(GITHUB_PUBLISH_SRC); \
