@@ -13,20 +13,20 @@ init: init_files init_data prepare_git
 # Rule to initialize files {{{2
 init_files:
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.md" -o \
-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME*.md" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME*.sh" \) \
 		-exec sed -i.bak 's/COURSE_NAME/$(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.md" -o \
-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME*.md" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME*.sh" \) \
 		-exec sed -i.bak 's/COURSE_MATERIAL_NAME/$(COURSE_MATERIAL_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name "inputs.mk" \
 		-exec sed -i.bak 's/\(^COURSE_NAME[ ]\{1,\}=\).*$$/\1 $(COURSE_NAME)/g' {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \;
 	@find $(COURSE_MATERIAL_DIR) -type f \
-		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.md" -o \
-		   -name "COURSE_NAME_COURSE_MATERIAL_NAME_*.sh" \) \
-			 -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME_/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_}"' -- {} \;
+		\( -name "COURSE_NAME_COURSE_MATERIAL_NAME*.md" -o \
+		   -name "COURSE_NAME_COURSE_MATERIAL_NAME*.sh" \) \
+			 -exec bash -c 'mv "$$1" "$${1/COURSE_NAME_COURSE_MATERIAL_NAME/$(COURSE_NAME)_$(COURSE_MATERIAL_NAME)}"' -- {} \;
 
 # Rule to create necessary links {{{2
 link_files: ;
