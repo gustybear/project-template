@@ -54,7 +54,7 @@ TEX_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(TEX_TO_COMP
 endif
 
 define tex_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%_master.ipynb
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_CODES_DIR)/%.ipynb
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
@@ -115,7 +115,7 @@ MD_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(MD_TO_COMPIL
 endif
 
 define md_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_DOCS_DIR)/%_master.ipynb
+$$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_CODES_DIR)/%.ipynb
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@if [ -d $$(PROJECT_DOCS_DIR)/asset ]; then rm -rf $$(PROJECT_DOCS_DIR)/asset/*; fi
 	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
