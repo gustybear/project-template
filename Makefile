@@ -18,8 +18,8 @@ ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); \
 		do (echo "Entering $$dir."; $(MAKE) -C $$dir init_files COURSE_NAME=$(COURSE_NAME)); done
 endif
-	@find $(COURSE_DIR) -type f -name 'COURSE_NAME_*.*' \
-		-exec bash -c 'mv "$$1" "$${1/COURSE_NAME_/$(COURSE_NAME)_}"' -- {} \;
+	@find $(COURSE_DIR) -type f -name 'COURSE_NAME*.*' \
+		-exec bash -c 'mv "$$1" "$${1/COURSE_NAME/$(COURSE_NAME)}"' -- {} \;
 
 # Rule to create necessary links {{{2
 .PHONY: link_files
