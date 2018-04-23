@@ -20,8 +20,8 @@ init_files:
 		-exec sed -i.bak "s/PROJECT_NAME/$(PROJECT_NAME)/g" {} \;
 	@find $(PROJECT_DIR) -type f -name "*.bak" -exec rm -f {} \;
 
-	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME_*.*' \
-		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME_/$(PROJECT_NAME)_}"' -- {} \;
+	@find $(PROJECT_DIR) -type f -name 'PROJECT_NAME*.*' \
+		-exec bash -c 'mv "$$1" "$${1/PROJECT_NAME/$(PROJECT_NAME)}"' -- {} \;
 
 # Rule to create necessary links {{{2
 .PHONY: link_files
