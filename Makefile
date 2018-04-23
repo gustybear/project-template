@@ -59,7 +59,7 @@ TEX_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(TEX
 endif
 
 define tex_rules
-$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_CODES_DIR)/%.ipynb
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
@@ -120,7 +120,7 @@ MD_FILES                   = $(call doc_path,$(COURSE_MATERIAL_DOCS_DIR)/,$(MD_T
 endif
 
 define md_rules
-$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_DOCS_DIR)/%_master.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
+$$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_CODES_DIR)/%.ipynb $$(COURSE_MATERIAL_DOCS_DIR)/$1.tplx
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
 	@cd $$(COURSE_MATERIAL_DOCS_DIR) && jupyter nbconvert \
 		--NbConvertApp.output_files_dir='./asset' \
