@@ -53,11 +53,11 @@ TEX_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(TEX_TO_COMP
 endif
 
 # NOTE: assuming the bib files and figures are within $(PROJECT_DOCS_DIR)/asset
-# TODO: add filters to select different content for different folder
+# TODO: add templates for different types
 define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@cd $$(PROJECT_DOCS_DIR) && pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@D)/$$(@F)
+	@cd $$(PROJECT_DOCS_DIR) && cat $$(word 1,$$^) | sed -n '/^---/,/^---/p; /^\[$1:sta\]/,/^\[$1:end\]/p' | pandoc --filter pandoc-citeproc -f markdown+yaml_metadata_block+smart -t latex --standalone -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
@@ -73,7 +73,7 @@ endif
 
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
-	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interactive=nonstopmode %O %S" \
+	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interaction=nonstopmode %O %S" \
 		-use-make $$<
 	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -c
 endef
@@ -111,11 +111,10 @@ ifdef MD_TO_COMPILE
 MD_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(MD_TO_COMPILE),md)
 endif
 
-# TODO: add filters to select different content for different folder
 define md_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_CODES_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@cd $$(PROJECT_DOCS_DIR) && pandoc -s $$(word 1,$$^) -t markdown -o $$(@D)/$$(@F)
+	@cd $$(PROJECT_DOCS_DIR) && cat $$(word 1,$$^) | sed -n '/^---/,/^---/p; /^\[$1:sta\]/,/^\[$1:end\]/p' | pandoc --filter pandoc-citeproc -f markdown+yaml_metadata_block+smart -t markdown -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
