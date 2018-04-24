@@ -52,14 +52,12 @@ ifdef TEX_TO_COMPILE
 TEX_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(TEX_TO_COMPILE),tex)
 endif
 
+# NOTE: assuming the bib files and figures are within $(PROJECT_DOCS_DIR)/asset
+# TODO: add filters to select different content for different folder
 define tex_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_CODES_DIR)/%.ipynb
+$$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
-		--NbConvertApp.output_files_dir='./asset' \
-		--Exporter.preprocessors=[\"nbconvert.preprocessors.BibTexPreprocessor\"\,\"nbconvert.preprocessors.PyMarkdownPreprocessor\"] \
-		--to=latex $$(word 1,$$^) --template=$1.tplx \
-		--output-dir=$$(@D) --output=$$(@F)
+	@pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
@@ -113,14 +111,11 @@ ifdef MD_TO_COMPILE
 MD_FILES                   = $(call doc_path,$(PROJECT_DOCS_DIR)/,$(MD_TO_COMPILE),md)
 endif
 
+# TODO: add filters to select different content for different folder
 define md_rules
-$$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_CODES_DIR)/%.ipynb
+$$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_CODES_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@if [ -d $$(PROJECT_DOCS_DIR)/asset ]; then rm -rf $$(PROJECT_DOCS_DIR)/asset/*; fi
-	@cd $$(PROJECT_DOCS_DIR) && jupyter nbconvert \
-		--NbConvertApp.output_files_dir='./asset' \
-		--to=markdown $$(word 1,$$^) --template=$1.tpl \
-		--output-dir=$$(@D) --output=$$(@F)
+	@pandoc -s $$(word 1,$$^) -t markdown -o $$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
