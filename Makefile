@@ -57,7 +57,7 @@ endif
 define tex_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.tex: $$(PROJECT_DOCS_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@F)
+	@cd $$(PROJECT_DOCS_DIR) && pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
@@ -115,7 +115,7 @@ endif
 define md_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.md: $$(PROJECT_CODES_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@pandoc -s $$(word 1,$$^) -t markdown -o $$(@F)
+	@cd $$(PROJECT_DOCS_DIR) && pandoc -s $$(word 1,$$^) -t markdown -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(PROJECT_DOCS_DIR)/asset $$(@D)
 endef
 
