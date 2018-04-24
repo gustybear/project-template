@@ -60,7 +60,7 @@ endif
 define tex_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.tex: $$(COURSE_MATERIAL_CODES_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@cd $$(COURSE_MATERIAL_DOCS_DIR) && pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@F)
+	@cd $$(COURSE_MATERIAL_DOCS_DIR) && pandoc --filter pandoc-citeproc -s $$(word 1,$$^) -t latex -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
 
@@ -118,7 +118,7 @@ endif
 define md_rules
 $$(COURSE_MATERIAL_DOCS_DIR)/$1/%_$1.md: $$(COURSE_MATERIAL_CODES_DIR)/%.md
 	@if [ ! -d $$(@D) ]; then mkdir -p $$(@D); fi
-	@cd $$(COURSE_MATERIAL_DOCS_DIR) && pandoc -s $$(word 1,$$^) -t markdown -o $$(@F)
+	@cd $$(COURSE_MATERIAL_DOCS_DIR) && pandoc -s $$(word 1,$$^) -t markdown -o $$(@D)/$$(@F)
 	@rsync -av --delete $$(COURSE_MATERIAL_DOCS_DIR)/asset $$(@D)
 endef
 
