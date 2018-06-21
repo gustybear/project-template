@@ -174,16 +174,12 @@ COURSE_MATERIAL_CODES_DIR   = $(COURSE_MATERIAL_DIR)/codes
 # Variables {{{2
 COURSE_MATERIAL_DATA_DIR    = $(COURSE_MATERIAL_DIR)/data
 ARCHIVE_DATA_DIR            = $(COURSE_MATERIAL_DATA_DIR)/archive
-ACTIVE_DATA_DIR            = $(COURSE_MATERIAL_DATA_DIR)/active
 
 S3_DATA_BUCKET              = s3://gustybear-teaching
 
 # Rule to initialize the data directory {{{2
 .PHONY : init_data
 init_data:
-	@if [ ! -d $(ACTIVE_DATA_DIR) ] && [ ! -L $(ACTIVE_DATA_DIR) ]; then \
-		mkdir -p $(ACTIVE_DATA_DIR); \
-	fi
 	@if [ ! -d $(ARCHIVE_DATA_DIR)i ] && [ ! -L $(ARCHIVE_DATA_DIR) ]; then \
 		mkdir -p $(ARCHIVE_DATA_DIR); \
 	fi
@@ -193,10 +189,11 @@ init_data:
 archive_mk:
 	@echo "Creating archive file: $(TIMESTAMP).tar.gz."
 	@mkdir -p $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@rsync -av --copy-links  $(ACTIVE_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@rsync -av --copy-links  --exclude $(ARCHIVE_DATA_DIR) $(COURSE_MATERIAL_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
 	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
 	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/$(TIMESTAMP).tar.gz
+	@echo "Use the following command to upload to Amazon S3"
+	@echo "aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(COURSE_NAME)/$(COURSE_MATERIAL_NAME)/data/$(TIMESTAMP).tar.gz"
 
 # Rule to list objects in S3 {{{2
 .PHONY : s3_ls
