@@ -169,16 +169,12 @@ PROJECT_CODES_DIR            = $(PROJECT_DIR)/codes
 # Variables {{{2
 PROJECT_DATA_DIR            = $(PROJECT_DIR)/data
 ARCHIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/archive
-ACTIVE_DATA_DIR            = $(PROJECT_DATA_DIR)/active
 
 S3_DATA_BUCKET              = s3://gustybear-research
 
 # Rule to initialize the data directory {{{2
 .PHONY : init_data
 init_data:
-	@if [ ! -d $(ACTIVE_DATA_DIR) ] && [ ! -L $(ACTIVE_DATA_DIR) ]; then \
-		mkdir -p $(ACTIVE_DATA_DIR); \
-	fi
 	@if [ ! -d $(ARCHIVE_DATA_DIR) ] && [ ! -L $(ARCHIVE_DATA_DIR) ]; then \
 		mkdir -p $(ARCHIVE_DATA_DIR); \
 	fi
@@ -188,10 +184,11 @@ init_data:
 archive_mk:
 	@echo "Creating archive file: $(TIMESTAMP).tar.gz."
 	@mkdir -p $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@rsync -av --copy-links  $(CURRENT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
+	@rsync -av --copy-links --exclude $(ARCHIVE_DATA_DIR) $(PROJECT_DATA_DIR)/ $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
 	@tar -zcvf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz -C $(ARCHIVE_DATA_DIR) ./$(TIMESTAMP)
 	@rm -rf $(ARCHIVE_DATA_DIR)/$(TIMESTAMP)
-	@aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(TIMESTAMP).tar.gz
+	@echo "Use the following command to upload to Amazon S3"
+	@echo "aws s3 cp $(ARCHIVE_DATA_DIR)/$(TIMESTAMP).tar.gz $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/$(TIMESTAMP).tar.gz"
 
 # Rule to list objects in S3 {{{2
 .PHONY : s3_ls
@@ -203,10 +200,6 @@ s3_ls:
 # s3 parameters
 S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
 S3_PUBLISH_DES              = s3://gustybear-websites
-
-# dropbox parameters
-DR_PUBLISH_SRC              = $(PROJECT_DIR)/public/dropbox
-DR_PUBLISH_DES              = $(shell find $(HOME) -maxdepth 2 -type d -name "Dropbox" 2>/dev/null)
 
 # Rule to publish via S3 {{{2
 .PHONY: publish_s3
@@ -230,35 +223,9 @@ ifdef DATA_TO_PUB_VIA_S3
 	done
 endif
 
-# Rule to publish via dropbox {{{2
-.PHONY: publish_dropbox
-publish_dropbox:
-ifdef DR_PUBLISH_DES
-	@test -d $(DR_PUBLISH_SRC) || mkdir -p $(DR_PUBLISH_SRC)
-	@rm -rf $(DR_PUBLISH_SRC)/*
-ifdef DOCS_TO_PUB_VIA_DR
-	-@cd $(PROJECT_DIR) && rsync -av --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
-endif
-ifdef CODES_TO_PUB_VIA_DR
-	-@cd $(PROJECT_DIR) && rsync -av --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_DR)) $(DR_PUBLISH_SRC)
-endif
-ifdef DATA_TO_PUB_VIA_DR
-	-@for data in $(DATA_TO_PUB_VIA_DR);
-	do \
-	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$data) \
-		$(addprefix $(DR_PUBLISH_SRC)/data/,$$data)) \
-	done
-endif
-	-@if [ -d $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) ]; then \
-		rsync -av $(DR_PUBLISH_SRC)/ $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)); \
-	else \
-		ln -sf $(DR_PUBLISH_SRC) $(DR_PUBLISH_DES)/$(notdir $(PROJECT_DIR)); \
-	fi
-endif
-
 # Rule to publish all {{{2
 .PHONY : publish
-publish: publish_s3 publish_dropbox
+publish: publish_s3
 
 
 # Git Rules {{{1
