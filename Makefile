@@ -224,12 +224,12 @@ CURRENT_COMMIT             = $(shell test -d $(COURSE_MATERIAL_DIR)/.git && git 
 # Rule to publish via S3 {{{2
 .PHONY: publish_s3
 publish_s3:
-	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
+	@test -d $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME) || mkdir -p $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
 ifdef DOCS_TO_PUB_VIA_S3
-	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix docs/,$(DOCS_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
 endif
 ifdef CODES_TO_PUB_VIA_S3
-	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)
+	-cd $(COURSE_MATERIAL_DIR) && rsync -av --relative $(addprefix codes/,$(CODES_TO_PUB_VIA_S3)) $(S3_PUBLISH_SRC)/$(COURSE_MATERIAL_NAME)
 endif
 
 ifdef DATA_TO_PUB_VIA_S3
