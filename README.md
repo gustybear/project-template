@@ -32,5 +32,6 @@ Occasionally, the instructor might update the repository. You can sync with the 
 git fetch upstream && git merge upstream/master
 ```
 
+Additional information on Git can be found [here](https://guides.github.com/)
 # Submit the Repository
 Before you submit your repository for grading. Make sure the *\_\_REPORT\_\_.md* files are rendered correctly in your web browser, and all items are visible. Make a final commit to submit your work.
