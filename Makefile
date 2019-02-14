@@ -296,7 +296,7 @@ endif
 
 # Rule to publish all {{{2
 .PHONY : publish
-publish_documents: publish_s3 publish_github
+publish: publish_s3 publish_github
 
 
 # Debug Rules {{{1
