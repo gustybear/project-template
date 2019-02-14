@@ -258,7 +258,7 @@ ifneq ($(DOCS_TO_PUB_VIA_GIT)$(CODES_TO_PUB_VIA_GIT)$(DATA_TO_PUB_VIA_GIT),)
 		find $(COURSE_MATERIAL_DIR) -type f -name '*.bak' -exec rm -f {} \; ; \
 		mkdir -p $(GITHUB_PUBLISH_SRC); \
 		cd $(GITHUB_PUBLISH_SRC); \
-		if [ ! -f ./README.md ]; then echo "# $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo" >> README.md; fi \
+		echo "# $(COURSE_NAME)_$(COURSE_MATERIAL_NAME)_repo" >> README.md; \
 		git init; \
 		git add README.md; \
 		git commit -m "first commit"; \
