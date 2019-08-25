@@ -78,13 +78,14 @@ endif
 # Variables {{{2
 # s3 parameters
 S3_PUBLISH_SRC              = $(COURSE_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
+# S3_PUBLISH_DES              = 
 
 # github parameters
 # github orgnization is set in the input.mk
 # Rule to publish via S3 {{{2
 .PHONY : publish_s3
 publish_s3:
+ifdef S3_PUBLISH_DES
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
 	@aws s3 rm $(S3_PUBLISH_DES)/$(notdir $(COURSE_DIR)) --recursive
@@ -92,6 +93,7 @@ ifneq ($(COURSE_MATERIALS),)
 	@for dir in $(COURSE_MATERIALS); do (echo "Entering $$dir."; $(MAKE) -C $$dir publish_s3 S3_PUBLISH_SRC=$(S3_PUBLISH_SRC) COURSE_NAME=$(COURSE_NAME)); done
 endif
 	@aws s3 cp $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/$(notdir $(COURSE_DIR)) --recursive # --dryrun
+endif
 
 # Rule to publish via github {{{2
 .PHONY : publish_github
