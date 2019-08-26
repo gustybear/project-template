@@ -199,10 +199,10 @@ s3_ls:
 # Variables {{{2
 # s3 parameters
 S3_PUBLISH_SRC              = $(PROJECT_DIR)/public/s3
-S3_PUBLISH_DES              = s3://gustybear-websites
 
 # Rule to publish via S3 {{{2
 .PHONY: publish_s3
+ifdef S3_PUBLISH_DES
 publish_s3:
 	@test -d $(S3_PUBLISH_SRC) || mkdir -p $(S3_PUBLISH_SRC)
 	@rm -rf $(S3_PUBLISH_SRC)/*
@@ -215,12 +215,15 @@ ifdef CODES_TO_PUB_VIA_S3
 endif
 	@aws s3 cp $(S3_PUBLISH_SRC) $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR)) --recursive # --dryrun
 
+ifdef S3_DATA_BUCKET
 ifdef DATA_TO_PUB_VIA_S3
 	-@for data in $(DATA_TO_PUB_VIA_S3); \
 	do \
 	(aws s3 cp $(addprefix $(S3_DATA_BUCKET)/$(notdir $(PROJECT_DIR))/data/,$$data) \
 		$(addprefix $(S3_PUBLISH_DES)/$(notdir $(PROJECT_DIR))/data/,$$data)) \
 	done
+endif
+endif
 endif
 
 # Rule to publish all {{{2

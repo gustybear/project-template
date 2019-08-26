@@ -3,6 +3,7 @@ GITHUB_REPO                   =
 
 ###### Set the remote aws s3 bucket for data. #########
 S3_DATA_BUCKET                =
+S3_PUBLISH_DES              	=
 
 ###### Add documents to compile #######################
 ###### Examples: slides conf jnl prpsl ################
