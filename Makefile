@@ -73,8 +73,7 @@ endif
 
 define pdf_rules
 $$(PROJECT_DOCS_DIR)/$1/%_$1.pdf: $$(PROJECT_DOCS_DIR)/$1/%_$1.tex
-	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -pdf -pdflatex="pdflatex --shell-escape -interaction=nonstopmode %O %S" \
-		-use-make $$<
+	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk $$<
 	@cd $$(PROJECT_DOCS_DIR)/$1 && latexmk -c
 endef
 
